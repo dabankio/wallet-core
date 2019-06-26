@@ -12,10 +12,10 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	"github.com/lomocoin/HDWallet-Core/mobile/btc/txrules"
+	"github.com/lomocoin/wallet-core/mobile/btc/txrules"
 
-	h "github.com/lomocoin/HDWallet-Core/mobile/btc/internal/helpers"
-	"github.com/lomocoin/HDWallet-Core/mobile/btc/internal/txsizes"
+	h "github.com/lomocoin/wallet-core/mobile/btc/internal/helpers"
+	"github.com/lomocoin/wallet-core/mobile/btc/internal/txsizes"
 )
 
 // InputSource provides transaction inputs referencing spendable outputs to

@@ -45,6 +45,26 @@ func TestCoin_DeriveAddress(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "NXT-MCMS-T636-MQ4G-4LSWJ", addr)
 	t.Log(addr)
+
+	addr, err = wallet.DeriveAddress("BTC")
+	assert.NoError(t, err)
+	assert.Equal(t, "13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT", addr)
+	t.Log(addr)
+
+	wallet.ShareAccountWithParentChain = false
+	addr, err = wallet.DeriveAddress("USDT(Omni)")
+	assert.NoError(t, err)
+	assert.NotEqual(t, "13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT", addr)
+	assert.Equal(t, "1AzTauTdhZ4VKC88MAb7iu9jU3yNzpx937", addr)
+	t.Log(addr)
+
+	wallet.ShareAccountWithParentChain = true
+	addr, err = wallet.DeriveAddress("USDT(Omni)")
+	assert.NoError(t, err)
+	assert.NotEqual(t, "1AzTauTdhZ4VKC88MAb7iu9jU3yNzpx937", addr)
+	assert.Equal(t, "13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT", addr)
+	t.Log(addr)
+	wallet.ShareAccountWithParentChain = false
 }
 
 func TestWallet_GetAvailableCoinList(t *testing.T) {

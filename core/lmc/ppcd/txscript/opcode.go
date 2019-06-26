@@ -14,7 +14,7 @@ import (
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/fastsha256"
 	"github.com/btcsuite/golangcrypto/ripemd160"
-	"github.com/lomocoin/HDWallet-Core/core/lmc/ppcd/wire"
+	"github.com/lomocoin/wallet-core/core/lmc/ppcd/wire"
 )
 
 // An opcode defines the information related to a txscript opcode.  opfunc if

@@ -1,6 +1,6 @@
 package data
 
-import "github.com/lomocoin/HDWallet-Core/core/xrp/crypto"
+import "github.com/lomocoin/wallet-core/core/xrp/crypto"
 
 func Sign(s SignerAgent, key crypto.Key, sequence *uint32) error {
 	s.InitialiseForSigning()

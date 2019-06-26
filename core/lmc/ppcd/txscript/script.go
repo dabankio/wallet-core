@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lomocoin/HDWallet-Core/core/lmc/ppcd/wire"
+	"github.com/lomocoin/wallet-core/core/lmc/ppcd/wire"
 )
 
 // Bip16Activation is the timestamp where BIP0016 is valid to use in the

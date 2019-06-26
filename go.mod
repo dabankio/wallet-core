@@ -1,4 +1,4 @@
-module github.com/lomocoin/HDWallet-Core
+module github.com/lomocoin/wallet-core
 
 go 1.12
 

@@ -1,1 +1,1 @@
-# HDWallet-Core
+# wallet-core

@@ -11,9 +11,9 @@ import (
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/golang/protobuf/proto"
-	"github.com/lomocoin/HDWallet-Core/bip44"
-	"github.com/lomocoin/HDWallet-Core/core"
-	trxProto "github.com/lomocoin/HDWallet-Core/core/trx/proto/core"
+	"github.com/lomocoin/wallet-core/bip44"
+	"github.com/lomocoin/wallet-core/core"
+	trxProto "github.com/lomocoin/wallet-core/core/trx/proto/core"
 	"github.com/pkg/errors"
 )
 

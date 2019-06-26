@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/lomocoin/HDWallet-Core/bip39/wordlists"
+	"github.com/lomocoin/wallet-core/bip39/wordlists"
 )
 
 type vector struct {
@@ -257,7 +257,7 @@ func TestEntropyFromMnemonicInvalidChecksum(t *testing.T) {
 func TestEntropyFromMnemonicInvalidMnemonicSize(t *testing.T) {
 	for _, mnemonic := range []string{
 		"a a a a a a a a a a a a a a a a a a a a a a a a a", // Too many words
-		"a", // Too few
+		"a",                           // Too few
 		"a a a a a a a a a a a a a a", // Not multiple of 3
 	} {
 		_, err := EntropyFromMnemonic(mnemonic)

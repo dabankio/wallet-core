@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/btcsuite/btcd/btcjson"
-	"github.com/lomocoin/HDWallet-Core/core"
+	"github.com/lomocoin/wallet-core/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

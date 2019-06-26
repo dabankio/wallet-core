@@ -7,13 +7,15 @@ package mobile
 import (
 	"encoding/hex"
 
-	"github.com/lomocoin/HDWallet-Core/core"
+	"github.com/lomocoin/wallet-core/core"
 )
 
 type Wallet struct {
 	mnemonic string
-	seed     []byte
-	testNet  bool
+	// ShareAccountWithParentChain break the HD rule, use the metadata of the parent chain to generate keys and addresses.
+	ShareAccountWithParentChain bool
+	seed                        []byte
+	testNet                     bool
 }
 
 // MnemonicFromEntropy 根据 entropy， 获取对应助记词

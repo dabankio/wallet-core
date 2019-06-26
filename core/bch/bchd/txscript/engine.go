@@ -10,7 +10,7 @@ import (
 	"math/big"
 
 	"github.com/btcsuite/btcd/btcec"
-	"github.com/lomocoin/HDWallet-Core/core/bch/bchd/wire"
+	"github.com/lomocoin/wallet-core/core/bch/bchd/wire"
 )
 
 // ScriptFlags is a bitmask defining additional operations or tests that will be

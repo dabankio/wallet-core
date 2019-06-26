@@ -9,7 +9,7 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/lomocoin/HDWallet-Core/core/lmc/ppcd/wire"
+	"github.com/lomocoin/wallet-core/core/lmc/ppcd/wire"
 )
 
 // TestShaHash tests the ShaHash API.

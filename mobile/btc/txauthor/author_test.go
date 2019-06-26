@@ -9,9 +9,9 @@ import (
 
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	"github.com/lomocoin/HDWallet-Core/mobile/btc/internal/txsizes"
-	. "github.com/lomocoin/HDWallet-Core/mobile/btc/txauthor"
-	"github.com/lomocoin/HDWallet-Core/mobile/btc/txrules"
+	"github.com/lomocoin/wallet-core/mobile/btc/internal/txsizes"
+	. "github.com/lomocoin/wallet-core/mobile/btc/txauthor"
+	"github.com/lomocoin/wallet-core/mobile/btc/txrules"
 )
 
 func p2pkhOutputs(amounts ...btcutil.Amount) []*wire.TxOut {

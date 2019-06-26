@@ -5,7 +5,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/lomocoin/HDWallet-Core/core"
+	"github.com/lomocoin/wallet-core/core"
 	"github.com/stretchr/testify/assert"
 )
 
