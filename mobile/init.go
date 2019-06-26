@@ -3,17 +3,17 @@ package mobile
 import (
 	"strings"
 
-	"github.com/lomocoin/HDWallet-Core/core"
-	"github.com/lomocoin/HDWallet-Core/core/bch"
-	"github.com/lomocoin/HDWallet-Core/core/btc"
-	"github.com/lomocoin/HDWallet-Core/core/eth"
-	"github.com/lomocoin/HDWallet-Core/core/lmc"
-	"github.com/lomocoin/HDWallet-Core/core/mgd"
-	"github.com/lomocoin/HDWallet-Core/core/nxt"
-	"github.com/lomocoin/HDWallet-Core/core/omni"
-	"github.com/lomocoin/HDWallet-Core/core/trx"
-	"github.com/lomocoin/HDWallet-Core/core/wcg"
-	"github.com/lomocoin/HDWallet-Core/core/xrp"
+	"github.com/lomocoin/wallet-core/core"
+	"github.com/lomocoin/wallet-core/core/bch"
+	"github.com/lomocoin/wallet-core/core/btc"
+	"github.com/lomocoin/wallet-core/core/eth"
+	"github.com/lomocoin/wallet-core/core/lmc"
+	"github.com/lomocoin/wallet-core/core/mgd"
+	"github.com/lomocoin/wallet-core/core/nxt"
+	"github.com/lomocoin/wallet-core/core/omni"
+	"github.com/lomocoin/wallet-core/core/trx"
+	"github.com/lomocoin/wallet-core/core/wcg"
+	"github.com/lomocoin/wallet-core/core/xrp"
 	"github.com/pkg/errors"
 )
 
@@ -26,7 +26,14 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 	case "BTC":
 		coin, err = btc.New(c.seed, c.testNet)
 	case "USDT(Omni)":
-		coin, err = omni.New(c.seed, c.testNet)
+		// TODO more elegant way to support custom options, make the wallet instance a argument?
+		if c.ShareAccountWithParentChain {
+			coin, err = omni.NewWithOptions(c.seed, c.testNet, map[string]interface{}{
+				"shareAccountWithParentChain": true,
+			})
+		} else {
+			coin, err = omni.New(c.seed, c.testNet)
+		}
 	case "BCH":
 		coin, err = bch.New(c.seed, c.testNet)
 	case "MGD":
