@@ -12,8 +12,8 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	"github.com/lomocoin/HDWallet-Core/mobile/btc/internal/helpers"
-	"github.com/lomocoin/HDWallet-Core/mobile/btc/txauthor"
+	"github.com/lomocoin/wallet-core/mobile/btc/internal/helpers"
+	"github.com/lomocoin/wallet-core/mobile/btc/txauthor"
 	"github.com/pkg/errors"
 )
 

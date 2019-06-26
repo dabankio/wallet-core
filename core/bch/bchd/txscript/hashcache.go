@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/lomocoin/HDWallet-Core/core/bch/bchd/wire"
+	"github.com/lomocoin/wallet-core/core/bch/bchd/wire"
 )
 
 // TxSigHashes houses the partial set of sighashes introduced within BIP0143.

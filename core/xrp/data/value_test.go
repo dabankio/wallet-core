@@ -1,7 +1,7 @@
 package data
 
 import (
-	. "github.com/lomocoin/HDWallet-Core/core/xrp/testing"
+	. "github.com/lomocoin/wallet-core/core/xrp/testing"
 	. "gopkg.in/check.v1"
 )
 

@@ -3,7 +3,7 @@ package btcd
 import (
 	"testing"
 
-	"github.com/lomocoin/HDWallet-Core/core/btc"
+	"github.com/lomocoin/wallet-core/core/btc"
 )
 
 /*

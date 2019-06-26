@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/lomocoin/HDWallet-Core/core/xrp/crypto"
+	"github.com/lomocoin/wallet-core/core/xrp/crypto"
 )
 
 type KeyType int

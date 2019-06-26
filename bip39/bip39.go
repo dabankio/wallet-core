@@ -14,7 +14,7 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/lomocoin/HDWallet-Core/bip39/wordlists"
+	"github.com/lomocoin/wallet-core/bip39/wordlists"
 
 	"golang.org/x/crypto/pbkdf2"
 )

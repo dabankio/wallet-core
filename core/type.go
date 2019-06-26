@@ -27,3 +27,8 @@ type Coin interface {
 	// VerifySignature verifies rawTx's signature is intact
 	VerifySignature(pubKey, msg, signature string) error
 }
+
+type HasParentChain interface {
+	// GetParentChainName get the symbol name of the parent chain
+	GetParentChainName() string
+}

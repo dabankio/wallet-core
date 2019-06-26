@@ -13,8 +13,8 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/lomocoin/HDWallet-Core/bip44"
-	"github.com/lomocoin/HDWallet-Core/core"
+	"github.com/lomocoin/wallet-core/bip44"
+	"github.com/lomocoin/wallet-core/core"
 	"github.com/pkg/errors"
 )
 

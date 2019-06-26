@@ -8,9 +8,9 @@ import (
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
-	"github.com/lomocoin/HDWallet-Core/core/btc"
-	"github.com/lomocoin/HDWallet-Core/core/lmc/ppcd/txscript"
-	"github.com/lomocoin/HDWallet-Core/core/lmc/ppcd/wire"
+	"github.com/lomocoin/wallet-core/core/btc"
+	"github.com/lomocoin/wallet-core/core/lmc/ppcd/txscript"
+	"github.com/lomocoin/wallet-core/core/lmc/ppcd/wire"
 	"github.com/pkg/errors"
 )
 

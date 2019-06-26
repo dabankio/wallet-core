@@ -6,8 +6,8 @@ import (
 	"log"
 	"testing"
 
-	"github.com/lomocoin/HDWallet-Core/core"
-	"github.com/lomocoin/HDWallet-Core/core/btc"
+	"github.com/lomocoin/wallet-core/core"
+	"github.com/lomocoin/wallet-core/core/btc"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
