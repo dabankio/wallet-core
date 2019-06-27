@@ -21,8 +21,9 @@ import (
 )
 
 const (
-	PathFormat = "m/44'/%d'"
-	Password   = "DASafe360"
+	PathFormat     = "m/44'/%d'"
+	FullPathFormat = "m/44'/%d'/0'/0/0"
+	Password       = "DASafe360"
 )
 
 func init() {

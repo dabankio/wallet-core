@@ -7,6 +7,11 @@ package mobile
 import (
 	"encoding/hex"
 
+	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/lomocoin/wallet-core/bip39"
+
+	"github.com/lomocoin/wallet-core/bip44"
+
 	"github.com/lomocoin/wallet-core/core"
 )
 
@@ -16,6 +21,8 @@ type Wallet struct {
 	ShareAccountWithParentChain bool
 	seed                        []byte
 	testNet                     bool
+	password                    string
+	path                        string
 }
 
 // MnemonicFromEntropy 根据 entropy， 获取对应助记词
@@ -68,6 +75,8 @@ func NewHDWalletFromMnemonic(mnemonic string, testNet bool) (w *Wallet, err erro
 	w.mnemonic = mnemonic
 	w.seed = seed
 	w.testNet = testNet
+	// TODO for backward compatibility, should not be presented in public domain
+	w.password = bip44.Password
 	return
 }
 
@@ -121,4 +130,27 @@ func (c Wallet) Sign(symbol, msg string) (sig string, err error) {
 	}
 
 	return coin.Sign(msg, privateKey)
+}
+
+func (c Wallet) Metadata(symbol string) (core.MetadataProvider, error) {
+	seed, err := bip39.NewSeedWithErrorChecking(c.mnemonic, c.password)
+	if err != nil {
+		return nil, err
+	}
+	path := c.path
+	if path == "" {
+		//TODO 支持默认path
+	}
+	derivationPath, err := accounts.ParseDerivationPath(path)
+	if err != nil {
+		return nil, err
+	}
+	md := metadataProviderImpl{
+		symbol:         symbol,
+		path:           c.path,
+		testNet:        c.testNet,
+		seed:           seed,
+		derivationPath: derivationPath,
+	}
+	return &md, nil
 }

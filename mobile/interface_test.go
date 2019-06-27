@@ -93,3 +93,36 @@ func TestGetVersion(t *testing.T) {
 	t.Log(GetBuildTime())
 	t.Log(GetGitHash())
 }
+
+func TestIMTokenCompatibility(t *testing.T) {
+	testMnemonic := "lecture leg select like delay limit spread retire toward west grape bachelor"
+	wallet, err := BuildWalletFromMnemonic(
+		testMnemonic,
+		false,
+		WithPassword( /*bip44.Password*/ ""),
+		WithPathFormat("m/44'/0'/0'/0/0"),
+	)
+	assert.NoError(t, err)
+	//btc
+	{
+		coin, err := wallet.initCoin("BTCTest")
+		assert.NoError(t, err)
+		addr, err := coin.DeriveAddress()
+		assert.NoError(t, err)
+		imTokenBTCAddr := "1NCvbkHN9bq97JfvTGQAonNn3KpPk73LEZ"
+		assert.Equal(t, imTokenBTCAddr, addr)
+		t.Log(addr)
+	}
+	//eth
+	{
+		wallet, err := wallet.Clone(WithPathFormat("m/44'/60'/0'/0/0"))
+		assert.NoError(t, err)
+		coin, err := wallet.initCoin("ETHTest")
+		assert.NoError(t, err)
+		addr, err := coin.DeriveAddress()
+		assert.NoError(t, err)
+		imTokenETHAddr := "0x18CACe95E0d5a3E0AC610dD8064490EdC16C176f"
+		assert.Equal(t, imTokenETHAddr, addr)
+		t.Log(addr)
+	}
+}

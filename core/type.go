@@ -32,3 +32,10 @@ type HasParentChain interface {
 	// GetParentChainName get the symbol name of the parent chain
 	GetParentChainName() string
 }
+
+type MetadataProvider interface {
+	GetPath() string
+	IsTestNet() bool
+	GetSeed() []byte
+	GetDerivationPath() []uint32
+}
