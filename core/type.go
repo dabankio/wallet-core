@@ -33,6 +33,7 @@ type HasParentChain interface {
 	GetParentChainName() string
 }
 
+// MetadataProvider we need a configuration data container per-symbol.
 type MetadataProvider interface {
 	GetPath() string
 	IsTestNet() bool

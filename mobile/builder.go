@@ -6,7 +6,7 @@ import (
 	"github.com/lomocoin/wallet-core/bip44"
 )
 
-// Clone make a copy of existing Wallet instance, with original attributes override by the given options
+// Clone makes a copy of existing Wallet instance, with original attributes override by the given options
 func (c Wallet) Clone(options ...WalletOption) (wallet *Wallet, err error) {
 	cloned := c
 	for _, opt := range options {
@@ -19,6 +19,7 @@ func (c Wallet) Clone(options ...WalletOption) (wallet *Wallet, err error) {
 	return &cloned, nil
 }
 
+//WalletOption functional options, how does go-mobile translate it?
 type WalletOption func(*Wallet) error
 
 func WithShareAccountWithParentChain(shareAccountWithParentChain bool) WalletOption {
@@ -42,7 +43,7 @@ func WithPassword(password string) WalletOption {
 	}
 }
 
-// NewWalletBuilder normal builder pattern, not so good
+// NewWalletBuilder normal builder pattern, not so good in golang
 func NewWalletBuilder() *WalletBuilder {
 	return &WalletBuilder{}
 }
