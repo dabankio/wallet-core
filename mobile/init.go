@@ -22,9 +22,15 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 		err = errors.New("seed is empty")
 		return
 	}
+	md, err := c.Metadata(symbol)
+	if err != nil {
+		return
+	}
 	switch symbol {
 	case "BTC":
 		coin, err = btc.New(c.seed, c.testNet)
+	case "BTCTest":
+		coin, err = btc.NewFromMetadata(md)
 	case "USDT(Omni)":
 		// TODO more elegant way to support custom options, make the wallet instance a argument?
 		if c.ShareAccountWithParentChain {
@@ -42,6 +48,8 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 		coin, err = lmc.New(c.seed)
 	case "ETH", "XT", "THM", "ALI", "RED", "USO", "BTK", "EGT", "HOTC(HOTCOIN)":
 		coin, err = eth.New(c.seed)
+	case "ETHTest":
+		coin, err = eth.NewFromMetadata(md)
 	case "XRP":
 		coin, err = xrp.New(c.seed)
 	case "TRX", "BTT":
