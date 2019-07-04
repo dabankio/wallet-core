@@ -41,6 +41,17 @@ func New(seed []byte) (c *eth, err error) {
 	return
 }
 
+func NewFromMetadata(md core.MetadataProvider) (c *eth, err error) {
+	c = new(eth)
+	c.Symbol = symbol
+	c.DerivationPath = md.GetDerivationPath()
+	c.MasterKey, err = hdkeychain.NewMaster(md.GetSeed(), &chaincfg.MainNetParams)
+	if err != nil {
+		return
+	}
+	return
+}
+
 func NewTransactionFromHex(hex string) (transaction *types.Transaction, err error) {
 	data, err := hexutil.Decode(hex)
 	if err != nil {

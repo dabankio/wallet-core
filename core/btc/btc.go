@@ -44,6 +44,22 @@ func New(seed []byte, testNet bool) (c *BTC, err error) {
 	return
 }
 
+func NewFromMetadata(metadata core.MetadataProvider) (c *BTC, err error) {
+	c = new(BTC)
+	c.Symbol = symbol
+	c.DerivationPath = metadata.GetDerivationPath()
+	c.ChainCfg = &chaincfg.MainNetParams
+	if metadata.IsTestNet() {
+		c.ChainCfg = &chaincfg.TestNet3Params
+	}
+	c.MasterKey, err = hdkeychain.NewMaster(metadata.GetSeed(), c.ChainCfg)
+	if err != nil {
+		err = errors.Wrap(err, "hdkeychain.NewMaster")
+		return
+	}
+	return
+}
+
 // deriveChildKey derives the child key of the derivation path.
 func (c *BTC) deriveChildKey() (childKey *hdkeychain.ExtendedKey, err error) {
 	childKey = c.MasterKey
