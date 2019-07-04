@@ -20,6 +20,7 @@ package geth
 
 import (
 	"encoding/json"
+	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -35,6 +36,12 @@ type ETHTransaction struct {
 // NewETHTransaction creates a new ether transaction with the given properties.
 func NewETHTransaction(nonce int64, to *ETHAddress, amount *BigInt, gasLimit int64, gasPrice *BigInt, data []byte) *ETHTransaction {
 	return &ETHTransaction{types.NewTransaction(uint64(nonce), to.address, amount.bigint, uint64(gasLimit), gasPrice.bigint, common.CopyBytes(data))}
+}
+
+// NewETHTransactionForContractCreation 创建一个部署合约交易(amount 为 0)
+func NewETHTransactionForContractCreation(nonce int64, gasLimit int64, gasPrice *BigInt, data []byte) *ETHTransaction {
+	tx := types.NewContractCreation(uint64(nonce), big.NewInt(0), uint64(gasLimit), gasPrice.bigint, data)
+	return &ETHTransaction{tx: tx}
 }
 
 // NewETHTransactionFromRLP parses a transaction from an RLP data dump.
