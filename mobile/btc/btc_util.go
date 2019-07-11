@@ -1,10 +1,10 @@
 package btcd
 
 import (
-	"github.com/lomocoin/wallet-core/core/btc"
 	"fmt"
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/lomocoin/wallet-core/core/btc"
 	"strings"
 )
 
