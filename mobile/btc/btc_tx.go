@@ -61,6 +61,11 @@ func (baa *BTCOutputAmount) Add(address *BTCAddress, amount *BTCAmount) {
 // feeRate: 单位手续费/byte
 // testNet: 测试网络传true
 func NewBTCTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, change *BTCAddress, feeRate int64, testNet bool) (tr *BTCTransaction, err error) {
+	return internalNewBTCTransaction(unSpent, amounts, change, feeRate, testNet, nil)
+}
+
+// 内部用，构造btc transaction
+func internalNewBTCTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, change *BTCAddress, feeRate int64, testNet bool, manualTxOuts []*wire.TxOut) (tr *BTCTransaction, err error) {
 	if unSpent == nil || amounts == nil || change == nil || feeRate == 0 {
 		err = errors.New("maybe some parameter is missing?")
 		return
@@ -91,6 +96,10 @@ func NewBTCTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, change *BT
 			Value:    int64(amt.amount),
 			PkScript: pkScript,
 		})
+	}
+
+	for _, manualTxOut := range manualTxOuts {
+		txOut = append(txOut, manualTxOut)
 	}
 
 	relayFeePerKb := btcutil.Amount(feeRate * 1000)
@@ -156,6 +165,17 @@ func (btc BTCTransaction) EncodeToSignCmd() (string, error) {
 	}
 
 	cmd := btcjson.NewSignRawTransactionCmd(data, btc.rawTxInput, nil, nil)
+	cmdBytes, err := json.Marshal(cmd)
+	if err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(cmdBytes), nil
+}
+
+// EncodeToSignCmdForNextSigner 构造给下个签名者签名的命令，
+// signedRawTX: 当前签名者已签名好的交易数据
+func (btc BTCTransaction) EncodeToSignCmdForNextSigner(signedRawTX string) (string, error) {
+	cmd := btcjson.NewSignRawTransactionCmd(signedRawTX, btc.rawTxInput, nil, nil)
 	cmdBytes, err := json.Marshal(cmd)
 	if err != nil {
 		return "", err
