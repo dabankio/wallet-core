@@ -28,8 +28,8 @@ func UtilCreatePayloadSimpleSend(propertyID uint, amount float64, divisible bool
 	return fmt.Sprintf("%016x%016x", propertyID, intPart), nil
 }
 
-// GetOpreturnDataScript .
-func GetOpreturnDataScript(propertyID uint, amount float64, divisible bool) ([]byte, error) {
+// GetClassCOpreturnDataScript Create a payload with class C (op-return) encoding to pkScript. Used to create tx out.
+func GetClassCOpreturnDataScript(propertyID uint, amount float64, divisible bool) ([]byte, error) {
 	payload, err := UtilCreatePayloadSimpleSend(propertyID, amount, divisible)
 	if err != nil {
 		return nil, err
@@ -46,8 +46,8 @@ func GetOpreturnDataScript(propertyID uint, amount float64, divisible bool) ([]b
 	return opreturnScript, nil
 }
 
-// WithOpreturn .
-func WithOpreturn(rawtx, payload string) (string, error) {
+// CreaterawtxOpreturn Impl: https://github.com/OmniLayer/omnicore/blob/master/src/omnicore/doc/rpc-api.md#omni_createrawtx_opreturn
+func CreaterawtxOpreturn(rawtx, payload string) (string, error) {
 	mtx, err := decodeRawtx2mtx(rawtx)
 	if err != nil {
 		return rawtx, fmt.Errorf("could not decode rawtx, %v", err)
@@ -66,7 +66,7 @@ func WithOpreturn(rawtx, payload string) (string, error) {
 	return hexEncodeBTCTx(mtx)
 }
 
-// CreaterawtxReference amount:btc
+// CreaterawtxReference amount:btc, Impl: https://github.com/OmniLayer/omnicore/blob/master/src/omnicore/doc/rpc-api.md#omni_createrawtx_reference
 func CreaterawtxReference(rawtx, destination string, amount *float64) (string, error) {
 	mtx, err := decodeRawtx2mtx(rawtx)
 	if err != nil {
@@ -96,7 +96,7 @@ type PreviousDependentTxOutputAmount struct {
 	Amount float64
 }
 
-// CreaterawtxChange .
+// CreaterawtxChange Impl: https://github.com/OmniLayer/omnicore/blob/master/src/omnicore/doc/rpc-api.md#omni_createrawtx_change
 func CreaterawtxChange(rawtx string, prevtxs []PreviousDependentTxOutputAmount, destination string, fee float64) (string, error) {
 	mtx, err := decodeRawtx2mtx(rawtx)
 	if err != nil {
