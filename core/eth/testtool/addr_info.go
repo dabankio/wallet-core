@@ -33,7 +33,7 @@ func GenAddr() *AddrInfo {
 	address := crypto.PubkeyToAddress(key.PublicKey).Hex()
 	return &AddrInfo{
 		PrivkHex: hexutil.Encode(crypto.FromECDSA(key))[2:],
-		PubkHex:  pubKHex[4:],
+		PubkHex:  pubKHex[2:],
 		Address:  address,
 	}
 }

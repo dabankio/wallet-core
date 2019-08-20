@@ -63,6 +63,11 @@ type ETHAddress struct {
 	address common.Address
 }
 
+// NewETHAddress 0地址
+func NewETHAddress() *ETHAddress {
+	return &ETHAddress{}
+}
+
 // NewETHAddressFromHex converts a hex string to a address value.
 func NewETHAddressFromHex(hex string) (address *ETHAddress, err error) {
 	a := new(ETHAddress)

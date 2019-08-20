@@ -52,14 +52,14 @@ func NewUint8ArrayWrap() *Uint8ArrayWrap {
 	return &Uint8ArrayWrap{}
 }
 
-// Uint8ArrayWrap wrap []uint8
+// Uint8ArrayWrap wrap []uint8,注意：虽然名字是uint8 array wrap,但实际只能是0-128，因为gomobile不支持unsigned int,
 type Uint8ArrayWrap struct {
 	wrap []uint8
 }
 
 // AddOne .
-func (w *Uint8ArrayWrap) AddOne(n uint8) {
-	w.wrap = append(w.wrap, n)
+func (w *Uint8ArrayWrap) AddOne(n int8) {
+	w.wrap = append(w.wrap, uint8(n))
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------
