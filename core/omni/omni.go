@@ -9,7 +9,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-const symbol = "OMNI"
+const (
+	symbol = "OMNI"
+	// MinNondustOutput Any standard (ie P2PKH) output smaller than this value (in satoshis) will most likely be rejected by the network.
+	// This is calculated by assuming a standard output will be 34 bytes
+	MinNondustOutput = 546        // satoshis
+	omniHex          = "6f6d6e69" // Hex-encoded: "omni"
+)
 
 var _ core.Coin = &omni{}
 var _ core.HasParentChain = &omni{}
