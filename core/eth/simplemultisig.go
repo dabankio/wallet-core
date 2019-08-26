@@ -51,18 +51,19 @@ func DeploySimpleMultiSigContract(chainID big.Int, backend bind.ContractBackend,
 	{ // 部署多签合约
 		auth := bind.NewKeyedTransactor(privk)
 		//TODO set gas,gasPrice
-		add, tx, w, err := contracts.DeploySimpleMultiSig(auth, backend, big.NewInt(int64(mRequired)), owners, &chainID)
+		add, tx, _, err := contracts.DeploySimpleMultiSig(auth, backend, big.NewInt(int64(mRequired)), owners, &chainID)
 		if err != nil {
 			return "", fmt.Errorf("_部署多签合约失败, %v", err)
 		}
-		ver, err := w.GetVersion(&bind.CallOpts{Pending: true})
-		if err != nil {
-			return "", fmt.Errorf("无法调用合约函数获取version, %v", err)
-		}
+		// 下面的代码在测试链/主链无效，因为不是即时完成的
+		// ver, err := w.GetVersion(&bind.CallOpts{Pending: true})
+		// if err != nil {
+		// 	return "", fmt.Errorf("无法调用合约函数获取version, %v", err)
+		// }
 		// return ver + "," + add.Hex() + "," + tx.Hash().Hex(), nil
-		info := add.Hex() + "," + tx.Hash().Hex() + ", ver:" + ver
-		fmt.Println("deploy info", info)
-
+		// info := add.Hex() + "," + tx.Hash().Hex() + ", ver:" + ver
+		// fmt.Println("deploy info", info)
+		_ = tx
 		return add.Hex(), nil
 	}
 }
@@ -143,12 +144,11 @@ const (
 	versionHash          = "0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6"
 	eip712DomaintypeHash = "0xd87cd6ef79d4e2b95e15ce8abf732db51ec771f1ca2edccf22a46c729ac56472"
 	salt                 = "0x251543af6a222378665a76fe38dbceae4871a070b7fdaf5c6c30cf758dc33cc0"
-	chainiD              = 1
 	allZero              = "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" //做padding用
 )
 
 // SimpleMultiSigExecuteSign return v,r,s
-func SimpleMultiSigExecuteSign(signerPrivkHex string, multisigAddr, destinationAddr, executor string, nonce uint64, value, gasLimit *big.Int, data []byte) (uint8, [32]byte, [32]byte, error) {
+func SimpleMultiSigExecuteSign(chainID int64, signerPrivkHex string, multisigAddr, destinationAddr, executor string, nonce uint64, value, gasLimit *big.Int, data []byte) (uint8, [32]byte, [32]byte, error) {
 	privk, err := crypto.HexToECDSA(signerPrivkHex)
 	if err != nil {
 		panic(err)
@@ -185,7 +185,10 @@ func SimpleMultiSigExecuteSign(signerPrivkHex string, multisigAddr, destinationA
 		return crypto.Keccak256([]byte(decodedData))
 	}
 
-	domainData := eip712DomaintypeHash + nameHash[2:] + versionHash[2:] + leftPad2Str(i2hex(chainiD)) + leftPad2Str(multisigAddr[2:]) + salt[2:]
+	if executor == "" {
+		executor = "0x"
+	}
+	domainData := eip712DomaintypeHash + nameHash[2:] + versionHash[2:] + leftPad2Str(i2hex(chainID)) + leftPad2Str(multisigAddr[2:]) + salt[2:]
 	domainSeparatorHashHex := hexToKeccak256ThenHex([]byte(domainData))
 	txInput := txtypeHash + leftPad2Str(destinationAddr[2:]) + leftPad2Str(i2hex(value.Int64())) + crypto.Keccak256Hash(data).Hex()[2:] + leftPad2Str(i2hex(int64(nonce))) + leftPad2Str(executor[2:]) + leftPad2Str(i2hex(gasLimit.Int64()))
 	txInputHashHex := hexToKeccak256ThenHex([]byte(txInput))
@@ -193,14 +196,14 @@ func SimpleMultiSigExecuteSign(signerPrivkHex string, multisigAddr, destinationA
 	input := "0x19" + "01" + domainSeparatorHashHex[2:] + txInputHashHex[2:]
 	hashBytes := localKeccak256([]byte(input))
 
-	fmt.Println("[DBG]destAddrHex:", destinationAddr[2:])
-	fmt.Println("[DBG]value:", value.Int64())
-	fmt.Println("[DBG](nonce)", nonce)
-	fmt.Println("[DBG](gasLimit.Int64())", gasLimit.Int64())
-	fmt.Println("[DBG]domainSeparatorHashHex", domainSeparatorHashHex)
-	fmt.Println("[DBG](txInput)", txInput)
-	fmt.Println("[DBG](txInputHashHex)", txInputHashHex)
-	fmt.Println("[DBG]inputHash", hex.EncodeToString(hashBytes))
+	// fmt.Println("[DBG]destAddrHex:", destinationAddr[2:])
+	// fmt.Println("[DBG]value:", value.Int64())
+	// fmt.Println("[DBG](nonce)", nonce)
+	// fmt.Println("[DBG](gasLimit.Int64())", gasLimit.Int64())
+	// fmt.Println("[DBG]domainSeparatorHashHex", domainSeparatorHashHex)
+	// fmt.Println("[DBG](txInput)", txInput)
+	// fmt.Println("[DBG](txInputHashHex)", txInputHashHex)
+	// fmt.Println("[DBG]inputHash", hex.EncodeToString(hashBytes))
 
 	sig, err := crypto.Sign(hashBytes, privk)
 	if err != nil {

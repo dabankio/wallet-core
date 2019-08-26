@@ -32,6 +32,7 @@ import (
 func TestSimplemultisigAbiHelper(t *testing.T) {
 	const (
 		rpcHost = "http://localhost:7545"
+		chainID = 2
 	)
 	var (
 		ctx      = context.Background()
@@ -84,7 +85,6 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 	)
 	{ // 部署合约测试
 		mRequired := 2
-		chainID := NewBigInt(1)
 		// fmt.Println("owners:", owners)
 		ownersAddrWrap := NewAddressesWrap()
 
@@ -96,7 +96,7 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 			}
 		}
 
-		createMultisigData, err := PackedDeploySimpleMultiSig(NewBigInt(int64(mRequired)), ownersAddrWrap, chainID)
+		createMultisigData, err := PackedDeploySimpleMultiSig(NewBigInt(int64(mRequired)), ownersAddrWrap, NewBigInt(chainID))
 		testtool.FailOnErr(t, err, "Failed to pack create simplemultisig contract data")
 		a0Nonce, err := client.PendingNonceAt(context.Background(), a0.ToAddress())
 		testtool.FailOnErr(t, err, "Failed to get a0 nonce")
@@ -207,7 +207,7 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 		sigV = NewUint8ArrayWrap()
 		sigR, sigS = NewByte32ArrayWrap(), NewByte32ArrayWrap()
 		multisigContractAddress = contractAddressHex
-		executor = a0.Address
+		// executor = a0.Address
 		destination = outAddr
 		value = transferValue
 		gasLimit = NewBigInt(239963)
@@ -215,19 +215,19 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 
 		for _, add := range []*testtool.AddrInfo{a0, a2} {
 			//实际的使用场景中，应该把需要签名的数据分发给需要签名的人，分别签名，然后在合起来
-			signRes, err := UtilSimpleMultiSigExecuteSign(add.PrivkHex, multisigContractAddress, destination, executor, nonce.GetInt64(), value, gasLimit, data)
+			signRes, err := UtilSimpleMultiSigExecuteSign(chainID, add.PrivkHex, multisigContractAddress, destination, executor, nonce.GetInt64(), value, gasLimit, data)
 			testtool.FailOnErr(t, err, "Failed to sign execute")
 
-			sigV.AddOne(uint8(signRes.V))
+			sigV.AddOne(int8(signRes.V))
 			sigR.AddOne(signRes.R.Get())
 			sigS.AddOne(signRes.S.Get())
 		}
 
 		destAddr, err := NewETHAddressFromHex(destination)
 		testtool.FailOnErr(t, err, "Failed to new eth addr from hex")
-		executorAddr, err := NewETHAddressFromHex(executor)
-		testtool.FailOnErr(t, err, "Failed to new eth addr from hex")
-		packedExecuteData, err := abiHelper.PackedExecute(sigV, sigR, sigS, destAddr, value, data, executorAddr, gasLimit)
+		// executorAddr, err := NewETHAddressFromHex(executor)
+		// testtool.FailOnErr(t, err, "Failed to new eth addr from hex")
+		packedExecuteData, err := abiHelper.PackedExecute(sigV, sigR, sigS, destAddr, value, data, &ETHAddress{}, gasLimit)
 		testtool.FailOnErr(t, err, "Pack multisig execute faied")
 
 		a0Nonce, err := client.NonceAt(ctx, a0.ToAddress(), nil)
@@ -337,10 +337,10 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 
 		for _, add := range []*testtool.AddrInfo{a0, a2} {
 			//实际的使用场景中，应该把需要签名的数据分发给需要签名的人，分别签名，然后在合起来
-			signRes, err := UtilSimpleMultiSigExecuteSign(add.PrivkHex, multisigContractAddress, destination, executor, nonce.GetInt64(), value, gasLimit, data)
+			signRes, err := UtilSimpleMultiSigExecuteSign(chainID, add.PrivkHex, multisigContractAddress, destination, executor, nonce.GetInt64(), value, gasLimit, data)
 			testtool.FailOnErr(t, err, "Failed to sign execute")
 
-			sigV.AddOne(uint8(signRes.V))
+			sigV.AddOne(int8(signRes.V))
 			sigR.AddOne(signRes.R.Get())
 			sigS.AddOne(signRes.S.Get())
 		}

@@ -29,21 +29,34 @@ var (
 )
 
 {{range $contract := .Contracts}}
+
+	{{$structs := $contract.Structs}}
+
 	// {{.Type}}ABI is the input ABI used to generate the binding from.
 	const {{.Type}}ABI = "{{.InputABI}}"
+
+	{{if $contract.FuncSigs}}
+	// {{.Type}}FuncSigs maps the 4-byte function signature to its string representation.
+	var {{.Type}}FuncSigs = map[string]string{
+		{{range $strsig, $binsig := .FuncSigs}}"{{$binsig}}": "{{$strsig}}",
+		{{end}}
+	}
+	{{end}}
+
 
 	{{if issignalexists "s_gen_bin"}}
 	{{if .InputBin}}
 		// {{.Type}}Bin is the compiled bytecode used for deploying new contracts.
-		const {{.Type}}Bin = `{{.InputBin}}`
+		//const {{.Type}}Bin = `{{.InputBin}}`
+		var {{.Type}}Bin = "0x{{.InputBin}}"
 
 		// PackedDeploy{{.Type}} deploys a new Ethereum contract, binding an instance of {{.Type}} to it.
-		func PackedDeploy{{.Type}}({{range $idx, $e := .Constructor.Inputs}}{{if gt $idx 0}},{{end}} {{.Name}} {{bindmobiletypego .Type true}}{{end}}) ([]byte, error) {
+		func PackedDeploy{{.Type}}({{range $idx, $e := .Constructor.Inputs}}{{if gt $idx 0}},{{end}} {{.Name}} {{bindmobiletypego .Type $structs  true}}{{end}}) ([]byte, error) {
 		  parsed, err := abi.JSON(strings.NewReader({{.Type}}ABI))
 		  if err != nil {
 		    return nil, err
 		  }
-		arguments, err := parsed.Constructor.Inputs.Pack({{range $idx, $e := .Constructor.Inputs}}{{if gt $idx 0}},{{end}} {{.Name}}{{if iswrapgotype .Type}}.{{gotypewrapfield .Type}}{{end}}{{end}})
+		arguments, err := parsed.Constructor.Inputs.Pack({{range $idx, $e := .Constructor.Inputs}}{{if gt $idx 0}},{{end}} {{.Name}}{{if iswrapgotype .Type $structs}}.{{gotypewrapfield .Type $structs}}{{end}}{{end}})
 		if err != nil {
 			return nil, err
 		}
@@ -64,21 +77,29 @@ var (
 		return &{{.Type}}ABIHelper{parsed}
 	}
 
+	{{range .Structs}}
+		// {{.Name}} is an auto generated low-level Go binding around an user-defined struct.
+		type {{.Name}} struct {
+		{{range $field := .Fields}}
+		{{$field.Name}} {{$field.Type}}{{end}}
+		}
+	{{end}}
+
 	{{range .Calls}}
-		// Packed{{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.Id}}.
-		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}ABIHelper) Packed{{.Normalized.Name}}({{range $idx, $e := .Normalized.Inputs}}{{if gt $idx 0}},{{end}} {{.Name}} {{bindmobiletypego .Type true}} {{end}}) ([]byte, error) {
-			return _{{$contract.Type}}.abi.Pack("{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{if iswrapgotype .Type}}.{{gotypewrapfield .Type}}{{end}} {{end}})
+		// Packed{{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.
+		// Solidity: {{formatmethod .Original $structs}}
+		func (_{{$contract.Type}} *{{$contract.Type}}ABIHelper) Packed{{.Normalized.Name}}({{range $idx, $e := .Normalized.Inputs}}{{if gt $idx 0}},{{end}} {{.Name}} {{bindmobiletypego .Type $structs  true}} {{end}}) ([]byte, error) {
+			return _{{$contract.Type}}.abi.Pack("{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{if iswrapgotype .Type $structs}}.{{gotypewrapfield .Type $structs}}{{end}} {{end}})
 		}
 
-		// Unpack{{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.Id}}.
-		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}ABIHelper) Unpack{{.Normalized.Name}}(output []byte) ({{if .Structured}}struct{ {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type}};{{end}} },{{else}}{{range .Normalized.Outputs}}{{bindmobiletypego .Type true}},{{end}}{{end}} error) {
+		// Unpack{{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.
+		// Solidity: {{formatmethod .Original $structs}}
+		func (_{{$contract.Type}} *{{$contract.Type}}ABIHelper) Unpack{{.Normalized.Name}}(output []byte) ({{if .Structured}}struct{ {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};{{end}} },{{else}}{{range .Normalized.Outputs}}{{bindmobiletypego .Type $structs  true}},{{end}}{{end}} error) {
 			{{if .Structured}}ret := new(struct{
-				{{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type}}
+				{{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}}
 				{{end}}
 			}){{else}}var (
-				{{range $i, $_ := .Normalized.Outputs}}ret{{$i}} = new({{bindtype .Type}})
+				{{range $i, $_ := .Normalized.Outputs}}ret{{$i}} = new({{bindtype .Type $structs}})
 				{{end}}
 			){{end}}
 			out := {{if .Structured}}ret{{else}}{{if eq (len .Normalized.Outputs) 1}}ret0{{else}}&[]interface{}{
@@ -86,15 +107,15 @@ var (
 				{{end}}
 			}{{end}}{{end}}
 			err := _{{$contract.Type}}.abi.Unpack(out, "{{.Original.Name}}", output)
-			return {{if .Structured}}*ret,{{else}}{{range $i, $_ := .Normalized.Outputs}}{{if iswrapgotype .Type}}{{bindmobiletypego .Type false}}{*ret{{$i}}}{{else}}*ret{{$i}}{{end}},{{end}}{{end}} err
+			return {{if .Structured}}*ret,{{else}}{{range $i, $_ := .Normalized.Outputs}}{{if iswrapgotype .Type $structs}}{{bindmobiletypego .Type $structs  false}}{*ret{{$i}}}{{else}}*ret{{$i}}{{end}},{{end}}{{end}} err
 		}
 	{{end}}
 
 	{{range .Transacts}}
-		// Packed{{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.Id}}.
-		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}ABIHelper) Packed{{.Normalized.Name}}({{range $idx, $e := .Normalized.Inputs}}{{if gt $idx 0}},{{end}} {{.Name}} {{bindmobiletypego .Type true}} {{end}}) ([]byte, error) {
-			return _{{$contract.Type}}.abi.Pack("{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{if iswrapgotype .Type}}.{{gotypewrapfield .Type}}{{end}}{{end}})
+		// Packed{{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.ID}}.
+		// Solidity: {{formatmethod .Original $structs}}
+		func (_{{$contract.Type}} *{{$contract.Type}}ABIHelper) Packed{{.Normalized.Name}}({{range $idx, $e := .Normalized.Inputs}}{{if gt $idx 0}},{{end}} {{.Name}} {{bindmobiletypego .Type $structs  true}} {{end}}) ([]byte, error) {
+			return _{{$contract.Type}}.abi.Pack("{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{if iswrapgotype .Type $structs}}.{{gotypewrapfield .Type $structs}}{{end}}{{end}})
 		}
 	{{end}}
 
