@@ -90,8 +90,8 @@ bytes32 constant SALT = 0x251543af6a222378665a76fe38dbceae4871a070b7fdaf5c6c30cf
     return "2.33"; // 版本号随便写的，无意义，
   }
 
-  function getOwersLength() external view returns (uint8) {
-    return uint8(ownersArr.length); //owners.length <= 10 (see constructor), so type convert is ok
+  function getOwersLength() external view returns (int8) {
+    return int8(ownersArr.length); //owners.length <= 10 (see constructor), so type convert is ok
   }
 
   function () external payable {

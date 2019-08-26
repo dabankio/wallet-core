@@ -22,6 +22,8 @@ import (
 	"github.com/lomocoin/wallet-core/core/eth/testtool"
 )
 
+const chainID = 1
+
 //在模拟链上测试多签（建议废弃，在测试的时候似乎合约这块不是很顺利），考虑使用ganache测试
 // 使用模拟链时存在的问题：1.最后无法查询到转账后的余额，2.获取的合约日志也查不到execute log
 // 如果模拟链可以完全替代ganache顺利测试，那么其实是比较适合作为单元测试的
@@ -143,7 +145,7 @@ func TestSimplemultisigSimulated(t *testing.T) {
 		testtool.FailOnErr(t, err, "Failed to get contract nonce")
 
 		for _, add := range []*testtool.AddrInfo{a0, a2} {
-			v, r, s, err := SimpleMultiSigExecuteSign(add.PrivkHex, multisigContractAddress, destination, executor, nonce, value, gasLimit, data)
+			v, r, s, err := SimpleMultiSigExecuteSign(chainID, add.PrivkHex, multisigContractAddress, destination, executor, nonce, value, gasLimit, data)
 			testtool.FailOnErr(t, err, "create sig failed")
 			sigV = append(sigV, v)
 			sigR = append(sigR, r)
@@ -353,7 +355,7 @@ func TestSimplemultisigGanacheERC20(t *testing.T) {
 		testtool.FailOnErr(t, err, "打包erc20 transfer data失败")
 
 		for _, add := range []*testtool.AddrInfo{a0, a2} {
-			v, r, s, err := SimpleMultiSigExecuteSign(add.PrivkHex, multisigContractAddress, destination, executor, uint64(nonce.Int64()), value, gasLimit, data)
+			v, r, s, err := SimpleMultiSigExecuteSign(chainID, add.PrivkHex, multisigContractAddress, destination, executor, uint64(nonce.Int64()), value, gasLimit, data)
 			testtool.FailOnErr(t, err, "create sig failed")
 			sigV = append(sigV, v)
 			sigR = append(sigR, r)
@@ -586,7 +588,7 @@ func TestSimplemultisigGanache(t *testing.T) {
 		data = []byte("")
 
 		for _, add := range []*testtool.AddrInfo{a0, a2} {
-			v, r, s, err := SimpleMultiSigExecuteSign(add.PrivkHex, multisigContractAddress, destination, executor, uint64(nonce.Int64()), value, gasLimit, data)
+			v, r, s, err := SimpleMultiSigExecuteSign(chainID, add.PrivkHex, multisigContractAddress, destination, executor, uint64(nonce.Int64()), value, gasLimit, data)
 			testtool.FailOnErr(t, err, "create sig failed")
 			sigV = append(sigV, v)
 			sigR = append(sigR, r)
@@ -829,7 +831,7 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 		data = []byte("")
 
 		for _, add := range []*testtool.AddrInfo{a0, a2} {
-			v, r, s, err := SimpleMultiSigExecuteSign(add.PrivkHex, multisigContractAddress, destination, executor, uint64(nonce.Int64()), value, gasLimit, data)
+			v, r, s, err := SimpleMultiSigExecuteSign(chainID, add.PrivkHex, multisigContractAddress, destination, executor, uint64(nonce.Int64()), value, gasLimit, data)
 			testtool.FailOnErr(t, err, "create sig failed")
 			sigV = append(sigV, v)
 			sigR = append(sigR, r)
