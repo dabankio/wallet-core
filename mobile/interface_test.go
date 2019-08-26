@@ -96,11 +96,17 @@ func TestGetVersion(t *testing.T) {
 
 func TestIMTokenCompatibility(t *testing.T) {
 	testMnemonic := "lecture leg select like delay limit spread retire toward west grape bachelor"
+	var options WalletOptions
+	options.Add(
+		WithPassword( /*bip44.Password*/ ""),
+	)
+	options.Add(
+		WithPathFormat("m/44'/0'/0'/0/0"),
+	)
 	wallet, err := BuildWalletFromMnemonic(
 		testMnemonic,
 		false,
-		WithPassword( /*bip44.Password*/ ""),
-		WithPathFormat("m/44'/0'/0'/0/0"),
+		&options,
 	)
 	assert.NoError(t, err)
 	//btc
@@ -115,7 +121,11 @@ func TestIMTokenCompatibility(t *testing.T) {
 	}
 	//eth
 	{
-		wallet, err := wallet.Clone(WithPathFormat("m/44'/60'/0'/0/0"))
+		var options WalletOptions
+		options.Add(
+			WithPathFormat("m/44'/60'/0'/0/0"),
+		)
+		wallet, err := wallet.Clone(&options)
 		assert.NoError(t, err)
 		coin, err := wallet.initCoin("ETHTest")
 		assert.NoError(t, err)

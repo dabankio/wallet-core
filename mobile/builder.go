@@ -6,11 +6,33 @@ import (
 	"github.com/lomocoin/wallet-core/bip44"
 )
 
+type WalletOptions struct {
+	options []WalletOption
+}
+
+func (opts *WalletOptions) Add(opt WalletOption) {
+	opts.options = append(opts.options, opt)
+}
+
+func (opts *WalletOptions) getOptions() []WalletOption {
+	return opts.options
+}
+
+type WalletOption interface {
+	Visit(*Wallet) error
+}
+
+type walletOptionImpl func(*Wallet)error
+
+func (f walletOptionImpl) Visit(wallet *Wallet) error {
+	return f(wallet)
+}
+
 // Clone makes a copy of existing Wallet instance, with original attributes override by the given options
-func (c Wallet) Clone(options ...WalletOption) (wallet *Wallet, err error) {
+func (c Wallet) Clone(options *WalletOptions) (wallet *Wallet, err error) {
 	cloned := c
-	for _, opt := range options {
-		err = opt(&cloned)
+	for _, opt := range options.getOptions() {
+		err = opt.Visit(&cloned)
 		if err != nil {
 			return nil, err
 		}
@@ -19,28 +41,25 @@ func (c Wallet) Clone(options ...WalletOption) (wallet *Wallet, err error) {
 	return &cloned, nil
 }
 
-//WalletOption functional options, how does go-mobile translate it?
-type WalletOption func(*Wallet) error
-
 func WithShareAccountWithParentChain(shareAccountWithParentChain bool) WalletOption {
-	return func(wallet *Wallet) error {
+	return walletOptionImpl(func(wallet *Wallet) error {
 		wallet.ShareAccountWithParentChain = shareAccountWithParentChain
 		return nil
-	}
+	})
 }
 
 func WithPathFormat(pathFormat string) WalletOption {
-	return func(wallet *Wallet) error {
+	return walletOptionImpl(func(wallet *Wallet) error {
 		wallet.path = pathFormat
 		return nil
-	}
+	})
 }
 
 func WithPassword(password string) WalletOption {
-	return func(wallet *Wallet) error {
+	return walletOptionImpl(func(wallet *Wallet) error {
 		wallet.password = password
 		return nil
-	}
+	})
 }
 
 // NewWalletBuilder normal builder pattern, not so good in golang
@@ -104,13 +123,13 @@ func (wb *WalletBuilder) Wallet() (wallet *Wallet, err error) {
 }
 
 // BuildWallet create a Wallet instance with fixed args (here is mnemonic and testNet) and other options
-func BuildWalletFromMnemonic(mnemonic string, testNet bool, options ...WalletOption) (wallet *Wallet, err error) {
+func BuildWalletFromMnemonic(mnemonic string, testNet bool, options *WalletOptions) (wallet *Wallet, err error) {
 	wallet, err = NewHDWalletFromMnemonic(mnemonic, testNet)
 	if err != nil {
 		return
 	}
-	for _, opt := range options {
-		err = opt(wallet)
+	for _, opt := range options.getOptions() {
+		err = opt.Visit(wallet)
 		if err != nil {
 			return
 		}
@@ -121,6 +140,6 @@ func BuildWalletFromMnemonic(mnemonic string, testNet bool, options ...WalletOpt
 
 // TODO not implemented
 // BuildWallet create a Wallet instance with fixed args (here is privateKey and testNet) and other options
-func BuildWalletFromPrivateKey(privateKey string, testNet bool, options ...WalletOption) (wallet *Wallet, err error) {
+func BuildWalletFromPrivateKey(privateKey string, testNet bool, options WalletOptions) (wallet *Wallet, err error) {
 	panic("implement me")
 }
