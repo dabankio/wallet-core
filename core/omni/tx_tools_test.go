@@ -35,7 +35,7 @@ func TestUtilCreatePayloadSimpleSend(t *testing.T) {
 	}
 }
 
-func TestWithOpreturn(t *testing.T) {
+func TestCreaterawtxOpreturn(t *testing.T) {
 	type args struct {
 		rawtx   string
 		payload string
@@ -56,13 +56,13 @@ func TestWithOpreturn(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := WithOpreturn(tt.args.rawtx, tt.args.payload)
+			got, err := CreaterawtxOpreturn(tt.args.rawtx, tt.args.payload)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("WithOpreturn() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("CreaterawtxOpreturn() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
-				t.Errorf("WithOpreturn() = %v, want %v", got, tt.want)
+				t.Errorf("CreaterawtxOpreturn() = %v, want %v", got, tt.want)
 			}
 		})
 	}
