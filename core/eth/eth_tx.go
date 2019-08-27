@@ -16,7 +16,7 @@
 
 // Contains all the wrappers from the core/types package.
 
-package geth
+package eth
 
 import (
 	"encoding/json"
@@ -81,15 +81,28 @@ func (tx *ETHTransaction) EncodeJSON() (string, error) {
 	return string(data), err
 }
 
-func (tx *ETHTransaction) GetData() []byte      { return tx.tx.Data() }
-func (tx *ETHTransaction) GetGas() int64        { return int64(tx.tx.Gas()) }
-func (tx *ETHTransaction) GetGasPrice() *BigInt { return &BigInt{tx.tx.GasPrice()} }
-func (tx *ETHTransaction) GetValue() *BigInt    { return &BigInt{tx.tx.Value()} }
-func (tx *ETHTransaction) GetNonce() int64      { return int64(tx.tx.Nonce()) }
+// GetData .
+func (tx *ETHTransaction) GetData() []byte { return tx.tx.Data() }
 
-func (tx *ETHTransaction) GetHash() *Hash   { return &Hash{tx.tx.Hash()} }
+// GetGas .
+func (tx *ETHTransaction) GetGas() int64 { return int64(tx.tx.Gas()) }
+
+// GetGasPrice .
+func (tx *ETHTransaction) GetGasPrice() *BigInt { return &BigInt{tx.tx.GasPrice()} }
+
+// GetValue .
+func (tx *ETHTransaction) GetValue() *BigInt { return &BigInt{tx.tx.Value()} }
+
+// GetNonce .
+func (tx *ETHTransaction) GetNonce() int64 { return int64(tx.tx.Nonce()) }
+
+// GetHash .
+func (tx *ETHTransaction) GetHash() *Hash { return &Hash{tx.tx.Hash()} }
+
+// GetCost .
 func (tx *ETHTransaction) GetCost() *BigInt { return &BigInt{tx.tx.Cost()} }
 
+// GetTo .
 func (tx *ETHTransaction) GetTo() *ETHAddress {
 	if to := tx.tx.To(); to != nil {
 		return &ETHAddress{*to}

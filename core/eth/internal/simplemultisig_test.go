@@ -1,4 +1,4 @@
-package eth
+package internal
 
 import (
 	"context"
@@ -18,8 +18,9 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/lomocoin/wallet-core/core/eth/contracts"
-	"github.com/lomocoin/wallet-core/core/eth/testtool"
+
+	"github.com/lomocoin/wallet-core/core/eth/internal/contracts"
+	"github.com/lomocoin/wallet-core/core/eth/internal/testtool"
 )
 
 const chainID = 1

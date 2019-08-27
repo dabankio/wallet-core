@@ -1,4 +1,4 @@
-package btcd
+package btc
 
 import (
 	"bytes"
@@ -12,8 +12,10 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	"github.com/lomocoin/wallet-core/mobile/btc/internal/helpers"
-	"github.com/lomocoin/wallet-core/mobile/btc/txauthor"
+
+	"github.com/lomocoin/wallet-core/core/btc/internal/helpers"
+	"github.com/lomocoin/wallet-core/core/btc/internal/txauthor"
+
 	"github.com/pkg/errors"
 )
 
@@ -61,11 +63,11 @@ func (baa *BTCOutputAmount) Add(address *BTCAddress, amount *BTCAmount) {
 // feeRate: 单位手续费/byte
 // testNet: 测试网络传true
 func NewBTCTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, change *BTCAddress, feeRate int64, testNet bool) (tr *BTCTransaction, err error) {
-	return internalNewBTCTransaction(unSpent, amounts, change, feeRate, testNet, nil)
+	return InternalNewBTCTransaction(unSpent, amounts, change, feeRate, testNet, nil)
 }
 
-// 内部用，构造btc transaction
-func internalNewBTCTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, change *BTCAddress, feeRate int64, testNet bool, manualTxOuts []*wire.TxOut) (tr *BTCTransaction, err error) {
+// InternalNewBTCTransaction 内部用，构造btc transaction
+func InternalNewBTCTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, change *BTCAddress, feeRate int64, testNet bool, manualTxOuts []*wire.TxOut) (tr *BTCTransaction, err error) {
 	if unSpent == nil || amounts == nil || change == nil || feeRate == 0 {
 		err = errors.New("maybe some parameter is missing?")
 		return
@@ -138,33 +140,33 @@ func internalNewBTCTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, ch
 
 // GetFee
 // Returns the miner's fee for the current transaction
-func (btc BTCTransaction) GetFee() (float64, error) {
-	if btc.totalInputValue == nil {
+func (tx BTCTransaction) GetFee() (float64, error) {
+	if tx.totalInputValue == nil {
 		return 0., errors.New("transaction data not filled")
 	}
-	fee := *btc.totalInputValue - helpers.SumOutputValues(btc.tx.TxOut)
+	fee := *tx.totalInputValue - helpers.SumOutputValues(tx.tx.TxOut)
 	return fee.ToBTC(), nil
 }
 
-func (btc BTCTransaction) Encode() (string, error) {
+func (tx BTCTransaction) Encode() (string, error) {
 	var buf bytes.Buffer
-	if btc.tx == nil {
+	if tx.tx == nil {
 		return "", errors.New("transaction data not filled")
 	}
-	if err := btc.tx.BtcEncode(&buf, wire.ProtocolVersion, wire.LatestEncoding); err != nil {
-		return "", errors.Wrapf(err, "failed to encode msg of type %T", btc.tx)
+	if err := tx.tx.BtcEncode(&buf, wire.ProtocolVersion, wire.LatestEncoding); err != nil {
+		return "", errors.Wrapf(err, "failed to encode msg of type %T", tx.tx)
 	}
 	return hex.EncodeToString(buf.Bytes()), nil
 }
 
 // 结果可以用于签名接口
-func (btc BTCTransaction) EncodeToSignCmd() (string, error) {
-	data, err := btc.Encode()
+func (tx BTCTransaction) EncodeToSignCmd() (string, error) {
+	data, err := tx.Encode()
 	if err != nil {
 		return "", err
 	}
 
-	cmd := btcjson.NewSignRawTransactionCmd(data, btc.rawTxInput, nil, nil)
+	cmd := btcjson.NewSignRawTransactionCmd(data, tx.rawTxInput, nil, nil)
 	cmdBytes, err := json.Marshal(cmd)
 	if err != nil {
 		return "", err
@@ -174,8 +176,8 @@ func (btc BTCTransaction) EncodeToSignCmd() (string, error) {
 
 // EncodeToSignCmdForNextSigner 构造给下个签名者签名的命令，
 // signedRawTX: 当前签名者已签名好的交易数据
-func (btc BTCTransaction) EncodeToSignCmdForNextSigner(signedRawTX string) (string, error) {
-	cmd := btcjson.NewSignRawTransactionCmd(signedRawTX, btc.rawTxInput, nil, nil)
+func (tx BTCTransaction) EncodeToSignCmdForNextSigner(signedRawTX string) (string, error) {
+	cmd := btcjson.NewSignRawTransactionCmd(signedRawTX, tx.rawTxInput, nil, nil)
 	cmdBytes, err := json.Marshal(cmd)
 	if err != nil {
 		return "", err
@@ -188,7 +190,7 @@ func (btc BTCTransaction) EncodeToSignCmdForNextSigner(signedRawTX string) (stri
 // output is consumed.  The InputSource does not return any previous output
 // scripts as they are not needed for creating the unsinged transaction and are
 // looked up again by the wallet during the call to signrawtransaction.
-func (btc BTCTransaction) makeInputSource(unspentResults []btcjson.ListUnspentResult) txauthor.InputSource {
+func (tx BTCTransaction) makeInputSource(unspentResults []btcjson.ListUnspentResult) txauthor.InputSource {
 	// Return outputs in order.
 	currentTotal := btcutil.Amount(0)
 	currentInputs := make([]*wire.TxIn, 0, len(unspentResults))
@@ -215,9 +217,9 @@ func (btc BTCTransaction) makeInputSource(unspentResults []btcjson.ListUnspentRe
 // makeDestinationScriptSource creates a ChangeSource which is used to receive
 // all correlated previous input value.  A non-change address is created by this
 // function.
-func (btc BTCTransaction) makeDestinationScriptSource(destinationAddress string) txauthor.ChangeSource {
+func (tx BTCTransaction) makeDestinationScriptSource(destinationAddress string) txauthor.ChangeSource {
 	return func() ([]byte, error) {
-		addr, err := btcutil.DecodeAddress(destinationAddress, btc.chainCfg)
+		addr, err := btcutil.DecodeAddress(destinationAddress, tx.chainCfg)
 		if err != nil {
 			return nil, err
 		}

@@ -1,4 +1,4 @@
-package mobile
+package wallet
 
 import (
 	"errors"
@@ -22,7 +22,7 @@ type WalletOption interface {
 	Visit(*Wallet) error
 }
 
-type walletOptionImpl func(*Wallet)error
+type walletOptionImpl func(*Wallet) error
 
 func (f walletOptionImpl) Visit(wallet *Wallet) error {
 	return f(wallet)

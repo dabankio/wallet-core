@@ -1,4 +1,4 @@
-package geth
+package eth
 
 import (
 	"math/big"

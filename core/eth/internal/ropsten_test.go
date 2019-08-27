@@ -1,4 +1,4 @@
-package eth
+package internal
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/lomocoin/wallet-core/core/eth/contracts"
+	"github.com/lomocoin/wallet-core/core/eth/internal/contracts"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -14,7 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/lomocoin/wallet-core/core/eth/testtool"
+	"github.com/lomocoin/wallet-core/core/eth/internal/testtool"
 )
 
 const (

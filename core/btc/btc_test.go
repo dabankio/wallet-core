@@ -1,4 +1,4 @@
-package btcd
+package btc
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lomocoin/wallet-core/core/btc"
+	"github.com/lomocoin/wallet-core/core/btc/internal"
 )
 
 /*
@@ -61,7 +61,7 @@ func TestNewBTCTransaction(t *testing.T) {
 	t.Log("hahah", hh)
 	t.Log(tt.GetFee())
 
-	bb, _ := btc.New(nil, true)
+	bb, _ := internal.New(nil, true)
 	cc, err := bb.Sign(hh, "cVBp35B945nC4AEHgAdLJQaGewuFJH4PXAgETBxRmmjavJZtQCAB")
 	if err != nil {
 		t.Fatal(err)
@@ -101,7 +101,7 @@ func TestWorkflow_Multisig(t *testing.T) {
 	}
 
 	{ //a1/a2/a3 生成多签地址
-		rs, err := btc.CreateMultiSig(&btcjson.CreateMultisigCmd{
+		rs, err := internal.CreateMultiSig(&btcjson.CreateMultisigCmd{
 			NRequired: 2,
 			Keys:      []string{a1.Pubkey, a2.Pubkey, a3.Pubkey},
 		}, &chaincfg.RegressionNetParams)
@@ -149,7 +149,7 @@ func TestWorkflow_Multisig(t *testing.T) {
 		hh, err := tx.EncodeToSignCmd()
 		asrt.Nil(err)
 
-		btcCoin, _ := btc.New(nil, true)
+		btcCoin, _ := internal.New(nil, true)
 		signedRawHex, err := btcCoin.Sign(hh, a1.Privkey)
 		asrt.Nil(err)
 
@@ -157,7 +157,7 @@ func TestWorkflow_Multisig(t *testing.T) {
 		nextSignData, err = tx.EncodeToSignCmdForNextSigner(signedRawHex)
 	}
 	{ // 第二个人签名
-		btcCoin, err := btc.New(nil, true)
+		btcCoin, err := internal.New(nil, true)
 		asrt.NotNil(err) // TODO 这里先不管吧
 		signedRawHex, err := btcCoin.Sign(nextSignData, a3.Privkey)
 		asrt.Nil(err)

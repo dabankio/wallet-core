@@ -1,10 +1,10 @@
-package geth
+package eth
 
 import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/lomocoin/wallet-core/core/eth"
+	"github.com/lomocoin/wallet-core/core/eth/internal"
 )
 
 // SimpleMultiSigExecuteSignResult .
@@ -39,7 +39,7 @@ func NewSimpleMultiSigExecuteSignResultFromHex(h string) (*SimpleMultiSigExecute
 
 // UtilSimpleMultiSigExecuteSign 签名简单多签执行数据
 func UtilSimpleMultiSigExecuteSign(chainID int64, signerPrivkHex string, hexedMultisigAddr, hexedDestinationAddr, hexedExecutor string, nonce int64, value, gasLimit *BigInt, data []byte) (*SimpleMultiSigExecuteSignResult, error) {
-	v, r, s, err := eth.SimpleMultiSigExecuteSign(chainID, signerPrivkHex, hexedMultisigAddr, hexedDestinationAddr, hexedExecutor, uint64(nonce), value.bigint, gasLimit.bigint, data)
+	v, r, s, err := internal.SimpleMultiSigExecuteSign(chainID, signerPrivkHex, hexedMultisigAddr, hexedDestinationAddr, hexedExecutor, uint64(nonce), value.bigint, gasLimit.bigint, data)
 	if err != nil {
 		return nil, err
 	}

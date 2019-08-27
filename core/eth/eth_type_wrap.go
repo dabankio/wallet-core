@@ -1,11 +1,11 @@
-package geth
+package eth
 
 // 该文件对一些用到的go类型进行了封装，使得可以用gomobile导出给客户端
 
 import (
-	"github.com/pkg/errors"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/pkg/errors"
 )
 
 // NewAddressesWrap .
@@ -59,7 +59,7 @@ type Uint8ArrayWrap struct {
 }
 
 // AddOne 注意：不支持负数，传入负数时会返回错误（安卓抛出异常，ios没试过。。)
-func (w *Uint8ArrayWrap) AddOne(n int8) error{
+func (w *Uint8ArrayWrap) AddOne(n int8) error {
 	if n < 0 {
 		return errors.Errorf("negative number not allowed, 0-128 is ok, got: %v", n)
 	}

@@ -1,4 +1,4 @@
-package geth
+package eth
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"testing"
 
 	"github.com/lomocoin/wallet-core/core"
-	"github.com/lomocoin/wallet-core/core/eth"
-	"github.com/lomocoin/wallet-core/core/eth/contracts"
-	"github.com/lomocoin/wallet-core/core/eth/testtool"
+	"github.com/lomocoin/wallet-core/core/eth/internal"
+	"github.com/lomocoin/wallet-core/core/eth/internal/contracts"
+	"github.com/lomocoin/wallet-core/core/eth/internal/testtool"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -66,7 +66,7 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 		suggestGasPrice, err = client.SuggestGasPrice(ctx)
 		testtool.FailOnErr(t, err, "Faied to get gasPrice")
 
-		ethCoin, _ = eth.New(nil) // 这里return 的err非nil，可忽略
+		ethCoin, _ = internal.New(nil) // 这里return 的err非nil，可忽略
 	}
 
 	{ //ganache only

@@ -1,4 +1,4 @@
-package eth
+package internal
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/lomocoin/wallet-core/core/eth/contracts"
+	"github.com/lomocoin/wallet-core/core/eth/internal/contracts"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"

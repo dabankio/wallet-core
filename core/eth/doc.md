@@ -5,6 +5,6 @@
 
 使用的模板：`mobile_abi_helper.tpl`
 
-在`mobile/eth`目录下使用的命令生成文件
+在`core/eth`目录下使用的命令生成文件
 - `xabigen --sol erc20.sol --pkg geth --out erc20_abi.go --tplgo mobile_abi_helper.tpl `
 - `xabigen --sol SimpleMultiSig.sol -pkg geth --out SimpleMultiSig_abi.go --tplgo mobile_abi_helper.tpl --signal s_gen_bin,`

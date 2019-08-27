@@ -1,4 +1,4 @@
-package btcd
+package btc
 
 import (
 	"github.com/btcsuite/btcd/chaincfg"

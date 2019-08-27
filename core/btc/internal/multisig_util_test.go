@@ -1,4 +1,4 @@
-package btc
+package internal
 
 import (
 	"reflect"

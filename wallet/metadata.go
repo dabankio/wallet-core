@@ -1,4 +1,4 @@
-package mobile
+package wallet
 
 import (
 	"github.com/lomocoin/wallet-core/core"

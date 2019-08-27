@@ -1,9 +1,9 @@
-package btcd
+package omni
 
 import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	"github.com/lomocoin/wallet-core/core/omni"
+	"github.com/lomocoin/wallet-core/core/btc"
 )
 
 // CreateTransactionForOmni 创建基于btc的omni交易,该方法构建比特币交易输出，包括：
@@ -14,29 +14,29 @@ import (
 // `propertyID`, `propertyDivisible` 资产id,token是否可分
 // `btcUnspentList` bitcoin utxo list,
 // `sendToAddress` omni token收款方
-// 
+//
 // ref: (usdt: https://omniexplorer.info/asset/31)
 // **Note**：不要把找零地址和转账地址传错了，找零地址通常是发送方地址
 func CreateTransactionForOmni(
 	propertyID int,
 	propertyDivisible bool,
-	btcUnspentList *BTCUnspent,
-	sendToAddress *BTCAddress,
+	btcUnspentList *btc.BTCUnspent,
+	sendToAddress *btc.BTCAddress,
 	omniAmount float64,
-	changeAddress *BTCAddress,
+	changeAddress *btc.BTCAddress,
 	btcFeeRate int64,
 	testNet bool,
-) (btctx *BTCTransaction, err error) {
+) (btctx *btc.BTCTransaction, err error) {
 	//omni class c opreturn data
-	opreturnScript, err := omni.GetClassCOpreturnDataScript(uint(propertyID), omniAmount, propertyDivisible)
+	opreturnScript, err := GetClassCOpreturnDataScript(uint(propertyID), omniAmount, propertyDivisible)
 	if err != nil {
 		return nil, err
 	}
 	opreturnTxOut := wire.NewTxOut(0, opreturnScript)
 
 	//dust output
-	outAmounts := new(BTCOutputAmount)
-	dustAmount, _ := NewBTCAmount(btcutil.Amount(omni.MinNondustOutput).ToBTC())
+	outAmounts := new(btc.BTCOutputAmount)
+	dustAmount, _ := btc.NewBTCAmount(btcutil.Amount(MinNondustOutput).ToBTC())
 	outAmounts.Add(sendToAddress, dustAmount)
-	return internalNewBTCTransaction(btcUnspentList, outAmounts, changeAddress, btcFeeRate, testNet, []*wire.TxOut{opreturnTxOut})
+	return btc.InternalNewBTCTransaction(btcUnspentList, outAmounts, changeAddress, btcFeeRate, testNet, []*wire.TxOut{opreturnTxOut})
 }

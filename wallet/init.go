@@ -1,4 +1,4 @@
-package mobile
+package wallet
 
 import (
 	"strings"
@@ -7,7 +7,6 @@ import (
 	"github.com/lomocoin/wallet-core/core/bch"
 	"github.com/lomocoin/wallet-core/core/btc"
 	"github.com/lomocoin/wallet-core/core/eth"
-	"github.com/lomocoin/wallet-core/core/lmc"
 	"github.com/lomocoin/wallet-core/core/mgd"
 	"github.com/lomocoin/wallet-core/core/nxt"
 	"github.com/lomocoin/wallet-core/core/omni"
@@ -44,8 +43,6 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 		coin, err = bch.New(c.seed, c.testNet)
 	case "MGD":
 		coin, err = mgd.New(c.seed)
-	case "LMC":
-		coin, err = lmc.New(c.seed)
 	case "ETH", "XT", "THM", "ALI", "RED", "USO", "BTK", "EGT", "HOTC(HOTCOIN)":
 		coin, err = eth.New(c.seed)
 	case "ETHTest":

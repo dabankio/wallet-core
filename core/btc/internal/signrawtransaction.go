@@ -1,7 +1,7 @@
 // Based on the https://github.com/btcsuite/btcwallet/blob/master/rpc/legacyrpc/methods.go
 // todo: need more testing
 
-package btc
+package internal
 
 import (
 	"bytes"

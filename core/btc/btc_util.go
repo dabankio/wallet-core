@@ -1,10 +1,10 @@
-package btcd
+package btc
 
 import (
 	"fmt"
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/lomocoin/wallet-core/core/btc"
+	"github.com/lomocoin/wallet-core/core/btc/internal"
 	"strings"
 )
 
@@ -38,7 +38,7 @@ func NewMultiSigAddress(mRequired, chainParam int, keys string) (string, error) 
 		return "", fmt.Errorf("期望的链选项: %d > 主链, %d > 测试链, %d > Regtest链,收到的参数：%d", ChainMainNet, ChainTestNet3, ChainRegtest, chainParam)
 	}
 	arr := strings.Split(keys, ",")
-	rs, err := btc.CreateMultiSig(btcjson.NewCreateMultisigCmd(mRequired, arr), chainParams)
+	rs, err := internal.CreateMultiSig(btcjson.NewCreateMultisigCmd(mRequired, arr), chainParams)
 	if err != nil {
 		return "", err
 	}

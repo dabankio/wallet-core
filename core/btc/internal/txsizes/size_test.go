@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/btcsuite/btcd/wire"
-	. "github.com/lomocoin/wallet-core/mobile/btc/internal/txsizes"
+	. "github.com/lomocoin/wallet-core/core/btc/internal/txsizes"
 )
 
 const (
