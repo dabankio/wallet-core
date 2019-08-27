@@ -11,7 +11,7 @@ import (
 const symbol = "MGD"
 
 type mgd struct {
-	btc.BTC
+	btc.Btc
 }
 
 func New(seed []byte) (c *mgd, err error) {

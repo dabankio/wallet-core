@@ -11,7 +11,7 @@ import (
 const symbol = "BCH"
 
 type bch struct {
-	btc.BTC
+	btc.Btc
 }
 
 func New(seed []byte, testNet bool) (c *bch, err error) {

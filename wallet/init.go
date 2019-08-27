@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/lomocoin/wallet-core/core"
-	"github.com/lomocoin/wallet-core/core/bch"
+	// "github.com/lomocoin/wallet-core/core/bch"
 	"github.com/lomocoin/wallet-core/core/btc"
 	"github.com/lomocoin/wallet-core/core/eth"
 	"github.com/lomocoin/wallet-core/core/mgd"
@@ -39,8 +39,8 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 		} else {
 			coin, err = omni.New(c.seed, c.testNet)
 		}
-	case "BCH":
-		coin, err = bch.New(c.seed, c.testNet)
+	// case "BCH": //TODO BCH 对 BTC 的代码依赖问题暂时没有解决，先注释掉
+	// coin, err = bch.New(c.seed, c.testNet)
 	case "MGD":
 		coin, err = mgd.New(c.seed)
 	case "ETH", "XT", "THM", "ALI", "RED", "USO", "BTK", "EGT", "HOTC(HOTCOIN)":
@@ -67,7 +67,7 @@ func GetAvailableCoinList() string {
 	availableCoin := []string{
 		// BTC series
 		"BTC",
-		"BCH",
+		// "BCH",//TODO BCH 对 BTC 的代码依赖问题暂时没有解决，先注释掉
 		"MGD",
 		"LMC",
 

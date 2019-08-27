@@ -21,7 +21,7 @@ var _ core.Coin = &omni{}
 var _ core.HasParentChain = &omni{}
 
 type omni struct {
-	btc.BTC
+	btc.Btc
 }
 
 func New(seed []byte, testNet bool) (c *omni, err error) {
