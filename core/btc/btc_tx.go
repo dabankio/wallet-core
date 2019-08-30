@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"encoding/json"
+	"github.com/lomocoin/wallet-core/core/btc/internal"
 	"sync"
 
 	"github.com/btcsuite/btcd/btcjson"
@@ -62,24 +63,23 @@ func (baa *BTCOutputAmount) Add(address *BTCAddress, amount *BTCAmount) {
 // change: 找零地址
 // feeRate: 单位手续费/byte
 // testNet: 测试网络传true
-func NewBTCTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, change *BTCAddress, feeRate int64, testNet bool) (tr *BTCTransaction, err error) {
-	return InternalNewBTCTransaction(unSpent, amounts, change, feeRate, testNet, nil)
+func NewBTCTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, change *BTCAddress, feeRate int64, chainID int) (tr *BTCTransaction, err error) {
+	return InternalNewBTCTransaction(unSpent, amounts, change, feeRate, chainID, nil)
 }
 
 // InternalNewBTCTransaction 内部用，构造btc transaction
-func InternalNewBTCTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, change *BTCAddress, feeRate int64, testNet bool, manualTxOuts []*wire.TxOut) (tr *BTCTransaction, err error) {
+func InternalNewBTCTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, change *BTCAddress, feeRate int64, chainID int, manualTxOuts []*wire.TxOut) (tr *BTCTransaction, err error) {
 	if unSpent == nil || amounts == nil || change == nil || feeRate == 0 {
 		err = errors.New("maybe some parameter is missing?")
 		return
 	}
 
 	tr = &BTCTransaction{
-		chainCfg:   &chaincfg.MainNetParams,
 		rawTxInput: &[]btcjson.RawTxInput{},
 	}
-	tr.chainCfg = &chaincfg.MainNetParams
-	if testNet {
-		tr.chainCfg = &chaincfg.TestNet3Params
+	tr.chainCfg, err = internal.ChainFlag2ChainParams(chainID)
+	if err != nil {
+		return nil, err
 	}
 
 	// 转换 to amount

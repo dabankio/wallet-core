@@ -27,7 +27,11 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 	}
 	switch symbol {
 	case "BTC":
-		coin, err = btc.New(c.seed, c.testNet)
+		if c.testNet {
+			coin, err = btc.New(c.seed, btc.ChainTestNet3)
+		} else {
+			coin, err = btc.New(c.seed, btc.ChainMainNet)
+		}
 	case "BTCTest":
 		coin, err = btc.NewFromMetadata(md)
 	case "USDT(Omni)":

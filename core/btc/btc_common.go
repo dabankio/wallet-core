@@ -1,20 +1,20 @@
 package btc
 
 import (
-	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
+	"github.com/lomocoin/wallet-core/core/btc/internal"
 )
 
-// BTCAddress
+// BTCAddress .
 type BTCAddress struct {
 	address btcutil.Address
 }
 
 // NewBTCAddressFromString converts a string to a address value.
-func NewBTCAddressFromString(addr string, testNet bool) (address *BTCAddress, err error) {
-	netParams := &chaincfg.MainNetParams
-	if testNet {
-		netParams = &chaincfg.TestNet3Params
+func NewBTCAddressFromString(addr string, chainID int) (address *BTCAddress, err error) {
+	netParams, err := internal.ChainFlag2ChainParams(chainID)
+	if err != nil {
+		return nil, err
 	}
 
 	address = new(BTCAddress)

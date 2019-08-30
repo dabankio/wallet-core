@@ -30,7 +30,7 @@ func TestNewBTCTransaction(t *testing.T) {
 	input := new(BTCUnspent)
 	input.Add("d67579f1d8a2c45d807a00fe045322c0210a4e15fa32c8ba2aa6eb07326a5ad7", 1, 4.9992, "76a914817db500feded0e25568d5f5357c9bcb31db159488ac", "")
 
-	addr, err := NewBTCAddressFromString("msKe45XX3Sf6bnYM6UXpxbzpf4STqSFDkU", true)
+	addr, err := NewBTCAddressFromString("msKe45XX3Sf6bnYM6UXpxbzpf4STqSFDkU", ChainTestNet3)
 	// addr, err := btcutil.DecodeAddress("mjoqwuqYzCYjHojkeGjAw7M1nPVcA4cyAS", &chaincfg.TestNet3Params)
 	if err != nil {
 		t.Fatal(err)
@@ -44,11 +44,11 @@ func TestNewBTCTransaction(t *testing.T) {
 	aa := new(BTCOutputAmount)
 	aa.Add(addr, amt)
 
-	change, err := NewBTCAddressFromString("msKe45XX3Sf6bnYM6UXpxbzpf4STqSFDkU", true)
+	change, err := NewBTCAddressFromString("msKe45XX3Sf6bnYM6UXpxbzpf4STqSFDkU", ChainTestNet3)
 	if err != nil {
 		t.Fatal(err)
 	}
-	tt, err := NewBTCTransaction(input, aa, change, 2, true)
+	tt, err := NewBTCTransaction(input, aa, change, 2, ChainTestNet3)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +61,7 @@ func TestNewBTCTransaction(t *testing.T) {
 	t.Log("hahah", hh)
 	t.Log(tt.GetFee())
 
-	bb, _ := internal.New(nil, true)
+	bb, _ := internal.New(nil, ChainTestNet3)
 	cc, err := bb.Sign(hh, "cVBp35B945nC4AEHgAdLJQaGewuFJH4PXAgETBxRmmjavJZtQCAB")
 	if err != nil {
 		t.Fatal(err)
@@ -129,7 +129,7 @@ func TestWorkflow_Multisig(t *testing.T) {
 
 		outputAmount := new(BTCOutputAmount)
 		{
-			outAddr, err := NewBTCAddressFromString(a4.Address, true)
+			outAddr, err := NewBTCAddressFromString(a4.Address, ChainTestNet3)
 			asrt.Nil(err)
 			amt, err := NewBTCAmount(9)
 			asrt.Nil(err)
@@ -142,14 +142,14 @@ func TestWorkflow_Multisig(t *testing.T) {
 			// outputAmount.Add(changeAddr, changeAmt)
 		}
 
-		change, err := NewBTCAddressFromString(multisigAddress.Address, true)
+		change, err := NewBTCAddressFromString(multisigAddress.Address, ChainTestNet3)
 		asrt.Nil(err)
-		tx, err := NewBTCTransaction(&utxo, outputAmount, change, 2, true)
+		tx, err := NewBTCTransaction(&utxo, outputAmount, change, 2, ChainTestNet3)
 		asrt.Nil(err)
 		hh, err := tx.EncodeToSignCmd()
 		asrt.Nil(err)
 
-		btcCoin, _ := internal.New(nil, true)
+		btcCoin, _ := internal.New(nil, ChainTestNet3)
 		signedRawHex, err := btcCoin.Sign(hh, a1.Privkey)
 		asrt.Nil(err)
 
@@ -157,7 +157,7 @@ func TestWorkflow_Multisig(t *testing.T) {
 		nextSignData, err = tx.EncodeToSignCmdForNextSigner(signedRawHex)
 	}
 	{ // 第二个人签名
-		btcCoin, err := internal.New(nil, true)
+		btcCoin, err := internal.New(nil, ChainTestNet3)
 		asrt.NotNil(err) // TODO 这里先不管吧
 		signedRawHex, err := btcCoin.Sign(nextSignData, a3.Privkey)
 		asrt.Nil(err)

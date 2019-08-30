@@ -35,6 +35,7 @@ type HasParentChain interface {
 
 // MetadataProvider we need a configuration data container per-symbol.
 type MetadataProvider interface {
+	GetChainID() int //获取链id
 	GetPath() string
 	IsTestNet() bool
 	GetSeed() []byte

@@ -25,7 +25,7 @@ func CreateTransactionForOmni(
 	omniAmount float64,
 	changeAddress *btc.BTCAddress,
 	btcFeeRate int64,
-	testNet bool,
+	chainID int,
 ) (btctx *btc.BTCTransaction, err error) {
 	//omni class c opreturn data
 	opreturnScript, err := GetClassCOpreturnDataScript(uint(propertyID), omniAmount, propertyDivisible)
@@ -38,5 +38,5 @@ func CreateTransactionForOmni(
 	outAmounts := new(btc.BTCOutputAmount)
 	dustAmount, _ := btc.NewBTCAmount(btcutil.Amount(MinNondustOutput).ToBTC())
 	outAmounts.Add(sendToAddress, dustAmount)
-	return btc.InternalNewBTCTransaction(btcUnspentList, outAmounts, changeAddress, btcFeeRate, testNet, []*wire.TxOut{opreturnTxOut})
+	return btc.InternalNewBTCTransaction(btcUnspentList, outAmounts, changeAddress, btcFeeRate, chainID, []*wire.TxOut{opreturnTxOut})
 }

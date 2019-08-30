@@ -11,6 +11,7 @@ type metadataProviderImpl struct {
 	password       string
 	path           string
 	testNet        bool
+	chainID        int
 	seed           []byte
 	derivationPath []uint32
 }
@@ -26,6 +27,8 @@ func (md *metadataProviderImpl) GetPath() string {
 func (md *metadataProviderImpl) IsTestNet() bool {
 	return md.testNet
 }
+
+func (md *metadataProviderImpl) GetChainID() int { return md.chainID }
 
 func (md *metadataProviderImpl) GetSeed() []byte {
 	return md.seed

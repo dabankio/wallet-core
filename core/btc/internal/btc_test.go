@@ -21,7 +21,7 @@ var (
 func init() {
 	var err error
 	seed, err := core.NewSeedFromMnemonic(testMnemonic)
-	btc, err = New(seed, testNet)
+	btc, err = New(seed, ChainRegtest)
 	if err != nil {
 		log.Fatal(err)
 	}

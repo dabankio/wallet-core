@@ -4,7 +4,6 @@ import (
 	"encoding/hex"
 
 	"github.com/btcsuite/btcd/btcec"
-	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/lomocoin/wallet-core/bip44"
@@ -22,7 +21,7 @@ type BTC struct {
 // New Factory of BTC key derivation service
 //
 // The order of publicKeys is important.
-func New(seed []byte, testNet bool) (c *BTC, err error) {
+func New(seed []byte, chainID int) (c *BTC, err error) {
 	c = new(BTC)
 
 	c.Symbol = symbol
@@ -31,9 +30,9 @@ func New(seed []byte, testNet bool) (c *BTC, err error) {
 		err = errors.Wrap(err, "bip44.GetCoinDerivationPath err:")
 		return
 	}
-	c.ChainCfg = &chaincfg.MainNetParams
-	if testNet {
-		c.ChainCfg = &chaincfg.TestNet3Params
+	c.ChainCfg, err = ChainFlag2ChainParams(chainID)
+	if err != nil {
+		return nil, err
 	}
 	c.MasterKey, err = hdkeychain.NewMaster(seed, c.ChainCfg)
 	if err != nil {
@@ -44,13 +43,14 @@ func New(seed []byte, testNet bool) (c *BTC, err error) {
 	return
 }
 
+// NewFromMetadata .
 func NewFromMetadata(metadata core.MetadataProvider) (c *BTC, err error) {
 	c = new(BTC)
 	c.Symbol = symbol
 	c.DerivationPath = metadata.GetDerivationPath()
-	c.ChainCfg = &chaincfg.MainNetParams
-	if metadata.IsTestNet() {
-		c.ChainCfg = &chaincfg.TestNet3Params
+	c.ChainCfg, err = ChainFlag2ChainParams(metadata.GetChainID())
+	if err != nil {
+		return nil, err
 	}
 	c.MasterKey, err = hdkeychain.NewMaster(metadata.GetSeed(), c.ChainCfg)
 	if err != nil {
