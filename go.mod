@@ -9,8 +9,6 @@ require (
 	github.com/btcsuite/btcd v0.0.0-20190315201642-aa6e0f35703c
 	github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f
 	github.com/btcsuite/btcutil v0.0.0-20190316010144-3ac1210f4b38
-	github.com/btcsuite/fastsha256 v0.0.0-20160815193821-637e65642941
-	github.com/btcsuite/golangcrypto v0.0.0-20150304025918-53f62d9b43e8
 	github.com/cespare/cp v1.1.1 // indirect
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
@@ -23,6 +21,8 @@ require (
 	github.com/jackpal/go-nat-pmp v1.0.1 // indirect
 	github.com/karalabe/hid v1.0.0 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
+	github.com/lomocoin/btccli v0.18.1-beta-4
+	github.com/lomocoin/omnicli v0.5.0-beta-2
 	github.com/mattn/go-colorable v0.1.2 // indirect
 	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/pkg/errors v0.8.1
@@ -30,7 +30,8 @@ require (
 	github.com/rs/cors v1.6.0 // indirect
 	github.com/stretchr/testify v1.3.0
 	github.com/syndtr/goleveldb v1.0.0 // indirect
-	golang.org/x/crypto v0.0.0-20190313024323-a1f597ede03a
+	golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529
+	golang.org/x/mobile v0.0.0-20190826170111-cafc553e1ac5 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect

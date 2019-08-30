@@ -4,12 +4,33 @@
 TBD
 
 ## 如何只打包我想要的模块
-TBD
+参见Makefile `build`开头的命令，支持单币种导出、多币种导出或其他任意独立模块
 
 ## 如何贡献代码
+- 任何想法都可以通过issue进行讨论
+- 需要新功能的话可以提issue,我们视情况添加
+- 新币种支持，计划中
+- PR:  fork -> feature/branch -> new PR -> flow
 TBD
 
 ## 如何进行测试
+普通单元测试 go test 即可
+
+集成测试：
+
+搜索：`+build integration` 为集成测试代码
+
+运行集成测试需要增加tag:  `go test -tags=integration`
+
+对于一般币种来说，简单的集成测试会在本地起一条链，在本地链上进行自动验证，详细可以看考`qa`目录下的实现。
+另外，`Makefile`中以integrationTest 开头的测试为集成测试。
+
+不同币种的集成测试环境要求不同
+- 比特币要求配置环境变量 `BITCOIN_BIN_DIR` 指向bitcoin-core的目录
+- Omni要求配置环境变量 `OMNI_BIN_PATH` 指向omni-core目录
+- ETH要求本地全局安装又`ganache-cli`
+
+测试链测试：
 TBD
 
 ## 关于打包体积问题
