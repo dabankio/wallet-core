@@ -18,6 +18,8 @@ import (
 	"github.com/lomocoin/wallet-core/core/btc"
 )
 
+// 简单转账测试
+// 本地起一条全新的链，发布一个omni代币，在此基础上进行测试
 func TestSimpleSend(t *testing.T) {
 	rq := require.New(t)
 
@@ -106,6 +108,7 @@ func TestSimpleSend(t *testing.T) {
 	}
 }
 
+// 发行代币
 func createToken(t *testing.T, cli *omnicli.Cli, cmd *omnicli.OmniSenddissuancefixedCmd) (propertyID int) {
 	rq := require.New(t)
 	{ // create token

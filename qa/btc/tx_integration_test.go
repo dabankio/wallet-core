@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// 简单转账签名测试
 func TestSimpleTX(t *testing.T) {
 	rq := require.New(t)
 
@@ -59,34 +60,6 @@ func TestSimpleTX(t *testing.T) {
 	{ //SDK 的使用可以参考这里
 		var tx *btc.BTCTransaction
 		{ // build tx
-			// decAddr, err := btcutil.DecodeAddress(a0.Address, &chaincfg.RegressionNetParams)
-			// rq.Nil(err)
-			// _ = decAddr
-
-			info, err := cli.GetAddressInfo(a0.Address)
-			rq.Nil(err)
-			fmt.Printf("info: %#v\n", info)
-
-			// pkScript, err := txscript.PayToAddrScript(decAddr)
-			// rq.Nil(err)
-
-			// b, err := hex.DecodeString(a0.Pubkey)
-			// rq.Nil(err)
-			// pk, err := btcutil.NewAddressPubKey(b, &chaincfg.RegressionNetParams)
-			// rq.Nil(err)
-
-			// pk, err := btcec.ParsePubKey(b, btcec.S256())
-			// pk := (*btcec.PublicKey)(&key.PublicKey).
-			// 	SerializeUncompressed()
-			// tmpAddress, err := btcutil.NewAddressPubKeyHash(
-			// 	btcutil.Hash160(b), &chaincfg.RegressionNetParams)
-			// rq.Nil(err)
-			// fmt.Println("tmpAddress:", tmpAddress.EncodeAddress())
-
-			// pkScript, err := txscript.PayToAddrScript(tmpAddress)
-			// rq.Nil(err)
-			// _ = pkScript
-
 			unspent := new(btc.BTCUnspent) //java: new btc.BTCUnspent()
 			unspent.Add(utxo.TxID, int64(utxo.Vout), utxo.Amount, utxo.ScriptPubKey, utxo.RedeemScript)
 

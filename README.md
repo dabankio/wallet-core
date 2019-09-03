@@ -1,19 +1,80 @@
 # wallet-core
 
-## 如何使用
-TBD
+## 目录
+- 概述
+- 特性
+- 如何使用、文档、教程
+- Demo
+- FAQ
+- 已知问题
+- 贡献代码
+- 开源许可证
 
-## 如何只打包我想要的模块
+## 概述
+
+这是一个加密货币签名库，核心目的在于提供离线（在线也可以）环境下加密货币的交易签名。主要使用场景偏向于移动端。
+
+跨平台，使用golang实现，通过[gomobile](https://github.com/golang/mobile) 打包为二进制库供android(.aar) iOS(.framework)使用。(React Native / Flutter 验证可用，但目前还没有计划直接提供为依赖，有简单的教程)
+
+目前支持BTC Omni(USDT) ETH ,后续会加入更多币种支持。
+
+针对的使用场景主要是移动端冷热钱包、多签钱包。
+
+## 特性
+- bip39 助记词,bip44 多币种私钥推导
+- BTC
+    - 构造原始交易
+    - 签名交易(不支持隔离见证地址)
+    - 多重签名
+- Omni 由于omni基于bitcoin,故btc支持的特性omni也支持
+- ETH
+    - 构造原始交易
+    - 签名交易
+    - 简单多重签名（合约见源码）
+    - ERC20 代币支持
+- 单独使用需要的模块
+    - bip39
+    - bip44
+    - eth
+    - btc
+    - btc + omni
+- 打包体积
+    - android aar (打包支持 arm64-v8a   armeabi-v7a x86 x86_64)
+        - 全部打包约18M(仅armeabi-v7a架构约4M)
+        - 仅使用btc 13M(仅armeabi-v7a架构约3M)
+        - 仅使用eth 9.7M(仅armeabi-v7a架构约2.2M)
+    - iOS .framework (TBD)
+
+## 如何使用
+
+总的来说，最小情况下，只需要提供节点服务即可完成钱包app开发。
+
+建议的方式，在使用某一币种之前，首先通过官方文档了解基本的概念，使用流程。
+
+也可以通过集成测试(`qa/`目录)了解详细的使用方式，集成测试包含了完整的使用场景示例。
+
+android 导出xxx-sources.jar,可以找到api文档。
+
+iOS 导出的framework 目录下有 Headers目录，可以找到导出的api文档
+
+### 更多文档
+
+[docs](docs) 目录下包含了更多的文档，包括各币种的使用介绍，开发文档，原生平台使用等
+
+
+## Demo
+
+- 基于Flutter + 钱包sdk 的ETH 多签 + 冷钱包 demo. https://github.com/lomocoin/wallet-sdk-demo
+
+
+---
+
+## FAQ
+
+### 如何只打包我想要的模块?
 参见Makefile `build`开头的命令，支持单币种导出、多币种导出或其他任意独立模块
 
-## 如何贡献代码
-- 任何想法都可以通过issue进行讨论
-- 需要新功能的话可以提issue,我们视情况添加
-- 新币种支持，计划中
-- PR:  fork -> feature/branch -> new PR -> flow
-TBD
-
-## 如何进行测试
+### 如何进行测试?
 普通单元测试 go test 即可
 
 集成测试：
@@ -28,10 +89,22 @@ TBD
 不同币种的集成测试环境要求不同
 - 比特币要求配置环境变量 `BITCOIN_BIN_DIR` 指向bitcoin-core的目录
 - Omni要求配置环境变量 `OMNI_BIN_PATH` 指向omni-core目录
-- ETH要求本地全局安装又`ganache-cli`
+- ETH要求本地全局安装有 ganache-cli`
 
 测试链测试：
+
 TBD
+
+## 如何贡献代码
+- 任何想法都可以通过issue进行讨论
+- 需要新功能的话可以提issue,我们视情况添加
+- 新币种支持，计划中
+- PR:  fork -> feature/branch -> new PR -> flow
+TBD
+
+## 商业支持
+
+目前暂时没有商业支持计划，有需要的话可以通过 support@dabank.io 和我们取得联系
 
 ## 关于打包体积问题
 

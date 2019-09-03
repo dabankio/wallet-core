@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// 多重签名测试
 func TestMultisig(t *testing.T) {
 	rq := require.New(t)
 

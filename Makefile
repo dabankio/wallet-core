@@ -18,10 +18,10 @@ pkgAll = $(pkgGmtypes) $(pkgBip39) $(pkgBip44) $(pkgBtc) $(pkgEth)
 #如果没有指定平台，则都构建
 platform?=android,ios
 
-fmt:
+fmt:  # 格式化go代码
 	@go fmt ./...
 
-test:
+test:  # go单元测试
 	@go test ./...
 
 #---------------------集成测试  start -----------------
