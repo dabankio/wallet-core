@@ -87,8 +87,8 @@ func GetWordList() []string {
 	return wordList
 }
 
-// GetWordIndex gets word index in wordMap.
-func GetWordIndex(word string) (int, bool) {
+// getWordIndex gets word index in wordMap.
+func getWordIndex(word string) (int, bool) {
 	idx, ok := wordMap[word]
 	return idx, ok
 }

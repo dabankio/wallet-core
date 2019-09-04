@@ -5,18 +5,15 @@ outdir=out
 
 module=github.com/lomocoin/wallet-core
 
-pkgGmtypes = ${module}/gmtypes
 pkgBip39 = ${module}/bip39
 pkgBip44 = ${module}/bip44
 pkgBtc = ${module}/core/btc
+pkgOmni = ${module}/core/omni
 pkgEth = ${module}/core/eth
 pkgWallet = ${module}/wallet
 pkgCore = ${module}/core
 
-pkgAll = $(pkgGmtypes) $(pkgBip39) $(pkgBip44) $(pkgBtc) $(pkgEth)
-
-#如果没有指定平台，则都构建
-platform?=android,ios
+pkgAll = $(pkgBip39) $(pkgBip44) $(pkgBtc) $(pkgEth) $(pkgOmni) $(pkgWallet)
 
 fmt:  # 格式化go代码
 	@go fmt ./...
@@ -41,23 +38,35 @@ integrationTestEth:
 
 
 #---------------------构建  start -----------------
-#构建android iOS
+#bip39
+buildBip39Android:
+	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/bip39.aar ${pkgBip39}
+buildBip39IOS:
+	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/bip39.framework ${pkgBip39}
+
+#btc
 buildBtcAndroid:
 	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/btc.aar ${pkgBtc}
 buildBtcIOS:
 	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/btc.framework ${pkgBtc}
 
+#TODO btc+omni
+buildOmniBtcAndroid:
+	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/btcOmni.aar ${pkgBtc} ${pkgOmni}
+buildOmniBtcIOS:
+	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/btcOmni.framework ${pkgBtc} ${pkgOmni}
 
+#eth
 buildEthAndroid:
 	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/eth.aar ${pkgEth}
 buildEthIOS:
 	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/eth.framework ${pkgEth}
 
-
+#all: bip39,bip44,btc,eth,omni
 buildAllAndroid:
-	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/wallet.aar ${pkgWallet} ${pkgBtc} ${pkgEth}
+	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/wallet.aar ${pkgAll}
 buildAllIOS:
-	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/wallet.framework ${pkgWallet} ${pkgBtc} ${pkgEth}
+	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/wallet.framework ${pkgAll}
 
 
 #---------------------构建  end -----------------
