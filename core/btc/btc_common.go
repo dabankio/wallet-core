@@ -26,11 +26,12 @@ func NewBTCAddressFromString(addr string, chainID int) (address *BTCAddress, err
 	return
 }
 
-// BTCAmount
+// BTCAmount 对float64 的封装
 type BTCAmount struct {
 	amount btcutil.Amount
 }
 
+// NewBTCAmount 数量in BTC (not in satoshi)
 func NewBTCAmount(amount float64) (amt *BTCAmount, err error) {
 	amt = new(BTCAmount)
 	tempAmt, err := btcutil.NewAmount(amount)

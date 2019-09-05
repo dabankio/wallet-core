@@ -70,7 +70,7 @@ func TestSimpleSend(t *testing.T) {
 		changeAddr, err := btc.NewBTCAddressFromString(a0.Address, chainID)
 		rq.Nil(err, "failed to create addr")
 		feeRate := int64(80)
-		btctx, err := omni.CreateTransactionForOmni(propertyID, false, unspent, toAddr, transferAmount, changeAddr, feeRate, chainID)
+		btctx, err := omni.CreateSimpleSendTransaction(propertyID, false, unspent, toAddr, transferAmount, changeAddr, feeRate, chainID)
 		rq.Nil(err, "Failed to crate btctx")
 
 		toSignMsg, err := btctx.EncodeToSignCmd()

@@ -13,6 +13,7 @@ type CoinInfo struct {
 	ChainCfg       *chaincfg.Params
 }
 
+// Coin 定义了某种货币常用的可以提供的方法
 type Coin interface {
 	// DeriveAddress derives the account address of the derivation path.
 	DeriveAddress() (address string, err error)

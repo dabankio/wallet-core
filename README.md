@@ -32,7 +32,11 @@
     - 签名交易
     - 简单多重签名（合约见源码）
     - ERC20 代币支持
-- 单独使用需要的模块
+- 跨平台
+    - android : xxx.aar
+    - iOS : xxx.framework
+    - 可以在ReactNative 和 Flutter 中使用
+- 可单独使用需要的模块，而不会引入不需要的模块（打包体积小）
     - bip39
     - bip44
     - eth
@@ -108,13 +112,17 @@ TBD
 
 ## 关于打包体积问题
 
+建议的方式是打包所有架构出aar,打包apk时再精简架构，这样x86虚拟机也可以调试
+
 - android方面可以自行精简不需要的架构二进制打包,flutter 里有这种 `flutter build apk --target-platform android-arm --split-per-abi`,gradle 方面也有相关的配置 https://developer.android.com/studio/build/configure-apk-splits
+
+- 另一种策略是出aar时就只指定一个架构E.g.`-target=android/arm,android/386.`，可以参考`gomobile help bind` (这种情况下出aar也会更快)
 
 ## 一些已知问题
 
-总的来说gomobile并不是一个广泛使用的技术，存在诸多限制，建议阅读官方文档，并浏览现有issues :https://github.com/golang/go/issues?q=is%3Aopen+is%3Aissue+label%3Amobile+sort%3Acomments-desc
+总的来说gomobile并不是一个广泛使用的技术，存在诸多限制，建议阅读官方文档，并浏览现有issues: https://github.com/golang/go/issues?q=is%3Aopen+is%3Aissue+label%3Amobile+sort%3Acomments-desc
 
-- gomobile 导出到二进制存在类型限制，导出的包的导出类型不能包含除了这些数据类型外的类型
+- gomobile 导出到二进制存在类型限制，导出的包的导出类型不能包含除了这些数据类型外的类型, https://godoc.org/golang.org/x/mobile/cmd/gobind#hdr-Type_restrictions
     - 补充，虽然有时候使用了不支持的类型在某些环境下还是能用，但总的来说建议参照官方说明
 - 目前在go module环境下无法正确打包，参见：https://github.com/golang/go/issues/27234 ，推荐的做法包括
     - 在GOPATH目录下建立软链接，打包时通过软链接进入目录，执行make

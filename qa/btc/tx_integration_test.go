@@ -94,8 +94,10 @@ func TestSimpleTX(t *testing.T) {
 		{ // sdk sign 2
 			notSignedHex, _ := tx.Encode()
 
-			rs, err := btc.Sign(tx, a0.Privkey, chainID)
+			rs, err := btc.SignTransaction(tx, a0.Privkey, chainID)
 			rq.Nil(err)
+			rq.True(rs.Complete, "")
+			rq.True(rs.Changed, "")
 			signedHex = rs.Hex
 			rq.NotEqual(notSignedHex, signedHex, "raw tx not changed")
 		}

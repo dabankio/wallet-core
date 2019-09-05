@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/hex"
 	"encoding/json"
-	"github.com/lomocoin/wallet-core/core/btc/internal"
 	"sync"
 
 	"github.com/btcsuite/btcd/btcjson"
@@ -14,6 +13,7 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 
+	"github.com/lomocoin/wallet-core/core/btc/internal"
 	"github.com/lomocoin/wallet-core/core/btc/internal/helpers"
 	"github.com/lomocoin/wallet-core/core/btc/internal/txauthor"
 
@@ -33,6 +33,7 @@ type BTCUnspent struct {
 	unspent []btcjson.ListUnspentResult
 }
 
+// Add add one utxo
 func (us *BTCUnspent) Add(txId string, vOut int64, amount float64, scriptPubKey, redeemScript string) {
 	us.unspent = append(us.unspent, btcjson.ListUnspentResult{
 		TxID:         txId,
@@ -43,11 +44,15 @@ func (us *BTCUnspent) Add(txId string, vOut int64, amount float64, scriptPubKey,
 	})
 }
 
+// BTCOutputAmount 交易输出
 type BTCOutputAmount struct {
 	addressValue map[BTCAddress]BTCAmount
 	mutx         sync.Mutex
 }
 
+// Add 添加一个交易输出
+// address 地址
+// amount 金额
 func (baa *BTCOutputAmount) Add(address *BTCAddress, amount *BTCAmount) {
 	baa.mutx.Lock()
 	defer baa.mutx.Unlock()
@@ -138,7 +143,7 @@ func InternalNewBTCTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, ch
 	return
 }
 
-// GetFee
+// GetFee 获取目前的费率(in BTC, not satoshi)
 // Returns the miner's fee for the current transaction
 func (tx BTCTransaction) GetFee() (float64, error) {
 	if tx.totalInputValue == nil {
@@ -148,6 +153,7 @@ func (tx BTCTransaction) GetFee() (float64, error) {
 	return fee.ToBTC(), nil
 }
 
+// Encode encode to raw transaction
 func (tx BTCTransaction) Encode() (string, error) {
 	var buf bytes.Buffer
 	if tx.tx == nil {
@@ -159,7 +165,7 @@ func (tx BTCTransaction) Encode() (string, error) {
 	return hex.EncodeToString(buf.Bytes()), nil
 }
 
-// 结果可以用于签名接口
+// EncodeToSignCmd 结果可以用于签名接口
 func (tx BTCTransaction) EncodeToSignCmd() (string, error) {
 	data, err := tx.Encode()
 	if err != nil {

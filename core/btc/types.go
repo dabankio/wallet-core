@@ -5,5 +5,5 @@ type SignRawTransactionResult struct {
 	Hex      string
 	Changed  bool //is raw tx changed
 	Complete bool //multi input,multisig require meetted
-	Errors   *string
+	Errors   string
 }

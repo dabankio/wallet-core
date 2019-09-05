@@ -80,9 +80,8 @@ func TestMultisig(t *testing.T) {
 	chainID := btc.ChainRegtest
 	{ //SDK 的使用可以参考这里
 		var tx *btc.BTCTransaction
-		_ = tx
-		{ // build tx
-			unspent := new(btc.BTCUnspent) //java: new btc.BTCUnspent()
+		unspent := new(btc.BTCUnspent) //java: new btc.BTCUnspent()
+		{                              // build tx
 			unspent.Add(utxo.TxID, int64(utxo.Vout), utxo.Amount, utxo.ScriptPubKey, redeemScript)
 
 			amount, err := btc.NewBTCAmount(transferAmount)
@@ -104,28 +103,19 @@ func TestMultisig(t *testing.T) {
 		}
 
 		{ //sdk sign
-			coin, _ := btc.New(nil, chainID)
-
-			notSignedHex, _ := tx.Encode()
-			_ = notSignedHex
-
 			// member a1 sign
-			cmd, err := tx.EncodeToSignCmd()
+			signRs, err := btc.SignTransaction(tx, a1.Privkey, chainID)
 			rq.Nil(err)
-
-			signedHex, err = coin.Sign(cmd, a1.Privkey)
-			rq.Nil(err)
-			rq.NotEqual(notSignedHex, signedHex, "raw tx not changed")
+			rq.True(signRs.Changed, "")
+			rq.False(signRs.Complete, "")
+			signedHex = signRs.Hex
 
 			// member a3 sign
-			cmd2, err := tx.EncodeToSignCmdForNextSigner(signedHex)
+			signRs, err = btc.SignRawTransactionWithKey(signedHex, a3.Privkey, unspent, chainID)
 			rq.Nil(err)
-
-			signedHex2, err := coin.Sign(cmd2, a3.Privkey)
-			rq.Nil(err)
-			rq.NotEqual(signedHex, signedHex2, "raw tx not changed")
-
-			signedHex = signedHex2
+			rq.True(signRs.Changed)
+			rq.True(signRs.Complete)
+			signedHex = signRs.Hex
 		}
 	}
 

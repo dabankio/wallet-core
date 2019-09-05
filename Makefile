@@ -46,21 +46,21 @@ buildBip39IOS:
 
 #btc
 buildBtcAndroid:
-	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/btc.aar ${pkgBtc}
+	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/btc.aar ${pkgBtc} ${pkgBip44} ${pkgBip39}
 buildBtcIOS:
-	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/btc.framework ${pkgBtc}
+	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/btc.framework ${pkgBtc} ${pkgBip44} ${pkgBip39}
 
 #TODO btc+omni
 buildOmniBtcAndroid:
-	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/btcOmni.aar ${pkgBtc} ${pkgOmni}
+	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/btcOmni.aar ${pkgBtc} ${pkgOmni} ${pkgBip44} ${pkgBip39}
 buildOmniBtcIOS:
-	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/btcOmni.framework ${pkgBtc} ${pkgOmni}
+	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/btcOmni.framework ${pkgBtc} ${pkgOmni} ${pkgBip44} ${pkgBip39}
 
 #eth
 buildEthAndroid:
-	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/eth.aar ${pkgEth}
+	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/eth.aar ${pkgEth} ${pkgBip44} ${pkgBip39}
 buildEthIOS:
-	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/eth.framework ${pkgEth}
+	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/eth.framework ${pkgEth} ${pkgBip44} ${pkgBip39}
 
 #all: bip39,bip44,btc,eth,omni
 buildAllAndroid:
