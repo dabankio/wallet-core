@@ -22,7 +22,10 @@ test:  # go单元测试
 	@go test ./...
 
 #---------------------集成测试  start -----------------
-
+integrationTest:
+	make integrationTestBtc
+	make integrationTestEth
+	make integrationTestOmni
 integrationTestBtc:
 	#BTC 集成测试需要配置环境变量 BITCOIN_BIN_DIR 指向bitcoin-core目录
 	@go test -v -tags=integration github.com/lomocoin/wallet-core/qa/btc

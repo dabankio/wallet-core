@@ -15,15 +15,22 @@ import (
 
 const ganacheCliPort = 8545
 
-// RunGanacheCli 启动ganache-cli 用以测试,返回杀死ganache-cli的函数
-func RunGanacheCli() (func(), error) {
+// RunGanacheCli 启动ganache-cli 用以测试,返回杀死ganache-cli的函数,提供了账号的话会为账号提供100ETH的初始资金
+func RunGanacheCli(accountPrivateKeys ...string) (func(), error) {
 	if cmdIsPortContainsNameRunning(ganacheCliPort, "ganache-cli") {
 		return nil, fmt.Errorf("ganache 似乎已经运行在%d端口了,不先杀掉的话数据可能有问题", ganacheCliPort)
 	}
 
 	closeChan := make(chan struct{})
 
-	cmd := exec.Command("ganache-cli")
+	args := []string{}
+	if len(accountPrivateKeys) > 0 {
+		for _, a := range accountPrivateKeys {
+			args = append(args, fmt.Sprintf("--account=%s,100000000000000000000", a)) //100+18个0
+		}
+	}
+
+	cmd := exec.Command("ganache-cli", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	fmt.Println(cmd.Args)

@@ -81,7 +81,7 @@ func TestSimpleTX(t *testing.T) {
 			rq.Nil(err)
 		}
 
-		{ //sdk sign
+		{ //sdk sign,这个不能在移动端使用，btc.New 未导出
 			// coin, _ := btc.New(nil, chainID)
 			// notSignedHex, _ := tx.Encode()
 			// cmd, err := tx.EncodeToSignCmd()

@@ -25,3 +25,21 @@
 | 构造种子(带错误检查) | 空格分隔的助记词字符串             | byte[] | 助记词异常时返回错误             | bip39.Bip39.newSeedWithErrorChecking | Bip39NewSeedWithErrorChecking |
 | 构造种子             | 1助记词; 2密码(不指定则为空字符串) | byte[] | -                                | bip39.Bip39.newSeed                  | Bip39NewSeed                  |
 | 验证助记词           | 空格分隔的助记词字符串             | bool   | -                                | bip39.Bip39.isMnemonicValid          | Bip39IsMnemonicValid          |
+
+
+## Bip44
+
+典型的用法，为特定的币种推导私钥，目前sdk支持每个主链币种推导一个地址，具体使用币种包下的：`NewBip44Deriver` 方法，不同币种可能稍有差异
+- BTC
+    - android `btc.Btc.NewBip44Deriver(byte[] seed, long chainID)`
+    - iOS `BtcNewBip44Deriver(NSData* _Nullable seed, long chainID...)`
+- ETH
+    - android `btc.Btc.NewBip44Deriver(byte[] seed)`
+    - iOS `BtcNewBip44Deriver(NSData* _Nullable seed...)`
+
+bip44 目录下的 Deriver 接口定义了推导函数，目前支持单个私钥推导
+```golang
+DeriveAddress() (address string, err error)
+DerivePublicKey() (publicKey string, err error)
+DerivePrivateKey() (privateKey string, err error)
+```

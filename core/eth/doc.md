@@ -1,7 +1,7 @@
 生成文件说明
 ----
 
-```erc20_abi_helper.go```及```SimpleMultiSig_abi_helper.go```使用```xabigen```生成，```xabigen```基于go-tehreum 的```abigen```做了简单定制，源码见 https://github.com/lemon-sunxiansong/go-ethereum  (branch feature/abigen)
+```erc20_abi_helper.go```及```SimpleMultiSig_abi_helper.go```使用```xabigen```生成，```xabigen```基于go-tehreum 的```abigen```做了简单定制，源码见 https://github.com/sunxiansong/go-ethereum  (branch feature/abigen)
 
 使用的模板：`mobile_abi_helper.tpl`
 

@@ -12,8 +12,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lomocoin/wallet-core/core"
-
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -49,7 +47,6 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 		client          *ethclient.Client
 		abiHelper       *eth.SimpleMultiSigABIHelper
 		suggestGasPrice *big.Int
-		ethCoin         core.Coin
 	)
 	{ // init vars
 		// 生成4个地址，并排序
@@ -70,7 +67,6 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 
 		suggestGasPrice, err = client.SuggestGasPrice(ctx)
 		rq.Nil(err, "Failed to get gasPrice")
-		ethCoin, _ = eth.New(nil) // 这里return 的err非nil，可忽略
 
 	}
 
@@ -110,7 +106,7 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 
 		encodedRlpTx, err := ethtx.EncodeRLP()
 		rq.Nil(err, "failed to encode tx rlp")
-		sig, err := ethCoin.Sign(encodedRlpTx, a0.PrivkHex)
+		sig, err := eth.SignRawTransaction(encodedRlpTx, a0.PrivkHex)
 		rq.Nil(err, "Failed to sign tx")
 
 		{ // 一般步骤下，应该用签名好的数据调用广播api,创建合约，这里处理下数据然后调用geth jsonrpc 进行广播
@@ -246,7 +242,7 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 
 		encodedRlpTx, err := ethtx.EncodeRLP()
 		rq.Nil(err, "failed to encode tx rlp")
-		sig, err := ethCoin.Sign(encodedRlpTx, a0.PrivkHex)
+		sig, err := eth.SignRawTransaction(encodedRlpTx, a0.PrivkHex)
 		rq.Nil(err, "Failed to sign tx")
 
 		{ // 一般步骤下，应该用签名好的数据调用广播api,创建合约，这里处理下数据然后调用 jsonrpc 进行广播
@@ -366,7 +362,7 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 
 		encodedRlpTx, err := ethtx.EncodeRLP()
 		rq.Nil(err, "failed to encode tx rlp")
-		sig, err := ethCoin.Sign(encodedRlpTx, a0.PrivkHex)
+		sig, err := eth.SignRawTransaction(encodedRlpTx, a0.PrivkHex)
 		rq.Nil(err, "Failed to sign tx")
 
 		{ // 一般步骤下，应该用签名好的数据调用广播api,创建合约，这里处理下数据然后调用 jsonrpc 进行广播

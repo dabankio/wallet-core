@@ -44,11 +44,71 @@ API使用首先建议阅读 [api文档说明](./api.md)
 
 ERC20的多签会更为复杂一点,在集成测试代码里也有示例
 
+## 示例代码
+
+我们建议参考集成测试的代码，了解使用方法，此处的代码仅作展示用，方便了解特性和api设计。可能存在滞后性。
+
+构建和签名交易
+```golang
+//golang 代码
+// :构造交易
+toA1Address, err := eth.NewETHAddressFromHex(addrs[1].address)
+tx := eth.NewETHTransaction(int64(a0Nonce), toA1Address, eth.NewBigInt(int64(transferAmount)), int64(gasLimit), eth.NewBigInt(int64(gasPrice)), nil)
+
+rawTx, err := tx.EncodeRLP()
+// :签名交易
+signedHex, err := eth.SignRawTransaction(rawTx, addrs[0].privateKey)
+```
+
+ERC20支持
+```golang
+// demo code in golang
+erc20AbiHelper := eth.NewERC20InterfaceABIHelper()
+
+// 打包erc20 合约调用转账的data
+data, err := erc20AbiHelper.PackedTransfer(erc20OutEthAddr, erc20TransferValue)
+// 打包erc20 合约调用查余额的data
+packedErc20GetBalanceData, err : =erc20AbiHelper.PackedBalanceOf(erc20OutEthAddr)
+
+// 通过rpc查询到erc20余额后对数据的解码(此处转换为bigInt)
+erc20AbiHelper.UnpackBalanceOf(output []byte)
+```
+
+简单多重签名支持：
+```golang
+// demo code in golang
+
+// :打包部署多签合约的交易数据data
+createMultisigData, err := eth.PackedDeploySimpleMultiSig(eth.NewBigInt(int64(mRequired)), ownersAddrWrap, eth.NewBigInt(chainID))
+// :构造部署多签合约的交易
+ethtx := eth.NewETHTransactionForContractCreation(int64(a0Nonce), gasLimit, eth.NewBigInt(suggestGasPrice.Int64()), createMultisigData)
+
+// :简单多签合约abi工具
+abiHelper = eth.NewSimpleMultiSigABIHelper()
+// :构造数据，用以读取合约内值（读取合约内的字段值）
+callNonceData, _ := abiHelper.PackedNonce()
+// :构造数据，用以调用合约的view 函数
+packedGetOwnersLengthData, err := abiHelper.PackedGetOwersLength()
+// :从rpc读取到合约内的值后进行解码
+ownerLen, err := abiHelper.UnpackGetOwersLength(retBytes)
+
+// :用私钥对交易信息进行签名
+signRes, err := eth.UtilSimpleMultiSigExecuteSign(chainID, add.PrivkHex, multisigContractAddress, destination, executor, nonce.GetInt64(), value, gasLimit, data)
+// :多签签名合约核心方法调用数据打包
+packedExecuteData, err := abiHelper.PackedExecute(sigV, sigR, sigS, destAddr, value, data, &eth.ETHAddress{}, gasLimit)
+
+```
+
+[../qa/eth/example_simplemultisig_integration_test.go](../qa/eth/example_simplemultisig_integration_test.go) 包含了完整的golang示例代码，包括
+- 部署多签合约
+- 多重签名
+- ERC20代币支持
+
 
 ## 另外的几个流行的多签合约
 （star基于2019-09-03数据）
 - 137star,一个简单的 2-3 实现， https://github.com/BitGo/eth-multisig-v2
 - 185star,另一个简单的带每日限额的多签实现 https://github.com/ConsenSys/MultiSigWallet
 - 668star,对上一个的升级 https://github.com/Gnosis/MultiSigWallet
-- 137star,https://github.com/BitGo/eth-multisig-v2
 - dapp的一个实现，https://github.com/ethereum/dapp-bin/blob/master/wallet/wallet.sol
+

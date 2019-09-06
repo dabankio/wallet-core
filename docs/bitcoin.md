@@ -31,3 +31,43 @@ API使用首先建议阅读 [api文档说明](./api.md)
 - 签名成员顺序对交易进行签名
 - 达到指定签名数量后广播交易
 - 等待打包，等待达到确认数
+
+
+## api 举例
+
+示例代码来自[../qa/btc/tx_integration_test.go](../qa/btc/tx_integration_test.go)
+
+构造交易和签名：
+
+```golang
+//示例代码为golang，java/objective-c 参考生成的xxx-source.jar 和 xxx.objc.h
+//对golang不熟悉可以简单忽略代码中的err
+
+// :构造 unspent output list
+unspent := new(btc.BTCUnspent) //java: new btc.BTCUnspent()
+unspent.Add(utxo.TxID, int64(utxo.Vout), utxo.Amount, utxo.ScriptPubKey, utxo.RedeemScript)
+
+// :对数量/金额的封装
+amount, err := btc.NewBTCAmount(transferAmount)
+
+// :构造地址
+toAddressA1, err := btc.NewBTCAddressFromString(a1.Address, chainID)
+
+// :构造交易输出（准确的说，只是指定了输出的地址和金额）
+outputAmount := btc.BTCOutputAmount{} //java: new btc.BTCOutputAmount()
+outputAmount.Add(toAddressA1, amount)
+
+feeRate := int64(80)
+
+// :找零地址
+changeAddressA0, err := btc.NewBTCAddressFromString(a0.Address, chainID)
+
+// :构造原始交易
+tx, err = btc.NewBTCTransaction(unspent, &outputAmount, changeAddressA0, feeRate, chainID)
+
+// :使用私钥对交易进行签名
+rs, err := btc.SignTransaction(tx, a0.Privkey, chainID)
+signedHex = rs.Hex
+```
+
+多重签名请参考 [../qa/btc/multisig_integration_test.go](../qa/btc/multisig_integration_test.go)

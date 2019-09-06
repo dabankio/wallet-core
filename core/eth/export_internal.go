@@ -9,3 +9,9 @@ var (
 	New             = internal.New
 	NewFromMetadata = internal.NewFromMetadata
 )
+
+// SignRawTransaction .
+func SignRawTransaction(msg, privateKey string) (sig string, err error) {
+	eth, _ := internal.New(nil)
+	return eth.Sign(msg, privateKey)
+}
