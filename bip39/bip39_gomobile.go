@@ -3,7 +3,7 @@ package bip39
 import (
 	"strings"
 
-	"github.com/lomocoin/wallet-core/bip39/wordlists"
+	"github.com/dabankio/wallet-core/bip39/wordlists"
 	"github.com/pkg/errors"
 )
 

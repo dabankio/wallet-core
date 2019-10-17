@@ -1,8 +1,8 @@
 package btc
 
 import (
-	"github.com/lomocoin/wallet-core/core"
-	"github.com/lomocoin/wallet-core/core/btc/internal"
+	"github.com/dabankio/wallet-core/core"
+	"github.com/dabankio/wallet-core/core/btc/internal"
 )
 
 // Btc (全部大写在导出到java那边有点问题)

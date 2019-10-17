@@ -7,7 +7,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lomocoin/wallet-core/core/btc/internal"
+	"github.com/dabankio/wallet-core/core/btc/internal"
 )
 
 /*

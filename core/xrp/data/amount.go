@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/lomocoin/wallet-core/core/xrp/crypto"
+	"github.com/dabankio/wallet-core/core/xrp/crypto"
 )
 
 type Amount struct {

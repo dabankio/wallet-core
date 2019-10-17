@@ -1,7 +1,7 @@
 package omni
 
 import (
-	"github.com/lomocoin/omnicli"
+	"github.com/dabankio/omnicli"
 )
 
 var (

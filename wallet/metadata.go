@@ -1,7 +1,7 @@
 package wallet
 
 import (
-	"github.com/lomocoin/wallet-core/core"
+	"github.com/dabankio/wallet-core/core"
 )
 
 var _ core.MetadataProvider = &metadataProviderImpl{}

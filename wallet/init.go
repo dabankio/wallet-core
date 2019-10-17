@@ -3,16 +3,16 @@ package wallet
 import (
 	"strings"
 
-	"github.com/lomocoin/wallet-core/core"
-	// "github.com/lomocoin/wallet-core/core/bch"
-	"github.com/lomocoin/wallet-core/core/btc"
-	"github.com/lomocoin/wallet-core/core/eth"
-	"github.com/lomocoin/wallet-core/core/mgd"
-	"github.com/lomocoin/wallet-core/core/nxt"
-	"github.com/lomocoin/wallet-core/core/omni"
-	"github.com/lomocoin/wallet-core/core/trx"
-	"github.com/lomocoin/wallet-core/core/wcg"
-	"github.com/lomocoin/wallet-core/core/xrp"
+	"github.com/dabankio/wallet-core/core"
+	// "github.com/dabankio/wallet-core/core/bch"
+	"github.com/dabankio/wallet-core/core/btc"
+	"github.com/dabankio/wallet-core/core/eth"
+	"github.com/dabankio/wallet-core/core/mgd"
+	"github.com/dabankio/wallet-core/core/nxt"
+	"github.com/dabankio/wallet-core/core/omni"
+	"github.com/dabankio/wallet-core/core/trx"
+	"github.com/dabankio/wallet-core/core/wcg"
+	"github.com/dabankio/wallet-core/core/xrp"
 	"github.com/pkg/errors"
 )
 

@@ -3,7 +3,7 @@
 package omni
 
 import (
-	"github.com/lomocoin/wallet-core/core/omni"
+	"github.com/dabankio/wallet-core/core/omni"
 	"github.com/stretchr/testify/require"
 	// "time"
 	"fmt"
@@ -12,10 +12,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lomocoin/omnicli"
-	"github.com/lomocoin/omnicli/btcjson"
+	"github.com/dabankio/omnicli"
+	"github.com/dabankio/omnicli/btcjson"
 
-	"github.com/lomocoin/wallet-core/core/btc"
+	"github.com/dabankio/wallet-core/core/btc"
 )
 
 // 简单转账测试

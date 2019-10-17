@@ -4,10 +4,10 @@ package omni
 
 import (
 	"fmt"
-	"github.com/lomocoin/omnicli"
-	"github.com/lomocoin/omnicli/btcjson"
-	"github.com/lomocoin/wallet-core/core/btc"
-	"github.com/lomocoin/wallet-core/core/omni"
+	"github.com/dabankio/omnicli"
+	"github.com/dabankio/omnicli/btcjson"
+	"github.com/dabankio/wallet-core/core/btc"
+	"github.com/dabankio/wallet-core/core/omni"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"strconv"

@@ -1,8 +1,8 @@
 package btc
 
 import (
-	"github.com/lomocoin/wallet-core/bip44"
-	"github.com/lomocoin/wallet-core/core/btc/internal"
+	"github.com/dabankio/wallet-core/bip44"
+	"github.com/dabankio/wallet-core/core/btc/internal"
 )
 
 // NewBip44Deriver btc bip44 实现

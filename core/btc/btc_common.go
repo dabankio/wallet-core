@@ -2,7 +2,7 @@ package btc
 
 import (
 	"github.com/btcsuite/btcutil"
-	"github.com/lomocoin/wallet-core/core/btc/internal"
+	"github.com/dabankio/wallet-core/core/btc/internal"
 )
 
 // BTCAddress .

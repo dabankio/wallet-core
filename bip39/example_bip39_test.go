@@ -2,7 +2,7 @@ package bip39_test
 
 import (
 	"fmt"
-	"github.com/lomocoin/wallet-core/bip39"
+	"github.com/dabankio/wallet-core/bip39"
 	"testing"
 )
 

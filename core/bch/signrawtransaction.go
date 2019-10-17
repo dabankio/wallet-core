@@ -12,9 +12,9 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcutil"
-	"github.com/lomocoin/wallet-core/core/bch/bchd/txscript"
-	"github.com/lomocoin/wallet-core/core/bch/bchd/wire"
-	"github.com/lomocoin/wallet-core/core/btc"
+	"github.com/dabankio/wallet-core/core/bch/bchd/txscript"
+	"github.com/dabankio/wallet-core/core/bch/bchd/wire"
+	"github.com/dabankio/wallet-core/core/btc"
 	"github.com/pkg/errors"
 )
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/lomocoin/wallet-core/core/eth/internal"
+	"github.com/dabankio/wallet-core/core/eth/internal"
 )
 
 // SimpleMultiSigExecuteSignResult .

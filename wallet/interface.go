@@ -8,11 +8,11 @@ import (
 	"encoding/hex"
 
 	"github.com/ethereum/go-ethereum/accounts"
-	"github.com/lomocoin/wallet-core/bip39"
+	"github.com/dabankio/wallet-core/bip39"
 
-	"github.com/lomocoin/wallet-core/bip44"
+	"github.com/dabankio/wallet-core/bip44"
 
-	"github.com/lomocoin/wallet-core/core"
+	"github.com/dabankio/wallet-core/core"
 )
 
 type Wallet struct {

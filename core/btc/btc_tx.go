@@ -13,9 +13,9 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 
-	"github.com/lomocoin/wallet-core/core/btc/internal"
-	"github.com/lomocoin/wallet-core/core/btc/internal/helpers"
-	"github.com/lomocoin/wallet-core/core/btc/internal/txauthor"
+	"github.com/dabankio/wallet-core/core/btc/internal"
+	"github.com/dabankio/wallet-core/core/btc/internal/helpers"
+	"github.com/dabankio/wallet-core/core/btc/internal/txauthor"
 
 	"github.com/pkg/errors"
 )

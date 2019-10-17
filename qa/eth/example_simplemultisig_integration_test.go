@@ -5,7 +5,7 @@ package eth
 import (
 	"context"
 	"fmt"
-	"github.com/lomocoin/wallet-core/core/eth"
+	"github.com/dabankio/wallet-core/core/eth"
 	"github.com/stretchr/testify/require"
 	"math/big"
 	"sort"

@@ -3,7 +3,7 @@ package omni
 import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	"github.com/lomocoin/wallet-core/core/btc"
+	"github.com/dabankio/wallet-core/core/btc"
 )
 
 // CreateSimpleSendTransaction 创建基于btc的omni交易,该方法构建比特币交易输出，包括：

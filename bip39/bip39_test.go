@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/lomocoin/wallet-core/bip39/wordlists"
+	"github.com/dabankio/wallet-core/bip39/wordlists"
 )
 
 type vector struct {

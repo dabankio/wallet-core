@@ -3,7 +3,6 @@ package crypto
 import (
 	"testing"
 
-	. "github.com/lomocoin/wallet-core/core/xrp/testing"
 	. "gopkg.in/check.v1"
 )
 

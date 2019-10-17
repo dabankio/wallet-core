@@ -3,7 +3,7 @@ DATE=`date +%FT%T%z`
 
 outdir=out
 
-module=github.com/lomocoin/wallet-core
+module=github.com/dabankio/wallet-core
 
 pkgBip39 = ${module}/bip39
 pkgBip44 = ${module}/bip44
@@ -21,6 +21,9 @@ fmt:  # 格式化go代码
 test:  # go单元测试
 	@go test ./...
 
+modTidy:
+	@go mod tidy
+
 #---------------------集成测试  start -----------------
 integrationTest:
 	make integrationTestBtc
@@ -28,15 +31,15 @@ integrationTest:
 	make integrationTestOmni
 integrationTestBtc:
 	#BTC 集成测试需要配置环境变量 BITCOIN_BIN_DIR 指向bitcoin-core目录
-	@go test -v -tags=integration github.com/lomocoin/wallet-core/qa/btc
+	@go test -v -tags=integration github.com/dabankio/wallet-core/qa/btc
 
 integrationTestOmni:
 	#Omni 集成测试需要配置环境变量 OMNI_BIN_PATH 指向omni-core目录
-	@go test -v -tags=integration github.com/lomocoin/wallet-core/qa/omni
+	@go test -v -tags=integration github.com/dabankio/wallet-core/qa/omni
 
 integrationTestEth:
 	#ETH 集成测试需要安装 npm i -g ganache-cli
-	@go test -v -tags=integration github.com/lomocoin/wallet-core/qa/eth
+	@go test -v -tags=integration github.com/dabankio/wallet-core/qa/eth
 #---------------------集成测试  end -----------------
 
 

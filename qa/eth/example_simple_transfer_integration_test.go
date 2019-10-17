@@ -14,8 +14,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	"github.com/lomocoin/wallet-core/bip39"
-	"github.com/lomocoin/wallet-core/core/eth"
+	"github.com/dabankio/wallet-core/bip39"
+	"github.com/dabankio/wallet-core/core/eth"
 	"github.com/stretchr/testify/require"
 )
 

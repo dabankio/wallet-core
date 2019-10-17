@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/btcsuite/btcd/btcjson"
-	"github.com/lomocoin/wallet-core/core/btc/internal"
+	"github.com/dabankio/wallet-core/core/btc/internal"
 	"github.com/pkg/errors"
 )
 

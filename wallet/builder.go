@@ -3,7 +3,7 @@ package wallet
 import (
 	"errors"
 
-	"github.com/lomocoin/wallet-core/bip44"
+	"github.com/dabankio/wallet-core/bip44"
 )
 
 type WalletOptions struct {

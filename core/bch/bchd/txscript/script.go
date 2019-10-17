@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/lomocoin/wallet-core/core/bch/bchd/wire"
+	"github.com/dabankio/wallet-core/core/bch/bchd/wire"
 )
 
 // Bip16Activation is the timestamp where BIP0016 is valid to use in the

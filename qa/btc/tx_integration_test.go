@@ -8,10 +8,10 @@ import (
 
 	"github.com/btcsuite/btcd/btcjson"
 
-	clibtcjson "github.com/lomocoin/btccli/btcjson"
-	"github.com/lomocoin/wallet-core/core/btc"
+	clibtcjson "github.com/dabankio/btccli/btcjson"
+	"github.com/dabankio/wallet-core/core/btc"
 
-	"github.com/lomocoin/btccli"
+	"github.com/dabankio/btccli"
 	"github.com/stretchr/testify/require"
 )
 

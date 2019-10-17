@@ -1,7 +1,7 @@
 package btc
 
 import (
-	"github.com/lomocoin/wallet-core/core/btc/internal"
+	"github.com/dabankio/wallet-core/core/btc/internal"
 )
 
 // ChainMainNet 链：MainNet

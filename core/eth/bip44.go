@@ -1,8 +1,8 @@
 package eth
 
 import (
-	"github.com/lomocoin/wallet-core/bip44"
-	"github.com/lomocoin/wallet-core/core/eth/internal"
+	"github.com/dabankio/wallet-core/bip44"
+	"github.com/dabankio/wallet-core/core/eth/internal"
 )
 
 // NewBip44Deriver eth bip44 实现

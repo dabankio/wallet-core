@@ -1,7 +1,7 @@
 package btc
 
 import (
-	"github.com/lomocoin/btccli"
+	"github.com/dabankio/btccli"
 )
 
 var (

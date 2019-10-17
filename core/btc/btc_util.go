@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/btcsuite/btcd/btcjson"
-	"github.com/lomocoin/wallet-core/core/btc/internal"
+	"github.com/dabankio/wallet-core/core/btc/internal"
 )
 
 // NewMultiSigAddress 工具函数，生成BTC多签地址

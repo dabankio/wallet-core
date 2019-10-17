@@ -4,13 +4,13 @@ package btc
 
 import (
 	"fmt"
-	"github.com/lomocoin/wallet-core/core/btc"
+	"github.com/dabankio/wallet-core/core/btc"
 	"strings"
 	"testing"
 
-	clibtcjson "github.com/lomocoin/btccli/btcjson"
+	clibtcjson "github.com/dabankio/btccli/btcjson"
 
-	"github.com/lomocoin/btccli"
+	"github.com/dabankio/btccli"
 	"github.com/stretchr/testify/require"
 )
 

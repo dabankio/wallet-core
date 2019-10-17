@@ -3,8 +3,8 @@ package core
 import (
 	"crypto/rand"
 
-	"github.com/lomocoin/wallet-core/bip39"
-	"github.com/lomocoin/wallet-core/bip44"
+	"github.com/dabankio/wallet-core/bip39"
+	"github.com/dabankio/wallet-core/bip44"
 	"github.com/pkg/errors"
 )
 

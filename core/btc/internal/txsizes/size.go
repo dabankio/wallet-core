@@ -8,7 +8,7 @@ import (
 	"github.com/btcsuite/btcd/blockchain"
 	"github.com/btcsuite/btcd/wire"
 
-	h "github.com/lomocoin/wallet-core/core/btc/internal/helpers"
+	h "github.com/dabankio/wallet-core/core/btc/internal/helpers"
 )
 
 // Worst case script and input/output size estimates.

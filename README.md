@@ -90,7 +90,7 @@ SDK提供：
 
 ## Demo
 
-- 基于Flutter + 钱包sdk 的ETH 多签 + 冷钱包 demo. https://github.com/lomocoin/wallet-sdk-demo
+- 基于Flutter + 钱包sdk 的ETH 多签 + 冷钱包 demo. https://github.com/dabankio/wallet-sdk-demo
 
 
 ---

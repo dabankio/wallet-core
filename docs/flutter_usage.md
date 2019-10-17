@@ -6,5 +6,5 @@
 
 参考： https://flutter.dev/docs/development/platform-integration/platform-channels
 
-另外，可以参考我们写的eth flutter 多签冷热钱包demo: https://github.com/lomocoin/wallet-sdk-demo
+另外，可以参考我们写的eth flutter 多签冷热钱包demo: https://github.com/dabankio/wallet-sdk-demo
 

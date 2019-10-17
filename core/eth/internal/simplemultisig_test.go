@@ -21,8 +21,8 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/params"
 
-	"github.com/lomocoin/wallet-core/core/eth/internal/contracts"
-	"github.com/lomocoin/wallet-core/core/eth/internal/testtool"
+	"github.com/dabankio/wallet-core/core/eth/internal/contracts"
+	"github.com/dabankio/wallet-core/core/eth/internal/testtool"
 )
 
 const chainID = 1
