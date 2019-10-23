@@ -3,15 +3,15 @@ package bch
 import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/lomocoin/wallet-core/bip44"
-	"github.com/lomocoin/wallet-core/core/btc"
+	"github.com/dabankio/wallet-core/bip44"
+	"github.com/dabankio/wallet-core/core/btc"
 	"github.com/pkg/errors"
 )
 
 const symbol = "BCH"
 
 type bch struct {
-	btc.BTC
+	btc.Btc
 }
 
 func New(seed []byte, testNet bool) (c *bch, err error) {

@@ -14,7 +14,7 @@ import (
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/lomocoin/wallet-core/core/bch/bchd/wire"
+	"github.com/dabankio/wallet-core/core/bch/bchd/wire"
 	"golang.org/x/crypto/ripemd160"
 )
 

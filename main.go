@@ -5,7 +5,7 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/lomocoin/wallet-core/bip39"
+	"github.com/dabankio/wallet-core/bip39"
 )
 
 func main() {

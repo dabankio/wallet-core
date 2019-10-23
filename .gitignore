@@ -15,3 +15,7 @@ out
 /.idea/
 /vendor/
 /.vscode/
+
+
+# 一些本地文件
+local_*

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/lomocoin/wallet-core/core"
+	"github.com/dabankio/wallet-core/core"
 	"github.com/stretchr/testify/assert"
 )
 

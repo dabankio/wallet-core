@@ -3,9 +3,9 @@ package nxt
 import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/lomocoin/wallet-core/bip44"
-	"github.com/lomocoin/wallet-core/core"
-	"github.com/lomocoin/wallet-core/core/wcg"
+	"github.com/dabankio/wallet-core/bip44"
+	"github.com/dabankio/wallet-core/core"
+	"github.com/dabankio/wallet-core/core/wcg"
 	"github.com/pkg/errors"
 )
 

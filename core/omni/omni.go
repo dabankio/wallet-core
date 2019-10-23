@@ -3,9 +3,9 @@ package omni
 import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/lomocoin/wallet-core/bip44"
-	"github.com/lomocoin/wallet-core/core"
-	"github.com/lomocoin/wallet-core/core/btc"
+	"github.com/dabankio/wallet-core/bip44"
+	"github.com/dabankio/wallet-core/core"
+	"github.com/dabankio/wallet-core/core/btc"
 	"github.com/pkg/errors"
 )
 
@@ -21,7 +21,7 @@ var _ core.Coin = &omni{}
 var _ core.HasParentChain = &omni{}
 
 type omni struct {
-	btc.BTC
+	btc.Btc
 }
 
 func New(seed []byte, testNet bool) (c *omni, err error) {

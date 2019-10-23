@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/lomocoin/wallet-core/bip39/wordlists"
+	"github.com/dabankio/wallet-core/bip39/wordlists"
 )
 
 type vector struct {
@@ -20,13 +20,13 @@ func TestGetWordList(t *testing.T) {
 
 func TestGetWordIndex(t *testing.T) {
 	for expectedIdx, word := range wordList {
-		actualIdx, ok := GetWordIndex(word)
+		actualIdx, ok := getWordIndex(word)
 		assertTrue(t, ok)
 		assertEqual(t, actualIdx, expectedIdx)
 	}
 
 	for _, word := range []string{"a", "set", "of", "invalid", "words"} {
-		actualIdx, ok := GetWordIndex(word)
+		actualIdx, ok := getWordIndex(word)
 		assertFalse(t, ok)
 		assertEqual(t, actualIdx, 0)
 	}

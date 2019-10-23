@@ -9,10 +9,10 @@ import (
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/lomocoin/wallet-core/bip44"
-	"github.com/lomocoin/wallet-core/core"
-	"github.com/lomocoin/wallet-core/core/xrp/crypto"
-	"github.com/lomocoin/wallet-core/core/xrp/data"
+	"github.com/dabankio/wallet-core/bip44"
+	"github.com/dabankio/wallet-core/core"
+	"github.com/dabankio/wallet-core/core/xrp/crypto"
+	"github.com/dabankio/wallet-core/core/xrp/data"
 	"github.com/pkg/errors"
 )
 
