@@ -7,11 +7,8 @@ import (
 	// "github.com/dabankio/wallet-core/core/bch"
 	"github.com/dabankio/wallet-core/core/btc"
 	"github.com/dabankio/wallet-core/core/eth"
-	"github.com/dabankio/wallet-core/core/mgd"
-	"github.com/dabankio/wallet-core/core/nxt"
 	"github.com/dabankio/wallet-core/core/omni"
 	"github.com/dabankio/wallet-core/core/trx"
-	"github.com/dabankio/wallet-core/core/wcg"
 	"github.com/dabankio/wallet-core/core/xrp"
 	"github.com/pkg/errors"
 )
@@ -45,8 +42,6 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 		}
 	// case "BCH": //TODO BCH 对 BTC 的代码依赖问题暂时没有解决，先注释掉
 	// coin, err = bch.New(c.seed, c.testNet)
-	case "MGD":
-		coin, err = mgd.New(c.seed)
 	case "ETH", "XT", "THM", "ALI", "RED", "USO", "BTK", "EGT", "HOTC(HOTCOIN)":
 		coin, err = eth.New(c.seed)
 	case "ETHTest":
@@ -55,10 +50,6 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 		coin, err = xrp.New(c.seed)
 	case "TRX", "BTT":
 		coin, err = trx.New(c.seed)
-	case "WCG", "USDTK", "MTR", "DRT", "MAT", "WOS", "EQT", "ENX", "NRT", "CTM":
-		coin, err = wcg.New(c.seed)
-	case "NXT", "RMB":
-		coin, err = nxt.New(c.seed)
 	default:
 		err = errors.Errorf("no entry for coin (%s) was found.", symbol)
 	}

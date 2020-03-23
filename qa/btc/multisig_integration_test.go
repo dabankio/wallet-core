@@ -8,9 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	clibtcjson "github.com/dabankio/btccli/btcjson"
 
-	"github.com/dabankio/btccli"
 	"github.com/stretchr/testify/require"
 )
 

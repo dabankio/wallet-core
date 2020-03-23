@@ -8,10 +8,10 @@ import (
 
 	"github.com/btcsuite/btcd/btcjson"
 
-	clibtcjson "github.com/dabankio/btccli/btcjson"
+	devtools "github.com/dabankio/devtools4chains"
+
 	"github.com/dabankio/wallet-core/core/btc"
 
-	"github.com/dabankio/btccli"
 	"github.com/stretchr/testify/require"
 )
 
@@ -20,9 +20,21 @@ func TestSimpleTX(t *testing.T) {
 	rq := require.New(t)
 
 	// killbitcoind, err := btccli.BitcoindWithOptions(btccli.StartOptions{NewTmpDir: true})
-	cli, killBitcoind, err := btccli.RunBitcoind(&btccli.RunOptions{NewTmpDir: true})
-	rq.Nil(err)
-	defer killBitcoind()
+	// cli, killBitcoind, err := btccli.RunBitcoind(&btccli.RunOptions{NewTmpDir: true})
+	// rq.Nil(err)
+	// defer killBitcoind()
+
+	killFunc, nodeInfo, err := devtools.DockerRunBitcoin(devtools.DockerRunOptions{
+		AutoRemove: true,
+	})
+	rq.NoError(err)
+	defer killFunc()
+
+	rpcInfo := devtools.RPCInfo{
+		Host:     fmt.Sprintf("http://127.0.0.1:%d", nodeInfo.RPCPort),
+		User:     nodeInfo.RPCUser,
+		Password: nodeInfo.RPCPwd,
+	}
 
 	// 实施过程：
 	// 使用账号a0,a1进行测试
@@ -34,19 +46,23 @@ func TestSimpleTX(t *testing.T) {
 		// err = cli.Importprivkey(clibtcjson.ImportPrivKeyCmd{PrivKey: a0.Privkey})
 		// rq.Nil(err)
 		for _, ad := range []string{a0.Address, a1.Address} {
-			err = cli.Importaddress(clibtcjson.ImportAddressCmd{Address: ad})
+			err = devtools.RPCCallJSON(rpcInfo, "importaddress", []interface{}{ad}, nil)
 			rq.Nil(err)
 		}
 	}
 
+	type ListUnspentResult struct {
+		TxID          string  `json:"txid"`
+	}
 	var utxo clibtcjson.ListUnspentResult
 	{
-		_, err = cli.Generatetoaddress(101, a0.Address, nil)
+		err = devtools.RPCCallJSON(rpcInfo, "generatetoaddress", []interface{}{101, a0.Address}, nil)
 		rq.Nil(err)
 
-		cliUnspents, err := cli.Listunspent(1, 999, []string{a0.Address}, nil, nil)
+		var unspents []ListUnspentResult
+		err = devtools.RPCCallJSON(rpcInfo, "listunspent", []interface{}{1, 999, a0.Address}, unspents)
 		rq.Nil(err)
-		rq.Equal(1, len(cliUnspents), "")
+		rq.Equal(1, len(unspents), "")
 
 		utxo = cliUnspents[0]
 		rq.Equal(50.0, utxo.Amount, "coinbase amount should be 50")
@@ -175,14 +191,15 @@ func TestSimpleTX(t *testing.T) {
 	}
 
 	{ // decode
-		rs, err := cli.Decoderawtransaction(clibtcjson.DecodeRawTransactionCmd{
-			HexTx: signedHex,
-		})
-		rq.Nil(err)
-		fmt.Println("decoded tx:", btccli.ToJSONIndent(rs))
+		// rs, err := cli.Decoderawtransaction(clibtcjson.DecodeRawTransactionCmd{
+		// 	HexTx: signedHex,
+		// })
+		// rq.Nil(err)
+		// fmt.Println("decoded tx:", btccli.ToJSONIndent(rs))
 	}
 
 	{ // 广播交易
+		
 		txid, err := cli.Sendrawtransaction(clibtcjson.SendRawTransactionCmd{
 			HexTx: signedHex,
 		})

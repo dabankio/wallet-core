@@ -7,8 +7,8 @@ package wallet
 import (
 	"encoding/hex"
 
-	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/dabankio/wallet-core/bip39"
+	"github.com/ethereum/go-ethereum/accounts"
 
 	"github.com/dabankio/wallet-core/bip44"
 

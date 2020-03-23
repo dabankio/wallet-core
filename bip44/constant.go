@@ -21,9 +21,15 @@ import (
 )
 
 const (
-	PathFormat     = "m/44'/%d'"
-	FullPathFormat = "m/44'/%d'/0'/0/0"
-	Password       = "DASafe360"
+	PathFormat      = "m/44'/%d'"
+	FullPathFormat  = "m/44'/%d'/0'/0/0"
+	FullPathFormat4 = "m/44'/%d'/%d'/%d/%d" //symbol,account,0|1 external|internal(change), index
+	Password        = "DASafe360"
+
+	// ChangeTypeExternal 通常用于收款，对外部可见
+	ChangeTypeExternal = 0
+	// ChangeTypeInternal 通常用于找零，通常不对外可见
+	ChangeTypeInternal = 1
 )
 
 func init() {
@@ -62,6 +68,22 @@ func GetCoinDerivationPath(symbol string) (derivationPath accounts.DerivationPat
 		return
 	}
 	path := fmt.Sprintf(PathFormat, coinType)
+	return accounts.ParseDerivationPath(path)
+}
+
+// GetFullCoinDerivationPath 获取完整的bip44路径
+func GetFullCoinDerivationPath(symbol string, accountIndex, changeType, index int) (derivationPath accounts.DerivationPath, err error) {
+	if accountIndex < 0 || index < 0 {
+		return nil, errors.Errorf("accountIndex(%d), index(%d) 需 >= 0", accountIndex, index)
+	}
+	if changeType != ChangeTypeExternal && changeType != ChangeTypeInternal {
+		return nil, errors.Errorf("changeType 需为0或1，参数：%d", changeType)
+	}
+	coinType, err := GetCoinType(symbol)
+	if err != nil {
+		return
+	}
+	path := fmt.Sprintf(FullPathFormat4, coinType, accountIndex, changeType, index)
 	return accounts.ParseDerivationPath(path)
 }
 

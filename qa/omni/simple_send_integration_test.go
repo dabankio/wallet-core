@@ -12,8 +12,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/dabankio/omnicli"
-	"github.com/dabankio/omnicli/btcjson"
 
 	"github.com/dabankio/wallet-core/core/btc"
 )

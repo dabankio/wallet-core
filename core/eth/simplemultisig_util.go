@@ -3,8 +3,8 @@ package eth
 import (
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/dabankio/wallet-core/core/eth/internal"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 // SimpleMultiSigExecuteSignResult .

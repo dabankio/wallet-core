@@ -9,11 +9,11 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/golang/protobuf/proto"
 	"github.com/dabankio/wallet-core/bip44"
 	"github.com/dabankio/wallet-core/core"
 	trxProto "github.com/dabankio/wallet-core/core/trx/proto/core"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
 )
 
