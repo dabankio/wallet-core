@@ -42,10 +42,12 @@ func DecodeTX(rawTX string) (string, error) {
 	return bbc.DecodeTx(rawTX)
 }
 
-// SignWithPrivateKey 使用私钥对原始交易进行签名
-func SignWithPrivateKey(rawTX, privateKey string) (string, error) {
+// SignWithPrivateKey 使用私钥对原始交易进行签名,
+// 关于templateData的使用参考 https://github.com/lomocoin/gobbc/blob/d51d596fa310a5778e3d11eb59bc66d1a6a5e3d6/transaction.go#L197 （SignWithPrivateKey部分）
+// 参考测试用例 qa/bbc/example_bbc_test.go
+func SignWithPrivateKey(rawTX, templateData, privateKey string) (string, error) {
 	var bbc *internal.BBC
-	return bbc.Sign(rawTX, privateKey)
+	return bbc.SignTemplate(rawTX, templateData, privateKey)
 }
 
 // KeyInfo 私钥，公钥，地址

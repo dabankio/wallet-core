@@ -110,14 +110,19 @@ func (c *BBC) DecodeTx(msg string) (string, error) {
 	return string(b), nil
 }
 
-// Sign signs raw tx with privateKey
+// Sign signs raw tx with privateKey, 该函数不支持模版签名
 func (c *BBC) Sign(msg, privateKey string) (sig string, err error) {
+	return c.SignTemplate(msg, "", privateKey)
+}
+// SignTemplate signs raw tx with privateKey
+func (c *BBC) SignTemplate(msg, templateData, privateKey string) (sig string, err error) {
 	//尝试解析为原始交易
 	tx, err := gobbc.DecodeRawTransaction(msg, true)
 	if err != nil {
 		return msg, errors.Wrap(err, "unable to parse tx data")
 	}
-	err = tx.SignWithHexedKey(privateKey)
+	
+	err = tx.SignWithPrivateKey(templateData, privateKey)
 	if err != nil {
 		return msg, errors.Wrap(err, "sign failed")
 	}
