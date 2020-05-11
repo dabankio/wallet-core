@@ -8,13 +8,13 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
+	"github.com/dabankio/wallet-core/bip44"
+	"github.com/dabankio/wallet-core/core"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/dabankio/wallet-core/bip44"
-	"github.com/dabankio/wallet-core/core"
 	"github.com/pkg/errors"
 )
 

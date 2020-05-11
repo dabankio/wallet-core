@@ -160,6 +160,7 @@ func EntropyFromMnemonic(mnemonic string) ([]byte, error) {
 
 // NewMnemonic will return a string consisting of the mnemonic words for
 // the given entropy.
+// Words are splitted by one space, eg: 丝 吨 第 序 东 收 供 已 涌 爹 子 览 , bag dentist hero goddess art top picnic load certain neither thumb lift
 // If the provide entropy is invalid, an error will be returned.
 func NewMnemonic(entropy []byte) (string, error) {
 	// Compute some lengths for convenience.

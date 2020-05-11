@@ -8,6 +8,7 @@ module=github.com/dabankio/wallet-core
 pkgBip39 = ${module}/bip39
 pkgBip44 = ${module}/bip44
 pkgBtc = ${module}/core/btc
+pkgBBC = ${module}/core/bbc
 pkgOmni = ${module}/core/omni
 pkgEth = ${module}/core/eth
 pkgWallet = ${module}/wallet
@@ -50,6 +51,11 @@ buildBip39Android:
 buildBip39IOS:
 	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/bip39.framework ${pkgBip39}
 
+#bbc
+buildBBCAndroid:
+	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/bbc.aar ${pkgBBC} ${pkgBip44} ${pkgBip39}
+buildBBCIOS:
+	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/bbc.framework ${pkgBBC} ${pkgBip44} ${pkgBip39}
 #btc
 buildBtcAndroid:
 	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/btc.aar ${pkgBtc} ${pkgBip44} ${pkgBip39}
@@ -78,24 +84,6 @@ buildAllIOS:
 #---------------------构建  end -----------------
 
 #---------------------依赖图  start -----------------
-depgraph_btc:
-	#导出依赖图需要安装godepgraph和graphviz
-	godepgraph -horizontal -nostdlib -novendor ${pkgBtc} |dot -Tpng -o local_dep_btc.png
-
-depgraph_eth:
-	#导出依赖图需要安装godepgraph和graphviz
-	godepgraph -horizontal -nostdlib -novendor ${pkgEth} |dot -Tpng -o local_dep_eth.png
-
-depgraph_bip39:
-	#导出依赖图需要安装godepgraph和graphviz
-	godepgraph -horizontal -nostdlib -novendor ${pkgBip39} |dot -Tpng -o local_dep_bip39.png
-
-depgraph_bip44:
-	#导出依赖图需要安装godepgraph和graphviz
-	godepgraph -horizontal -nostdlib -novendor ${pkgBip44} |dot -Tpng -o local_dep_bip44.png
-
-depgraph_core:
-	#导出依赖图需要安装godepgraph和graphviz
-	godepgraph -horizontal -nostdlib -novendor ${pkgCore} |dot -Tpng -o local_dep_core.png
-
+depGraph: #生成工程依赖图，需要安装graphviz 和 https://github.com/loov/goda （go get github.com/loov/goda）
+	@goda graph github.com/dabankio/wallet-core/...:root | dot -Tsvg -o local_graph.svg
 #---------------------依赖图  end -----------------

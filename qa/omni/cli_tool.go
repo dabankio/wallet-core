@@ -1,8 +1,6 @@
 package omni
 
 import (
-	"github.com/dabankio/omnicli"
-	"github.com/dabankio/omnicli/btcjson"
 )
 
 func importAddrs(cli *omnicli.Cli, presetAddrs []omnicli.Addr) error {

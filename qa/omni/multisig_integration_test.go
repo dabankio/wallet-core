@@ -4,8 +4,6 @@ package omni
 
 import (
 	"fmt"
-	"github.com/dabankio/omnicli"
-	"github.com/dabankio/omnicli/btcjson"
 	"github.com/dabankio/wallet-core/core/btc"
 	"github.com/dabankio/wallet-core/core/omni"
 	"github.com/stretchr/testify/assert"

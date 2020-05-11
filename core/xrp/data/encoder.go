@@ -131,9 +131,11 @@ type field struct {
 
 type fieldSlice []field
 
-func (fs fieldSlice) Len() int           { return len(fs) }
-func (fs fieldSlice) Swap(i, j int)      { fs[i], fs[j] = fs[j], fs[i] }
-func (fs fieldSlice) Less(i, j int) bool { return fs[i].encoding.Priority() < fs[j].encoding.Priority() }
+func (fs fieldSlice) Len() int      { return len(fs) }
+func (fs fieldSlice) Swap(i, j int) { fs[i], fs[j] = fs[j], fs[i] }
+func (fs fieldSlice) Less(i, j int) bool {
+	return fs[i].encoding.Priority() < fs[j].encoding.Priority()
+}
 
 func (fs fieldSlice) Sort() { sort.Sort(fs) }
 
