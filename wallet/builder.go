@@ -22,12 +22,6 @@ type WalletOption interface {
 	Visit(*Wallet) error
 }
 
-type walletOptionImpl func(*Wallet) error
-
-func (f walletOptionImpl) Visit(wallet *Wallet) error {
-	return f(wallet)
-}
-
 // Clone makes a copy of existing Wallet instance, with original attributes override by the given options
 func (c Wallet) Clone(options *WalletOptions) (wallet *Wallet, err error) {
 	cloned := c
@@ -41,25 +35,47 @@ func (c Wallet) Clone(options *WalletOptions) (wallet *Wallet, err error) {
 	return &cloned, nil
 }
 
+type shareAccountWithParentChainOpt struct {
+	shareAccountWithParentChain bool
+}
+
+func (opt *shareAccountWithParentChainOpt) Visit(wallet *Wallet) error {
+	wallet.ShareAccountWithParentChain = opt.shareAccountWithParentChain
+	return nil
+}
+
 func WithShareAccountWithParentChain(shareAccountWithParentChain bool) WalletOption {
-	return walletOptionImpl(func(wallet *Wallet) error {
-		wallet.ShareAccountWithParentChain = shareAccountWithParentChain
-		return nil
-	})
+	return &shareAccountWithParentChainOpt{
+		shareAccountWithParentChain: shareAccountWithParentChain,
+	}
+}
+
+type pathFormatOpt struct {
+	pathFormat string
+}
+
+func (f *pathFormatOpt) Visit(wallet *Wallet) error {
+	wallet.path = f.pathFormat
+	return nil
 }
 
 func WithPathFormat(pathFormat string) WalletOption {
-	return walletOptionImpl(func(wallet *Wallet) error {
-		wallet.path = pathFormat
-		return nil
-	})
+	return &pathFormatOpt{
+		pathFormat:pathFormat,
+	}
+}
+
+type passwordOpt struct {
+	password string
+}
+
+func (f *passwordOpt) Visit(wallet *Wallet) error {
+	wallet.password = f.password
+	return nil
 }
 
 func WithPassword(password string) WalletOption {
-	return walletOptionImpl(func(wallet *Wallet) error {
-		wallet.password = password
-		return nil
-	})
+	return &passwordOpt{password:password}
 }
 
 // NewWalletBuilder normal builder pattern, not so good in golang
