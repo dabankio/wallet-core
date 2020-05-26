@@ -18,7 +18,7 @@ require (
 	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/huin/goupnp v1.0.0 // indirect
-	github.com/lomocoin/gobbc v1.0.4
+	github.com/lomocoin/gobbc v1.0.7
 	github.com/mattn/go-colorable v0.1.2 // indirect
 	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/pkg/errors v0.9.1
@@ -29,6 +29,7 @@ require (
 	github.com/stretchr/testify v1.5.1
 	github.com/tyler-smith/go-bip39 v1.0.2 // indirect
 	golang.org/x/crypto v0.0.0-20200422194213-44a606286825
+	golang.org/x/mobile v0.0.0-20200329125638-4c31acba0007 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127
 	gopkg.in/olebedev/go-duktape.v3 v3.0.0-20190709231704-1e4459ed25ff // indirect
 )
@@ -41,3 +42,4 @@ require (
 // clone github.com/celo-org/gosigar 切换到修复了这个问题的分支
 // 这个问题，后续等bug fix PR 合并了，可以删除下面的replace
 // replace github.com/elastic/gosigar v0.10.5 => /Users/dev/Documents/workspace/github.com/celo-org/gosigar
+replace github.com/elastic/gosigar v0.10.5 => /Users/sunxiansong/Documents/lomo/github.com/celo-org/gosigar

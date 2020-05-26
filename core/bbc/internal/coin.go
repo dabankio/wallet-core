@@ -114,6 +114,7 @@ func (c *BBC) DecodeTx(msg string) (string, error) {
 func (c *BBC) Sign(msg, privateKey string) (sig string, err error) {
 	return c.SignTemplate(msg, "", privateKey)
 }
+
 // SignTemplate signs raw tx with privateKey
 func (c *BBC) SignTemplate(msg, templateData, privateKey string) (sig string, err error) {
 	//尝试解析为原始交易
@@ -121,7 +122,7 @@ func (c *BBC) SignTemplate(msg, templateData, privateKey string) (sig string, er
 	if err != nil {
 		return msg, errors.Wrap(err, "unable to parse tx data")
 	}
-	
+
 	err = tx.SignWithPrivateKey(templateData, privateKey)
 	if err != nil {
 		return msg, errors.Wrap(err, "sign failed")

@@ -61,7 +61,7 @@ func (f *pathFormatOpt) Visit(wallet *Wallet) error {
 
 func WithPathFormat(pathFormat string) WalletOption {
 	return &pathFormatOpt{
-		pathFormat:pathFormat,
+		pathFormat: pathFormat,
 	}
 }
 
@@ -75,7 +75,7 @@ func (f *passwordOpt) Visit(wallet *Wallet) error {
 }
 
 func WithPassword(password string) WalletOption {
-	return &passwordOpt{password:password}
+	return &passwordOpt{password: password}
 }
 
 // NewWalletBuilder normal builder pattern, not so good in golang
