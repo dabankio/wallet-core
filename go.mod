@@ -18,7 +18,7 @@ require (
 	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/huin/goupnp v1.0.0 // indirect
-	github.com/lomocoin/gobbc v1.0.7
+	github.com/lomocoin/gobbc v1.0.8
 	github.com/mattn/go-colorable v0.1.2 // indirect
 	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/pkg/errors v0.9.1

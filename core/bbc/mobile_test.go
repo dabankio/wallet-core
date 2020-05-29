@@ -36,6 +36,17 @@ func TestNewBip44Deriver(t *testing.T) {
 	}
 }
 
+// TestDeriveConsistent 该测试确保api的稳定性，代码改动过程中确保同样的助记词始终推导出一样的私钥/地址
+func TestDeriveConsistent(t *testing.T) {
+	mnemonic := "注 笼 伍 叹 纶 林 尸 售 招 愤 勒 熙"
+	r := require.New(t)
+	r.NoError(bip39.SetWordListLang(bip39.LangChineseSimplified))
+	
+	k, err := DeriveKeySimple(bip39.NewSeed(mnemonic, ""))
+	r.NoError(err)
+	r.Equal("11qy08xpjwhv1y012n7c3zv74ww7vy4hnrgz3esv1hzaq115xvdfttng6", k.Address)
+}
+
 func TestDecodeTX(t *testing.T) {
 	raw := "01000000f345785e00000000701af4705c5e6fcb04efc3ca3c851c1e4d8948e10923025f54bea9b000000000026c2ffa7c6fce7b535aa06b436b7d239c18ec033bb886f689e0a0094beef0775e005a5e2804636414cacc577351e542ff4bb81afa23e45317d298d401fcf345785e010174bc27dc9bfdced95b9b01be398ddd1820350115024fcdb4afc23c3d36bd83bb9c64cd1d00000000640000000000000000816578f1ccb4309f9238db2538b8727952e917cbd3b9ee4dc54cbb8876e072a1e801d5748bcbd807c3c18c0120e88e1e592b339eff523b0fbd353182fe65a3a05ede4bac3d4622e8478ec542aabed3223b9862965289b1d35279ebb2e5b754c21cbc7d8fa7f5c23e4d246065cf12a5c4e29aa2be6b37c70cf8f0927536faa75ac303"
 	de, err := DecodeTX(raw)

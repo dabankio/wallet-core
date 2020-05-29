@@ -6,9 +6,12 @@ package wallet
 
 import (
 	"encoding/hex"
+	"fmt"
+	"strings"
 
 	"github.com/dabankio/wallet-core/bip39"
 	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/pkg/errors"
 
 	"github.com/dabankio/wallet-core/bip44"
 
@@ -84,7 +87,7 @@ func NewHDWalletFromMnemonic(mnemonic string, testNet bool) (w *Wallet, err erro
 func (c Wallet) DeriveAddress(symbol string) (address string, err error) {
 	coin, err := c.initCoin(symbol)
 	if err != nil {
-		return
+		return "", errors.Wrap(err, "init coin impl err")
 	}
 	return coin.DeriveAddress()
 }
@@ -138,8 +141,15 @@ func (c Wallet) Metadata(symbol string) (core.MetadataProvider, error) {
 		return nil, err
 	}
 	path := c.path
-	if path == "" {
-		//TODO 支持默认path
+	if path == "" { //默认使用短格式bip44 path
+		path = bip44.PathFormat
+	}
+	if strings.Contains(path, "%d") {
+		symbolBip44ID, err := bip44.GetCoinType(symbol)
+		if err != nil {
+			return nil, errors.Wrap(err, "get coin bip44 id failed")
+		}
+		path = fmt.Sprintf(path, symbolBip44ID)
 	}
 	derivationPath, err := accounts.ParseDerivationPath(path)
 	if err != nil {

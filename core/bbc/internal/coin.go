@@ -2,6 +2,8 @@ package internal
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/dabankio/wallet-core/bip44"
 	"github.com/dabankio/wallet-core/core"
@@ -24,10 +26,21 @@ var _ core.Coin = (*BBC)(nil) //type ensure
 
 // NewCoin new bbc coin implementation
 func NewCoin(seed []byte) (core.Coin, error) {
-	var err error
+	return NewCoinWithPath(seed, bip44.PathFormat)
+}
+
+// NewCoinWithPath new bbc coin implementation, 只推导1个地址
+func NewCoinWithPath(seed []byte, path string) (core.Coin, error) {
+	if strings.Count(path, "%d") != 1 {
+		return nil, errors.New("path 应包含且仅且包含1个%d占位符")
+	}
+	bbcBip44ID, err := bip44.GetCoinType(symbol)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get BBC bip44 id")
+	}
 	c := new(BBC)
 	c.Symbol = symbol
-	c.DerivationPath, err = bip44.GetCoinDerivationPath(symbol)
+	c.DerivationPath, err = accounts.ParseDerivationPath(fmt.Sprintf(path, bbcBip44ID))
 	if err != nil {
 		return nil, errors.Wrap(err, "bip44.GetCoinDerivationPath err:")
 	}
@@ -38,14 +51,14 @@ func NewCoin(seed []byte) (core.Coin, error) {
 	return c, nil
 }
 
-// NewCoinMore new bbc coin implementation
-func NewCoinMore(seed []byte, accountIndex, changeType, index int) (core.Coin, error) {
+// NewCoinFullPath new bbc coin implementation, with full bip44 path
+func NewCoinFullPath(seed []byte, accountIndex, changeType, index int) (core.Coin, error) {
 	var err error
 	c := new(BBC)
 	c.Symbol = symbol
-	c.DerivationPath, err = bip44.GetCoinDerivationPath(symbol)
+	c.DerivationPath, err = bip44.GetFullCoinDerivationPath(symbol, accountIndex, changeType, index)
 	if err != nil {
-		return nil, errors.Wrap(err, "bip44.GetCoinDerivationPath err:")
+		return nil, errors.Wrap(err, "bip44.GetFullCoinDerivationPath err:")
 	}
 	c.MasterKey, err = NewMaster(seed)
 	if err != nil {
@@ -110,8 +123,20 @@ func (c *BBC) DecodeTx(msg string) (string, error) {
 	return string(b), nil
 }
 
-// Sign signs raw tx with privateKey, 该函数不支持模版签名
-func (c *BBC) Sign(msg, privateKey string) (sig string, err error) {
+// Sign signs raw tx with privateKey
+// 首先尝试解析为带模版数据的待签数据，无法解析则尝试一般原始交易
+func (c *BBC) Sign(msg, privateKey string) (string, error) {
+	var err error
+	// 1尝试解析为多签数据
+	if txData := tryParseTxDataWithTemplate(msg); txData != nil {
+		txData.TxHex, err = c.SignTemplate(txData.TxHex, txData.TplHex, privateKey)
+		if err != nil {
+			return msg, errors.Wrap(err, "failed to encode tx")
+		}
+		return txData.EncodeString()
+	}
+
+	// 2无法解析为带模版待签数据则认为是原始交易
 	return c.SignTemplate(msg, "", privateKey)
 }
 
@@ -133,4 +158,12 @@ func (c *BBC) SignTemplate(msg, templateData, privateKey string) (sig string, er
 // VerifySignature verifies rawTx's signature is intact
 func (c *BBC) VerifySignature(pubKey, msg, signature string) error {
 	return errors.New("verify signature not supported for BBC currently")
+}
+
+func tryParseTxDataWithTemplate(msg string) *gobbc.TXData {
+	var data gobbc.TXData
+	if err := data.DecodeString(msg); err != nil {
+		return nil
+	}
+	return &data
 }

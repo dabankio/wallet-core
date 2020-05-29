@@ -5,6 +5,7 @@ import (
 
 	"github.com/dabankio/wallet-core/core"
 	// "github.com/dabankio/wallet-core/core/bch"
+	"github.com/dabankio/wallet-core/core/bbc"
 	"github.com/dabankio/wallet-core/core/btc"
 	"github.com/dabankio/wallet-core/core/eth"
 	"github.com/dabankio/wallet-core/core/omni"
@@ -23,6 +24,8 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 		return
 	}
 	switch symbol {
+	case "BBC":
+		coin, err = bbc.NewCoin(c.seed, c.path)
 	case "BTC":
 		if c.testNet {
 			coin, err = btc.New(c.seed, btc.ChainTestNet3)
@@ -88,22 +91,6 @@ func GetAvailableCoinList() string {
 		"TRX",
 		// TRC10
 		"BTT",
-
-		// WCG series
-		"WCG",
-		"USDTK",
-		"MTR",
-		"DRT",
-		"MAT",
-		"WOS",
-		"EQT",
-		"ENX",
-		"NRT",
-		"CTM",
-
-		// NXT series
-		"NXT",
-		"RMB",
 	}
 	return strings.Join(availableCoin, " ")
 }

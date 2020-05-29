@@ -4,10 +4,15 @@ import (
 	"crypto/ed25519"
 
 	"github.com/dabankio/wallet-core/bip44"
+	"github.com/dabankio/wallet-core/core"
 	"github.com/dabankio/wallet-core/core/bbc/internal"
 	"github.com/lomocoin/gobbc"
 	"github.com/pkg/errors"
 )
+
+func NewCoin(seed []byte, path string) (core.Coin, error) {
+	return internal.NewCoinWithPath(seed, path)
+}
 
 // NewSimpleBip44Deriver 根据种子获取bip44推导,仅推导1个
 func NewSimpleBip44Deriver(seed []byte) (bip44.Deriver, error) {
@@ -19,13 +24,13 @@ func NewSimpleBip44Deriver(seed []byte) (bip44.Deriver, error) {
 // changeType 0:外部使用， 1:找零， 通常使用0,BBC通常找零到发送地址
 // index 地址索引，以0开始
 func NewBip44Deriver(seed []byte, accountIndex, changeType, index int) (bip44.Deriver, error) {
-	return internal.NewCoinMore(seed, accountIndex, changeType, index)
+	return internal.NewCoinFullPath(seed, accountIndex, changeType, index)
 }
 
-// DeriveKey 由seed推导 私钥、公钥、地址, 入参参考 NewBip44Deriver
-func DeriveKey(seed []byte, accountIndex, changeType, index int) (*KeyInfo, error) {
+// DeriveKeySimple 推导路径 m/44'/%d'
+func DeriveKeySimple(seed []byte) (*KeyInfo, error) {
 	var info KeyInfo
-	coin, err := internal.NewCoinMore(seed, accountIndex, changeType, index)
+	coin, err := internal.NewCoin(seed)
 	if err != nil {
 		return &info, errors.Wrap(err, "无法创建bip44实现")
 	}
@@ -34,6 +39,11 @@ func DeriveKey(seed []byte, accountIndex, changeType, index int) (*KeyInfo, erro
 		return &info, errors.Wrap(err, "DerivePrivateKey failed")
 	}
 	return ParsePrivateKey(privateKey)
+}
+
+// DeriveKey 该函数后面3个参数无效，等同于 DeriveKeySimple，仅保留
+func DeriveKey(seed []byte, accountIndex, changeType, index int) (*KeyInfo, error) {
+	return nil, errors.New("该函数已失效，请使用 DeriveKeySimple 替换 ,accountIndex, changeType, index 3个参数旧版api也是不会生效的的")
 }
 
 // DecodeTX 解析原始交易（使用JSON RPC createtransaction 创建的交易）,

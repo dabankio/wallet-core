@@ -20,7 +20,8 @@ func TestExtendedKey_Child(t *testing.T) {
 	mk, err := NewMaster(seed)
 	as.Nil(err)
 
-	for i := 0; i < 9999999; i++ {
+	n := 100
+	for i := 0; i < n; i++ {
 		// for i := 0; i < 999; i++ {
 		if i == 255 {
 			continue

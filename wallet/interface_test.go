@@ -1,10 +1,13 @@
 package wallet
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
+	"github.com/dabankio/wallet-core/bip39"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -18,33 +21,23 @@ func init() {
 
 func TestCoin_DeriveAddress(t *testing.T) {
 	addr, err := wallet.DeriveAddress("ETH")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "0x947ab281Df5ec46E801F78Ad1363FaaCbe4bfd12", addr)
 	t.Log(addr)
 
-	pk, err := wallet.DerivePrivateKey("WCG")
-	t.Log(pk)
-	addr, err = wallet.DeriveAddress("WCG")
-	assert.NoError(t, err)
-	assert.Equal(t, "WCG-3NHD-TWLP-KNDL-9PPKW", addr)
-	t.Log(addr)
+	if 2 < 1 { //这些币种暂时不支持
+		pk, err := wallet.DerivePrivateKey("NXT")
+		t.Log(pk)
+		addr, err = wallet.DeriveAddress("NXT")
+		assert.NoError(t, err)
+		assert.Equal(t, "NXT-MCMS-T636-MQ4G-4LSWJ", addr)
+		t.Log(addr)
 
-	addr, err = wallet.DeriveAddress("USDTK")
-	assert.NoError(t, err)
-	assert.Equal(t, "WCG-3NHD-TWLP-KNDL-9PPKW", addr)
-	t.Log(addr)
-
-	pk, err = wallet.DerivePrivateKey("NXT")
-	t.Log(pk)
-	addr, err = wallet.DeriveAddress("NXT")
-	assert.NoError(t, err)
-	assert.Equal(t, "NXT-MCMS-T636-MQ4G-4LSWJ", addr)
-	t.Log(addr)
-
-	addr, err = wallet.DeriveAddress("RMB")
-	assert.NoError(t, err)
-	assert.Equal(t, "NXT-MCMS-T636-MQ4G-4LSWJ", addr)
-	t.Log(addr)
+		addr, err = wallet.DeriveAddress("RMB")
+		assert.NoError(t, err)
+		assert.Equal(t, "NXT-MCMS-T636-MQ4G-4LSWJ", addr)
+		t.Log(addr)
+	}
 
 	addr, err = wallet.DeriveAddress("BTC")
 	assert.NoError(t, err)
