@@ -89,3 +89,41 @@ func (o *operatingMessage) Sign(privateKey *ecdsa.PrivateKey) (sig []byte, err e
 	hash := o.Hash()
 	return crypto.Sign(hash.Bytes(), privateKey)
 }
+
+func NewMultiSignTxFromHex(hex string) (*MultiSignTx, error) {
+	var multiSignTx MultiSignTx
+	bits, err := hexutil.Decode(hex)
+	if err != nil {
+		return nil, err
+	}
+	err = rlp.DecodeBytes(bits, &multiSignTx)
+	if err != nil {
+		return nil, err
+	}
+	return &multiSignTx, nil
+}
+
+type MultiSignTx struct {
+	ChainID      uint64
+	Symbol       string
+	MultisigAddr string
+	ToAddr       string
+	Creator      string
+	Executor     string
+	Nonce        uint64
+	Value        *big.Int
+	GasLimit     *big.Int
+	GasPrice     *big.Int
+	Data         []byte
+}
+
+func (tx *MultiSignTx) Sign(privateKey *ecdsa.PrivateKey) (string, error) {
+	signerPrivkHex := hexutil.Encode(crypto.FromECDSA(privateKey))[2:]
+	v, r, s, err := SimpleMultiSigExecuteSign(int64(tx.ChainID), signerPrivkHex, tx.MultisigAddr, tx.ToAddr, tx.Executor, uint64(tx.Nonce), tx.Value, tx.GasLimit, tx.Data)
+	if err != nil {
+		return "", err
+	}
+	bytes := append(r[:], s[:]...)
+	bytes = append(bytes, byte(v))
+	return hexutil.Encode(bytes), nil
+}
