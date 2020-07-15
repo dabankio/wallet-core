@@ -152,9 +152,12 @@ func (c *eth) checkMsgType(msg string) (msgType interface{}, err error) {
 		return
 	}
 	msgType, err = NewTransactionFromHex(msg)
-	if err != nil {
-		err = errors.New("decode message err")
+	if err == nil {
 		return
+	}
+	msgType, err = NewMultiSignTxFromHex(msg)
+	if err != nil {
+		err = errors.Wrap(err, "decode message err")
 	}
 	return
 }
@@ -203,6 +206,13 @@ func (c *eth) Sign(msg, privateKey string) (sig string, err error) {
 		} else {
 			sig = hexutil.Encode(sigBytes)
 		}
+	} else if typeMsg == reflect.TypeOf(new(MultiSignTx)) {
+		multiSignTx := msgType.(*MultiSignTx)
+		sig, err = multiSignTx.Sign(privateKeyECDSA)
+		if err != nil {
+			err = errors.Wrapf(err, "sign MultiSignTx failed, msg: %s", msg)
+		}
+		return
 	} else {
 		err = errors.Errorf("not the expected type: %s", typeMsg)
 	}
