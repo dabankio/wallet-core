@@ -7,6 +7,9 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
+// E18 ethereum 1后面18个0
+const E18 = 1e18
+
 // AddrInfo 私钥、公钥、地址
 type AddrInfo struct {
 	PrivkHex, PubkHex, Address string
