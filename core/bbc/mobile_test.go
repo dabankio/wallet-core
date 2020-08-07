@@ -41,7 +41,7 @@ func TestDeriveConsistent(t *testing.T) {
 	mnemonic := "注 笼 伍 叹 纶 林 尸 售 招 愤 勒 熙"
 	r := require.New(t)
 	r.NoError(bip39.SetWordListLang(bip39.LangChineseSimplified))
-	
+
 	k, err := DeriveKeySimple(bip39.NewSeed(mnemonic, ""))
 	r.NoError(err)
 	r.Equal("11qy08xpjwhv1y012n7c3zv74ww7vy4hnrgz3esv1hzaq115xvdfttng6", k.Address)

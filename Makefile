@@ -78,7 +78,7 @@ buildEthIOS:
 buildAllAndroid:
 	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/wallet.aar ${pkgAll}
 buildAllIOS:
-	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/wallet.framework ${pkgAll}
+	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/Bip39.framework ${pkgAll}
 
 
 #---------------------构建  end -----------------

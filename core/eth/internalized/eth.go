@@ -1,4 +1,4 @@
-package internal
+package internalized
 
 import (
 	"crypto/ecdsa"

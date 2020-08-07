@@ -2,8 +2,10 @@ package eth
 
 import (
 	"fmt"
+	"math/big"
+	"time"
 
-	"github.com/dabankio/wallet-core/core/eth/internal"
+	internal "github.com/dabankio/wallet-core/core/eth/internalized"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
@@ -38,8 +40,8 @@ func NewSimpleMultiSigExecuteSignResultFromHex(h string) (*SimpleMultiSigExecute
 }
 
 // UtilSimpleMultiSigExecuteSign 签名简单多签执行数据
-func UtilSimpleMultiSigExecuteSign(chainID int64, signerPrivkHex string, hexedMultisigAddr, hexedDestinationAddr, hexedExecutor string, nonce int64, value, gasLimit *BigInt, data []byte) (*SimpleMultiSigExecuteSignResult, error) {
-	v, r, s, err := internal.SimpleMultiSigExecuteSign(chainID, signerPrivkHex, hexedMultisigAddr, hexedDestinationAddr, hexedExecutor, uint64(nonce), value.bigint, gasLimit.bigint, data)
+func UtilSimpleMultiSigExecuteSign(expireTime time.Time, chainID int64, signerPrivkHex string, hexedMultisigAddr, hexedDestinationAddr, hexedExecutor string, nonce int64, value, gasLimit *BigInt, data []byte) (*SimpleMultiSigExecuteSignResult, error) {
+	v, r, s, err := internal.SimpleMultiSigExecuteSign(expireTime, chainID, signerPrivkHex, hexedMultisigAddr, hexedDestinationAddr, hexedExecutor, big.NewInt(nonce), value.bigint, gasLimit.bigint, data)
 	if err != nil {
 		return nil, err
 	}

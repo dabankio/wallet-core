@@ -28,7 +28,7 @@ API使用首先建议阅读 [api文档说明](./api.md)
 
 ## 多重签名一般使用过程
 
-目前，我们选择了一个简单的多重签名合约，参见 ` core/eth/internal/contracts/SimpleMultiSig.sol`,修改自 https://github.com/christianlundkvist/simple-multisig ,该合约一次部署多次使用，一次交易一次上链，不支持变更成员，最多支持128个签名成员，支持对其他合约的调用（比如ERC20）
+目前，我们选择了一个简单的多重签名合约，参见 ` core/eth/internalized/contracts/SimpleMultiSig.sol`,修改自 https://github.com/christianlundkvist/simple-multisig ,该合约一次部署多次使用，一次交易一次上链，不支持变更成员，最多支持128个签名成员，支持对其他合约的调用（比如ERC20）
 
 如果偏好其他多签的实现可以联系我们 support@dabank.io ,末尾也列出了其他几个我们调研过的多签合约
 
