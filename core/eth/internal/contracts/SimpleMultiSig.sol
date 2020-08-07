@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.0;
 
 contract SimpleMultiSig {
 
@@ -20,11 +20,7 @@ bytes32 constant SALT = 0x251543af6a222378665a76fe38dbceae4871a070b7fdaf5c6c30cf
   event Execute(address[] _confirmAddrs, address _destination, uint _value, bytes data);
   event Deposit(address indexed _from,uint _value);
 
-  // debug events
-  // event DbgExecuteParam(bytes32 sperator, bytes32 txInputHash, bytes32 totalHash, bytes txInput);
-  // event DbgRecover(address _recovered);
-
-  uint public nonce;                 // (only) mutable state
+  uint[] public nonceBucket;         //(only) mutable state
   uint public threshold;             // immutable state
   mapping (address => bool) isOwner; // immutable state
   address[] public ownersArr;        // immutable state
@@ -32,17 +28,19 @@ bytes32 constant SALT = 0x251543af6a222378665a76fe38dbceae4871a070b7fdaf5c6c30cf
   bytes32 DOMAIN_SEPARATOR;          // hash for EIP712, computed from contract address
 
   // Note that owners_ must be strictly increasing, in order to prevent duplicates
-  constructor(uint threshold_, address[] memory owners_, uint chainId) public {
-    require(owners_.length <= 10 && threshold_ <= owners_.length && threshold_ > 0, "0<threshold<owners.length");
-
+  constructor(uint16 nonceNum_, uint threshold_, address[] memory owners_, uint chainId) public {
+    require(owners_.length <= 10 && threshold_ <= owners_.length && threshold_ > 0, "bad_threshold");
+    require(nonceNum_ > 0 && nonceNum_ < 256, "bad_nonce_num");
+  
     address lastAdd = address(0);
     for (uint i = 0; i < owners_.length; i++) {
-      require(owners_[i] > lastAdd, "repeated owner or not sorted");
+      require(owners_[i] > lastAdd, "repeated_owner/unsorted");
       isOwner[owners_[i]] = true;
       lastAdd = owners_[i];
     }
     ownersArr = owners_;
     threshold = threshold_;
+    nonceBucket = new uint[](nonceNum_);
 
     DOMAIN_SEPARATOR = keccak256(abi.encode(EIP712DOMAINTYPE_HASH,
                                             NAME_HASH,
@@ -53,48 +51,50 @@ bytes32 constant SALT = 0x251543af6a222378665a76fe38dbceae4871a070b7fdaf5c6c30cf
   }
 
   // Note that address recovered from signatures must be strictly increasing, in order to prevent duplicates
-  function execute(uint8[] memory sigV, bytes32[] memory sigR, bytes32[] memory sigS,
+  function execute(uint16 bucketIdx, uint expireTime, uint8[] memory sigV, bytes32[] memory sigR, bytes32[] memory sigS,
     address destination, uint value, bytes memory data, address executor, uint gasLimit) public {
 
-    require(sigR.length == threshold, "R len not equal to threshold");
-    require(sigR.length == sigS.length && sigR.length == sigV.length, "length of r/s/v not match");
-    require(executor == msg.sender || executor == address(0), "wrong executor");
+    require(sigR.length == threshold, "bad_r_len");
+    require(sigR.length == sigS.length && sigR.length == sigV.length, "bad_len_r/s/v");
+    require(executor == msg.sender || executor == address(0), "bad_executor");
+    require(block.timestamp < expireTime, "time_expired");
+    require(bucketIdx < nonceBucket.length, "bucket_out_of_range");
 
     // EIP712 scheme: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
-    bytes32 txInputHash = keccak256(abi.encode(TXTYPE_HASH, destination, value, keccak256(data), nonce, executor, gasLimit));
-    bytes32 totalHash = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, txInputHash));
+    uint nonce = nonceBucket[bucketIdx];
+    bytes32 txInputHash = keccak256(abi.encode(TXTYPE_HASH, expireTime, destination, value, keccak256(data), nonce, executor, gasLimit));
+    bytes32 totalHash = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, txInputHash)); //\x19\x01 => []byte{25, 01}
 
     // emit DbgExecuteParam(DOMAIN_SEPARATOR, txInputHash, totalHash, abi.encode(TXTYPE_HASH, destination, value, keccak256(data), nonce, executor, gasLimit));
 
     address lastAdd = address(0); // cannot have address(0) as an owner
-    address[] memory confirmAddrs = new address[](threshold);
+    // address[] memory confirmAddrs = new address[](threshold);
     for (uint i = 0; i < threshold; i++) {
       address recovered = ecrecover(totalHash, sigV[i], sigR[i], sigS[i]);
-      require(recovered > lastAdd && isOwner[recovered], "Verify sig failed");
-      // emit DbgRecover(recovered);
-      confirmAddrs[i] = recovered;
+      require(recovered > lastAdd && isOwner[recovered], "bad_sig");
+      // confirmAddrs[i] = recovered;
       lastAdd = recovered;
     }
 
     // If we make it here all signatures are accounted for.
     // The address.call() syntax is no longer recommended, see:
     // https://github.com/ethereum/solidity/issues/2884
-    nonce = nonce + 1;
+    nonceBucket[bucketIdx] = nonceBucket[bucketIdx] + 1;
     bool success = false;
     assembly { success := call(gasLimit, destination, value, add(data, 0x20), mload(data), 0, 0) }
-    require(success, "not_success");
-    emit Execute(confirmAddrs, destination, value, data);
+    require(success, "call_failed");
+    // emit Execute(confirmAddrs, destination, value, data);
   }
 
-  function getVersion() external pure returns (string memory) {
-    return "2.33"; // 版本号随便写的，无意义，
+  function getOwersLength() external view returns (uint16) {
+    return uint16(ownersArr.length); //owners.length <= 10 (see constructor), so type convert is ok
   }
 
-  function getOwersLength() external view returns (int8) {
-    return int8(ownersArr.length); //owners.length <= 10 (see constructor), so type convert is ok
+  function getBucketLength() external view returns (uint16) {
+    return uint16(nonceBucket.length); //nonceBucket.length <= 256 (see constructor), so type convert is ok
   }
 
-  function () external payable {
+  fallback () external payable {
     emit Deposit(msg.sender, msg.value);
   }
 }
