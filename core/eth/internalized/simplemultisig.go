@@ -1,4 +1,4 @@
-package internal
+package internalized
 
 import (
 	"bytes"
@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dabankio/wallet-core/core/eth/internal/contracts"
+	"github.com/dabankio/wallet-core/core/eth/internalized/contracts"
 	"github.com/pkg/errors"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"

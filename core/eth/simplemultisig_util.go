@@ -5,7 +5,7 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/dabankio/wallet-core/core/eth/internal"
+	internal "github.com/dabankio/wallet-core/core/eth/internalized"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 

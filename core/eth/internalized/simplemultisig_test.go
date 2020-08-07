@@ -1,6 +1,6 @@
 // +build integration
 
-package internal
+package internalized
 
 import (
 	"context"
@@ -18,8 +18,8 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/params"
 
-	"github.com/dabankio/wallet-core/core/eth/internal/contracts"
-	"github.com/dabankio/wallet-core/core/eth/internal/testtool"
+	"github.com/dabankio/wallet-core/core/eth/internalized/contracts"
+	"github.com/dabankio/wallet-core/core/eth/internalized/testtool"
 )
 
 const chainID = 1

@@ -1,4 +1,4 @@
-package internal
+package internalized
 
 import (
 	"context"
@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dabankio/wallet-core/core/eth/internal/contracts"
+	"github.com/dabankio/wallet-core/core/eth/internalized/contracts"
 
-	"github.com/dabankio/wallet-core/core/eth/internal/testtool"
+	"github.com/dabankio/wallet-core/core/eth/internalized/testtool"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
