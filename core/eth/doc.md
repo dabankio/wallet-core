@@ -7,4 +7,4 @@
 
 在`core/eth`目录下使用的命令生成文件
 - `xabigen --sol erc20.sol --pkg geth --out erc20_abi.go --tplgo mobile_abi_helper.tpl `
-- `xabigen --sol internal/contracts/SimpleMultiSig.sol -pkg eth --out SimpleMultiSig_abi.g.go --tplgo mobile_abi_helper.tpl --signal s_gen_bin,`
+- `xabigen --sol internalized/contracts/SimpleMultiSig.sol -pkg eth --out SimpleMultiSig_abi.g.go --tplgo mobile_abi_helper.tpl --signal s_gen_bin,`
