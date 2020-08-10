@@ -41,7 +41,7 @@ func TestSimplemultisigGanacheERC20(t *testing.T) {
 		erc20Contract        *contracts.FixedSupplyToken
 		erc20ContractAddress common.Address
 		err                  error
-		expireTime           = time.Now().Add(3 * 24 * time.Hour)
+		expireTime           = big.NewInt(time.Now().Add(3 * 24 * time.Hour).Unix())
 	)
 	{ //init vars
 		for i := 0; i < 4; i++ {
@@ -266,7 +266,7 @@ func TestSimplemultisigGanache(t *testing.T) {
 		addrs          []*testtool.AddrInfo
 		client         *ethclient.Client
 		err            error
-		expireTime     = time.Now().Add(3 * 24 * time.Hour)
+		expireTime     = big.NewInt(time.Now().Add(3 * 24 * time.Hour).Unix())
 	)
 	{ // init vars
 		// 生成4个地址，并排序

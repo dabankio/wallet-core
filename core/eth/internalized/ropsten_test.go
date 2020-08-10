@@ -123,7 +123,7 @@ func TestRopstenSimpleMultisig(t *testing.T) {
 		gasLimit = big.NewInt(239963)
 		data = []byte("")
 
-		expireTime := time.Now().Add(time.Hour)
+		expireTime := big.NewInt(time.Now().Add(time.Hour).Unix())
 		v, r, s, err := SimpleMultiSigExecuteSign(expireTime, ropstenChainID, addrPrvk, multisigContractAddress, destination, executor, nonce, value, gasLimit, data)
 		testtool.FailOnErr(t, err, "create sig failed")
 		sigV = append(sigV, v)
