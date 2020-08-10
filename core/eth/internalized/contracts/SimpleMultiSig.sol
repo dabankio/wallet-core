@@ -94,6 +94,10 @@ bytes32 constant SALT = 0x251543af6a222378665a76fe38dbceae4871a070b7fdaf5c6c30cf
     return uint16(nonceBucket.length); //nonceBucket.length <= 256 (see constructor), so type convert is ok
   }
 
+  function getVersion() external view returns (string memory version) {
+    return "1.0.1";
+  }
+
   fallback () external payable {
     emit Deposit(msg.sender, msg.value);
   }
