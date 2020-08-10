@@ -5,7 +5,6 @@ import (
 	"crypto/ecdsa"
 	"encoding/json"
 	"math/big"
-	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -105,7 +104,7 @@ func NewMultiSignTxFromHex(hex string) (*MultiSignTx, error) {
 }
 
 type MultiSignTx struct {
-	ExpireTime   int64 //time.Time.Unix()值，在该时间之后区块打包会失败
+	ExpireTime   *big.Int //time.Time.Unix()值，在该时间之后区块打包会失败, (不用int64, int64会导致RLP encode失败)
 	ChainID      uint64
 	Symbol       string
 	MultisigAddr string
@@ -121,7 +120,7 @@ type MultiSignTx struct {
 
 func (tx *MultiSignTx) Sign(privateKey *ecdsa.PrivateKey) (string, error) {
 	signerPrivkHex := hexutil.Encode(crypto.FromECDSA(privateKey))[2:]
-	v, r, s, err := SimpleMultiSigExecuteSign(time.Unix(tx.ExpireTime, 0), int64(tx.ChainID), signerPrivkHex, tx.MultisigAddr, tx.ToAddr, tx.Executor, tx.Nonce, tx.Value, tx.GasLimit, tx.Data)
+	v, r, s, err := SimpleMultiSigExecuteSign(tx.ExpireTime, int64(tx.ChainID), signerPrivkHex, tx.MultisigAddr, tx.ToAddr, tx.Executor, tx.Nonce, tx.Value, tx.GasLimit, tx.Data)
 	if err != nil {
 		return "", err
 	}

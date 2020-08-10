@@ -73,7 +73,7 @@ func DeploySimpleMultiSigContract(nonceBucketNum uint16, chainID *big.Int, backe
 type TxParams struct {
 	Backend                              bind.ContractBackend
 	BucketIdx                            uint16
-	ExpireTime                           time.Time
+	ExpireTime                           *big.Int
 	SigV                                 []uint8    //签名
 	SigR, SigS                           [][32]byte //签名
 	PrivkHex                             string
@@ -126,7 +126,7 @@ func ExecuteTX(txp *TxParams) (string, error) {
 			},
 		},
 			txp.BucketIdx,
-			big.NewInt(txp.ExpireTime.Unix()),
+			txp.ExpireTime,
 			txp.SigV,
 			txp.SigR,
 			txp.SigS,
@@ -168,7 +168,7 @@ const (
 )
 
 // SimpleMultiSigExecuteSign return v,r,s
-func SimpleMultiSigExecuteSign(expireTime time.Time, chainID int64, signerPrivkHex string, multisigContractAddr, destinationAddr, executor string, nonce *big.Int, value, gasLimit *big.Int, data []byte) (uint8, [32]byte, [32]byte, error) {
+func SimpleMultiSigExecuteSign(expireTime *big.Int, chainID int64, signerPrivkHex string, multisigContractAddr, destinationAddr, executor string, nonce *big.Int, value, gasLimit *big.Int, data []byte) (uint8, [32]byte, [32]byte, error) {
 	zeroAndErr := func(e error) (uint8, [32]byte, [32]byte, error) { return 0, [32]byte{}, [32]byte{}, e }
 	leftPad64 := func(str string) string { return _AllZero[:64-len(str)] + str } // 将小于64位的字符串(hex编码的)填充至64位（64位转为byte即32位，对应32*8=256 bit）
 	hexKeccak256Hash := func(byts []byte) common.Hash {
@@ -190,7 +190,7 @@ func SimpleMultiSigExecuteSign(expireTime time.Time, chainID int64, signerPrivkH
 	executor = "0x" + strings.TrimLeft(executor, "0x")
 	txInputHashHex := hexKeccak256Hash([]byte(strings.Join([]string{
 		_TxTypeHash[2:],
-		leftPad64(big.NewInt(expireTime.Unix()).Text(16)),
+		leftPad64(expireTime.Text(16)),
 		leftPad64(destinationAddr[2:]),
 		leftPad64(value.Text(16)),
 		crypto.Keccak256Hash(data).Hex()[2:],
