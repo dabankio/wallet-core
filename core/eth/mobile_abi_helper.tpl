@@ -21,16 +21,23 @@ var (
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
-	_ = abi.U256
 	_ = bind.Bind
 	_ = common.Big1
 	_ = types.BloomLookup
 	_ = event.NewSubscription
 )
 
+{{range .Structs}}
+	// {{.Name}} is an auto generated low-level Go binding around an user-defined struct.
+	type {{.Name}} struct {
+	{{range $field := .Fields}}
+	{{$field.Name}} {{$field.Type}}{{end}}
+	}
+{{end}}
+
+{{$structs := .Structs}}
 {{range $contract := .Contracts}}
 
-	{{$structs := $contract.Structs}}
 
 	// {{.Type}}ABI is the input ABI used to generate the binding from.
 	const {{.Type}}ABI = "{{.InputABI}}"
@@ -77,23 +84,13 @@ var (
 		return &{{.Type}}ABIHelper{parsed}
 	}
 
-	{{range .Structs}}
-		// {{.Name}} is an auto generated low-level Go binding around an user-defined struct.
-		type {{.Name}} struct {
-		{{range $field := .Fields}}
-		{{$field.Name}} {{$field.Type}}{{end}}
-		}
-	{{end}}
-
 	{{range .Calls}}
 		// Packed{{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.
-		// Solidity: {{formatmethod .Original $structs}}
 		func (_{{$contract.Type}} *{{$contract.Type}}ABIHelper) Packed{{.Normalized.Name}}({{range $idx, $e := .Normalized.Inputs}}{{if gt $idx 0}},{{end}} {{.Name}} {{bindmobiletypego .Type $structs  true}} {{end}}) ([]byte, error) {
 			return _{{$contract.Type}}.abi.Pack("{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{if iswrapgotype .Type $structs}}.{{gotypewrapfield .Type $structs}}{{end}} {{end}})
 		}
 
 		// Unpack{{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.
-		// Solidity: {{formatmethod .Original $structs}}
 		func (_{{$contract.Type}} *{{$contract.Type}}ABIHelper) Unpack{{.Normalized.Name}}(output []byte) ({{if .Structured}}struct{ {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};{{end}} },{{else}}{{range .Normalized.Outputs}}{{bindmobiletypego .Type $structs  true}},{{end}}{{end}} error) {
 			{{if .Structured}}ret := new(struct{
 				{{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}}
@@ -113,7 +110,6 @@ var (
 
 	{{range .Transacts}}
 		// Packed{{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.ID}}.
-		// Solidity: {{formatmethod .Original $structs}}
 		func (_{{$contract.Type}} *{{$contract.Type}}ABIHelper) Packed{{.Normalized.Name}}({{range $idx, $e := .Normalized.Inputs}}{{if gt $idx 0}},{{end}} {{.Name}} {{bindmobiletypego .Type $structs  true}} {{end}}) ([]byte, error) {
 			return _{{$contract.Type}}.abi.Pack("{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{if iswrapgotype .Type $structs}}.{{gotypewrapfield .Type $structs}}{{end}}{{end}})
 		}

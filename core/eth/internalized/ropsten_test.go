@@ -1,14 +1,15 @@
-package internal
+package internalized
 
 import (
 	"context"
 	"fmt"
 	"math/big"
 	"testing"
+	"time"
 
-	"github.com/dabankio/wallet-core/core/eth/internal/contracts"
+	"github.com/dabankio/wallet-core/core/eth/internalized/contracts"
 
-	"github.com/dabankio/wallet-core/core/eth/internal/testtool"
+	"github.com/dabankio/wallet-core/core/eth/internalized/testtool"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -36,7 +37,7 @@ func TestRopstenDeploySimpleMultisig(t *testing.T) {
 
 	client, err := ethclient.Dial(ropstenRPCHost)
 	testtool.FailOnErr(t, err, "dial failed")
-	got, err := DeploySimpleMultiSigContract(*big.NewInt(ropstenChainID), client, addrPrvk, []string{addrHex, addr2Hex}, mRequired)
+	got, err := DeploySimpleMultiSigContract(10, big.NewInt(ropstenChainID), client, addrPrvk, []string{addrHex, addr2Hex}, mRequired)
 	if err != nil {
 		t.Errorf("DeployMultiSigWalletContract() error = %v", err)
 		t.FailNow()
@@ -100,7 +101,7 @@ func TestRopstenSimpleMultisig(t *testing.T) {
 
 		multisigContract, err := contracts.NewSimpleMultiSig(common.HexToAddress(contractAddress), rpcClient)
 		testtool.FailOnErr(t, err, "构建多签合约调用时异常,检查合约地址和rpc server")
-		nonce, err := multisigContract.Nonce(&bind.CallOpts{Pending: true})
+		nonce, err := multisigContract.NonceBucket(&bind.CallOpts{Pending: true}, big.NewInt(0))
 		testtool.FailOnErr(t, err, "无法获取合约内部nonce")
 		var (
 			sigV                                 []uint8    //签名
@@ -122,25 +123,28 @@ func TestRopstenSimpleMultisig(t *testing.T) {
 		gasLimit = big.NewInt(239963)
 		data = []byte("")
 
-		v, r, s, err := SimpleMultiSigExecuteSign(ropstenChainID, addrPrvk, multisigContractAddress, destination, executor, uint64(nonce.Int64()), value, gasLimit, data)
+		expireTime := big.NewInt(time.Now().Add(time.Hour).Unix())
+		v, r, s, err := SimpleMultiSigExecuteSign(expireTime, ropstenChainID, addrPrvk, multisigContractAddress, destination, executor, nonce, value, gasLimit, data)
 		testtool.FailOnErr(t, err, "create sig failed")
 		sigV = append(sigV, v)
 		sigR = append(sigR, r)
 		sigS = append(sigS, s)
 
 		txid, err := ExecuteTX(&TxParams{
-			backend:                 rpcClient,
-			sigV:                    sigV,
-			sigR:                    sigR,
-			sigS:                    sigS,
-			privkHex:                privkHex,
-			multisigContractAddress: multisigContractAddress,
-			fromAddress:             fromAddress,
-			destination:             destination,
-			executor:                executor,
-			value:                   value,
-			gasLimit:                gasLimit,
-			data:                    data,
+			BucketIdx:               1,
+			ExpireTime:              expireTime,
+			Backend:                 rpcClient,
+			SigV:                    sigV,
+			SigR:                    sigR,
+			SigS:                    sigS,
+			PrivkHex:                privkHex,
+			MultisigContractAddress: multisigContractAddress,
+			FromAddress:             fromAddress,
+			Destination:             destination,
+			Executor:                executor,
+			Value:                   value,
+			GasLimit:                gasLimit,
+			Data:                    data,
 		})
 		testtool.FailOnErr(t, err, "Execute Failed")
 		fmt.Println("execute txid", txid)

@@ -2,7 +2,7 @@ package eth
 
 import (
 	"github.com/dabankio/wallet-core/bip44"
-	"github.com/dabankio/wallet-core/core/eth/internal"
+	internal "github.com/dabankio/wallet-core/core/eth/internalized"
 )
 
 // NewBip44Deriver eth bip44 实现

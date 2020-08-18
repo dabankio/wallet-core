@@ -1,7 +1,7 @@
 package eth
 
 import (
-	"github.com/dabankio/wallet-core/core/eth/internal"
+	internal "github.com/dabankio/wallet-core/core/eth/internalized"
 )
 
 //先这么解决现有的导出函数问题

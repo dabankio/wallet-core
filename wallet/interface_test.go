@@ -1,11 +1,9 @@
 package wallet
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
-	"github.com/dabankio/wallet-core/bip39"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

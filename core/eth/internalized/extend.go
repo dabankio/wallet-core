@@ -1,4 +1,4 @@
-package internal
+package internalized
 
 import (
 	"bytes"
@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rlp"
 )
@@ -59,10 +59,10 @@ func (o *operatingMessage) keccak256Hash() (h common.Hash) {
 		[][]byte{
 			[]byte(o.Prefix),
 			o.ToAddress.Bytes(),
-			abi.U256(o.Value),
+			math.U256Bytes(o.Value),
 			o.Data,
-			abi.U256(o.ExpireTime),
-			abi.U256(o.SequenceId)},
+			math.U256Bytes(o.ExpireTime),
+			math.U256Bytes(o.SequenceId)},
 		nil,
 	)
 	h = crypto.Keccak256Hash(opMsg)
@@ -104,13 +104,14 @@ func NewMultiSignTxFromHex(hex string) (*MultiSignTx, error) {
 }
 
 type MultiSignTx struct {
+	ExpireTime   *big.Int //time.Time.Unix()值，在该时间之后区块打包会失败, (不用int64, int64会导致RLP encode失败)
 	ChainID      uint64
 	Symbol       string
 	MultisigAddr string
 	ToAddr       string
 	Creator      string
 	Executor     string
-	Nonce        uint64
+	Nonce        *big.Int
 	Value        *big.Int
 	GasLimit     *big.Int
 	GasPrice     *big.Int
@@ -119,7 +120,7 @@ type MultiSignTx struct {
 
 func (tx *MultiSignTx) Sign(privateKey *ecdsa.PrivateKey) (string, error) {
 	signerPrivkHex := hexutil.Encode(crypto.FromECDSA(privateKey))[2:]
-	v, r, s, err := SimpleMultiSigExecuteSign(int64(tx.ChainID), signerPrivkHex, tx.MultisigAddr, tx.ToAddr, tx.Executor, uint64(tx.Nonce), tx.Value, tx.GasLimit, tx.Data)
+	v, r, s, err := SimpleMultiSigExecuteSign(tx.ExpireTime, int64(tx.ChainID), signerPrivkHex, tx.MultisigAddr, tx.ToAddr, tx.Executor, tx.Nonce, tx.Value, tx.GasLimit, tx.Data)
 	if err != nil {
 		return "", err
 	}
