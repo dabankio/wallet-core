@@ -1,3 +1,22 @@
+package eth
+
+import (
+	"context"
+	"fmt"
+	"math/big"
+	"sort"
+	"strings"
+	"time"
+
+	"github.com/dabankio/wallet-core/core/eth/internalized/testtool"
+	ethereum "github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/params"
+)
+
 // 本测试要求本地7545端口运行有ganache,并且至少有一个账号余额超过5eth
 // 仅使用多签合约abiHelper进行开发
 // TODO 在execute时同时payable会使交易失败，多签交易时确认执行人设置的value为0

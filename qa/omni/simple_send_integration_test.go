@@ -12,7 +12,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-
 	"github.com/dabankio/wallet-core/core/btc"
 )
 

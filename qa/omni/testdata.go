@@ -1,7 +1,5 @@
 package omni
 
-
-
 type Addr struct {
 	Address string
 	Privkey string

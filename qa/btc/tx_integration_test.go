@@ -52,7 +52,7 @@ func TestSimpleTX(t *testing.T) {
 	}
 
 	type ListUnspentResult struct {
-		TxID          string  `json:"txid"`
+		TxID string `json:"txid"`
 	}
 	var utxo clibtcjson.ListUnspentResult
 	{
@@ -199,7 +199,7 @@ func TestSimpleTX(t *testing.T) {
 	}
 
 	{ // 广播交易
-		
+
 		txid, err := cli.Sendrawtransaction(clibtcjson.SendRawTransactionCmd{
 			HexTx: signedHex,
 		})

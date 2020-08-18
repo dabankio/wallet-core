@@ -9,6 +9,8 @@ require (
 	github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f
 	github.com/btcsuite/btcutil v0.0.0-20190316010144-3ac1210f4b38
 	github.com/cespare/cp v1.1.1 // indirect
+	github.com/dabankio/bbrpc v1.2.0-beta.4
+	github.com/dabankio/devtools4chains v0.0.0-20200804063351-e4573024e83a
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
 	github.com/ethereum/go-ethereum v1.9.18
@@ -26,6 +28,7 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/tyler-smith/go-bip39 v1.0.2 // indirect
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
-	golang.org/x/mobile v0.0.0-20200801112145-973feb4309de // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127
 )
+
+replace github.com/dabankio/devtools4chains => /Users/sunxiansong/Documents/lomo/projects/devtools4chains

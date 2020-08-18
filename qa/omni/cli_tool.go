@@ -1,7 +1,6 @@
 package omni
 
-import (
-)
+import ()
 
 func importAddrs(cli *omnicli.Cli, presetAddrs []omnicli.Addr) error {
 	for _, add := range presetAddrs {

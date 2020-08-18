@@ -1,0 +1,43 @@
+kind: pipeline
+type: exec
+name: ciTest
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: test
+  commands:
+  - bash scripts/ci-test.sh
+
+---
+kind: pipeline
+type: docker
+name: notify
+depends_on:
+- ciTest
+trigger:
+  status:
+  - failure
+  - success
+
+clone: 
+  disable: true
+
+steps:
+- name: report
+  when:
+    status:
+    - failure
+    - success
+  image: 'dabankio/drone-plugin-mattermost:4'
+  environment:
+    token:
+      from_secret: mattermost_token
+    host:
+      from_secret: mattermost_host
+    channel:
+      from_secret: mattermost_channel
+    settings:
+    maxRetry: 5
