@@ -80,3 +80,8 @@ func ParsePrivateKey(privateKey string) (*KeyInfo, error) {
 	}
 	return &info, nil
 }
+
+// Address2pubk 将地址转换为公钥
+func Address2pubk(address string) (string, error) {
+	return gobbc.ConvertAddress2pubk(address)
+}
