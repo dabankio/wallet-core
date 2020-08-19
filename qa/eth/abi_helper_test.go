@@ -6,8 +6,12 @@ import (
 	"math/big"
 	"sort"
 	"strings"
+	"testing"
 	"time"
 
+	"github.com/dabankio/devtools4chains"
+	"github.com/dabankio/wallet-core/core/eth"
+	"github.com/dabankio/wallet-core/core/eth/internalized"
 	"github.com/dabankio/wallet-core/core/eth/internalized/testtool"
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
@@ -15,6 +19,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/stretchr/testify/require"
 )
 
 // 本测试要求本地7545端口运行有ganache,并且至少有一个账号余额超过5eth
@@ -22,15 +27,21 @@ import (
 // TODO 在execute时同时payable会使交易失败，多签交易时确认执行人设置的value为0
 // (多签本质上时合约交易调用，避免调用时又pay)
 func TestSimplemultisigAbiHelper(t *testing.T) {
+	killFunc, port, err := devtools4chains.DockerRunGanacheCli(nil)
+	require.NoError(t, err)
+	t.Cleanup(killFunc)
+
 	const (
-		rpcHost = "http://localhost:7545"
+		bucketNum = 10
+		bucketIdx = 0
 	)
+
+	var rpcHost = fmt.Sprintf("http://localhost:%d", port)
 	var (
 		a0, a1, a2, a3 *testtool.AddrInfo
 		addrs          []*testtool.AddrInfo
 		client         *ethclient.Client
-		abiHelper      *contracts.SimpleMultiSigABIHelper
-		err            error
+		abiHelper      *eth.SimpleMultiSigABIHelper
 	)
 	{ // init vars
 		// 生成4个地址，并排序
@@ -45,9 +56,9 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 
 		client, err = ethclient.Dial(rpcHost)
 		testtool.FailOnErr(t, err, "dial failed")
-		_ = a3
+		testtool.WaitSomething(t, time.Minute, func() error { _, e := client.NetworkID(context.Background()); return e })
 
-		abiHelper = contracts.NewSimpleMultiSigABIHelper()
+		abiHelper = eth.NewSimpleMultiSigABIHelper()
 	}
 
 	{ //ganache only
@@ -70,7 +81,7 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 		chainID := big.NewInt(1)
 
 		fmt.Println("owners:", owners)
-		createMultisigData, err := contracts.PackedDeploySimpleMultiSig(big.NewInt(int64(mRequired)), owners, chainID)
+		createMultisigData, err := eth.PackedDeploySimpleMultiSig(bucketNum, eth.NewBigInt(int64(mRequired)), owners, chainID)
 		testtool.FailOnErr(t, err, "Failed to pack create simplemultisig contract data")
 		a0Nonce, err := client.PendingNonceAt(context.Background(), a0.ToAddress())
 		testtool.FailOnErr(t, err, "Failed to get a0 nonce")
@@ -176,7 +187,7 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 
 		expireTime := time.Now().Add(time.Hour)
 		for _, add := range []*testtool.AddrInfo{a0, a2} {
-			v, r, s, err := SimpleMultiSigExecuteSign(expireTime, chainID, add.PrivkHex, multisigContractAddress, destination, executor, nonce, value, gasLimit, data)
+			v, r, s, err := internalized.SimpleMultiSigExecuteSign(expireTime, chainID, add.PrivkHex, multisigContractAddress, destination, executor, nonce, value, gasLimit, data)
 			testtool.FailOnErr(t, err, "create sig failed")
 			sigV = append(sigV, v)
 			sigR = append(sigR, r)
@@ -206,56 +217,5 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 		testtool.FailOnErr(t, err, "FonGetBal")
 		fmt.Println("balance of new tx", bal)
 		testtool.FailOnFlag(t, bal.Cmp(transferValue) != 0, "余额不对", transferValue)
-	}
-	{ // 调试合约日志
-		// multisigContract, err := contracts.NewSimpleMultiSig(contractAddress, client)
-		// testtool.FailOnErr(t, err, "构建多签合约调用时异常,检查合约地址和rpc server")
-		// go func() {
-		// 	ito, err := multisigContract.FilterDebugRecover(&bind.FilterOpts{Start: 0})
-		// 	testtool.FailOnErr(t, err, "过滤合约日志异常")
-		// 	for {
-		// 		if !ito.Next() {
-		// 			break
-		// 		}
-		// 		evt := ito.Event
-		// 		log.Println("evt recoverd address:", evt.Recovered.Hex())
-		// 	}
-		// }()
-
-		// go func() {
-		// 	ito, err := multisigContract.FilterDbgExecuteParam(&bind.FilterOpts{Start: 0})
-		// 	testtool.FailOnErr(t, err, "过滤合约日志异常")
-		// 	for {
-		// 		if !ito.Next() {
-		// 			break
-		// 		}
-		// 		evt := ito.Event
-		// 		log.Println("evt seperator:", hex.EncodeToString(evt.Sperator[:]))
-		// 		log.Println("evt TxInputHash:", hex.EncodeToString(evt.TxInputHash[:]))
-		// 		log.Println("evt TotalHash:", hex.EncodeToString(evt.TotalHash[:]))
-		// 		log.Println("evt txInput:", hex.EncodeToString(evt.TxInput[:]))
-		// 	}
-		// }()
-		// executeFilter, err := multisigContract.FilterExecute(&bind.FilterOpts{Start: 0})
-		// testtool.FailOnErr(t, err, "过滤合约日志异常")
-		// for {
-		// 	if !executeFilter.Next() {
-		// 		break
-		// 	}
-		// 	evt := executeFilter.Event
-		// 	log.Println("evt confirmAddrs:", evt.ConfirmAddrs)
-		// 	log.Println("evt dest:", evt.Destination.Hex())
-		// }
-
-		// depositLogFilter, err := multisigContract.FilterDeposit(&bind.FilterOpts{Start: 0}, nil)
-		// testtool.FailOnErr(t, err, "过滤合约日志异常")
-		// for {
-		// 	if !depositLogFilter.Next() {
-		// 		break
-		// 	}
-		// 	evt := depositLogFilter.Event
-		// 	log.Println("evt From:", evt.From.Hex())
-		// 	log.Println("evt value:", evt.Value)
-		// }
 	}
 }

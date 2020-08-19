@@ -1,5 +1,9 @@
 # Change log
 
+## 2020-08-10
+ETH 多签新增 bucketNonce 以支持并行签名
+ETH 多签新增 expireTime 参数 以提高安全性
+
 ## 2020-03-20
 新增币种BBC支持，https://github.com/bigbangcore/BigBang
 

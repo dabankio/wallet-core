@@ -59,7 +59,7 @@ func TestSimplemultisigGanacheERC20(t *testing.T) {
 		rpcClient, err = ethclient.Dial(rpcHost)
 		testtool.FailOnErr(t, err, "dial failed")
 
-		testWaitSomething(t, time.Minute, func() error { _, e := rpcClient.NetworkID(context.Background()); return e })
+		testtool.WaitSomething(t, time.Minute, func() error { _, e := rpcClient.NetworkID(context.Background()); return e })
 	}
 
 	//准备点eth做手续费
@@ -290,7 +290,7 @@ func TestSimplemultisigGanache(t *testing.T) {
 
 		client, err = ethclient.Dial(rpcHost)
 		testtool.FailOnErr(t, err, "dial failed")
-		testWaitSomething(t, time.Minute, func() error { _, e := client.NetworkID(context.Background()); return e })
+		testtool.WaitSomething(t, time.Minute, func() error { _, e := client.NetworkID(context.Background()); return e })
 	}
 
 	{ //ganache only
@@ -477,21 +477,4 @@ func TestSimplemultisigGanache(t *testing.T) {
 			log.Println("evt deposit,value:", evt.Value)
 		}
 	}
-}
-
-func testWaitSomething(t *testing.T, timeout time.Duration, fn func() error) {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-	for {
-		select {
-		case <-ctx.Done():
-			t.Fatalf("wait something timeout, %s", timeout)
-		default:
-			if e := fn(); e == nil {
-				return
-			}
-		}
-		time.Sleep(500 * time.Millisecond)
-	}
-
 }

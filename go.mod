@@ -1,6 +1,6 @@
 module github.com/dabankio/wallet-core
 
-go 1.12
+go 1.14
 
 require (
 	github.com/agl/ed25519 v0.0.0-20170116200512-5312a6153412
@@ -10,7 +10,7 @@ require (
 	github.com/btcsuite/btcutil v0.0.0-20190316010144-3ac1210f4b38
 	github.com/cespare/cp v1.1.1 // indirect
 	github.com/dabankio/bbrpc v1.2.0-beta.6
-	github.com/dabankio/devtools4chains v0.0.0-20200818100840-18436fe66df1
+	github.com/dabankio/devtools4chains v0.0.0-20200819090637-fb54cc9a1a3c
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
 	github.com/ethereum/go-ethereum v1.9.18

@@ -8,6 +8,10 @@ pkg=github.com/dabankio/wallet-core
 
 export GOPROXY=https://goproxy.cn
 
-go test -v ${pkg}/qa/bbc \
-    && go test -v -run ^TestSimplemultisigGanache$ ${pkg}/core/eth/internalized \
-    && go test -v -run ^TestSimplemultisigGanacheERC20$ ${pkg}/core/eth/internalized \
+go build \
+    && go test ${pkg}/qa/bbc/... \
+    && go test ${pkg}/bip39/... \
+    && go test ${pkg}/bip44/... \
+    && go test ${pkg}/core/bbc/... \
+    && go test ${pkg}/core/btc/... \
+    && go test ${pkg}/core/eth/... 

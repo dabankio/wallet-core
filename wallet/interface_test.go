@@ -23,20 +23,6 @@ func TestCoin_DeriveAddress(t *testing.T) {
 	assert.Equal(t, "0x947ab281Df5ec46E801F78Ad1363FaaCbe4bfd12", addr)
 	t.Log(addr)
 
-	if 2 < 1 { //这些币种暂时不支持
-		pk, err := wallet.DerivePrivateKey("NXT")
-		t.Log(pk)
-		addr, err = wallet.DeriveAddress("NXT")
-		assert.NoError(t, err)
-		assert.Equal(t, "NXT-MCMS-T636-MQ4G-4LSWJ", addr)
-		t.Log(addr)
-
-		addr, err = wallet.DeriveAddress("RMB")
-		assert.NoError(t, err)
-		assert.Equal(t, "NXT-MCMS-T636-MQ4G-4LSWJ", addr)
-		t.Log(addr)
-	}
-
 	addr, err = wallet.DeriveAddress("BTC")
 	assert.NoError(t, err)
 	assert.Equal(t, "13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT", addr)
