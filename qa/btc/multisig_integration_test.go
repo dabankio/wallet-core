@@ -1,24 +1,53 @@
-// +build integration
-
 package btc
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/dabankio/wallet-core/core/btc"
 	"strings"
 	"testing"
+	"time"
 
-
+	"github.com/dabankio/devtools4chains"
+	"github.com/dabankio/wallet-core/core/btc"
+	"github.com/dabankio/wallet-core/core/eth/internalized/testtool"
 	"github.com/stretchr/testify/require"
 )
+
+// ListUnspentResult models a successful response from the listunspent request.
+type ListUnspentResult struct {
+	TxID          string  `json:"txid"`
+	Vout          uint32  `json:"vout"`
+	Address       string  `json:"address"`
+	Account       string  `json:"account"`
+	ScriptPubKey  string  `json:"scriptPubKey"`
+	RedeemScript  string  `json:"redeemScript,omitempty"`
+	Amount        float64 `json:"amount"`
+	Confirmations int64   `json:"confirmations"`
+	Spendable     bool    `json:"spendable"`
+
+	Label         string `json:"label"`         //        (string) The associated label, or "" for the default label
+	WitnessScript string `json:"witnessScript"` // (string) witnessScript if the scriptPubKey is P2WSH or P2SH-P2WSH
+	Solvable      bool   `json:"solvable"`      //         (bool) Whether we know how to spend this output, ignoring the lack of keys
+	Desc          string `json:"desc"`          //             (string, only when solvable) A descriptor for spending this output
+	Safe          bool   `json:"safe"`          //             (bool) Whether this output is considered safe to spend. Unconfirmed transactions from outside keys and unconfirmed replacement transactions are considered unsafe and are not eligible for spending by fundrawtransaction and sendtoaddress.
+}
 
 // 多重签名测试
 func TestMultisig(t *testing.T) {
 	rq := require.New(t)
 
-	cli, killBitcoind, err := btccli.RunBitcoind(&btccli.RunOptions{NewTmpDir: true})
-	rq.Nil(err)
-	defer killBitcoind()
+	image := "ruimarinho/bitcoin-core:latest"
+	killFunc, bitcoinInfo, err := devtools4chains.DockerRunBitcoin(devtools4chains.DockerRunOptions{
+		AutoRemove: true, Image: &image,
+	})
+	require.NoError(t, err)
+	t.Cleanup(killFunc)
+
+	rpcInfo := devtools4chains.RPCInfo{
+		Host:     fmt.Sprintf("http://127.0.0.1:%d", bitcoinInfo.RPCPort),
+		User:     bitcoinInfo.RPCUser,
+		Password: bitcoinInfo.RPCPwd,
+	}
 
 	// 导入a0 private Key, a1 a2 a3 address
 	// 首先为a0生成 101 个块
@@ -27,22 +56,26 @@ func TestMultisig(t *testing.T) {
 	// a1 a2 签名，转出到 a3
 	// 查询a3 utxo, 应该不为0
 
+	testtool.WaitSomething(t, time.Minute, func() error {
+		b, err := devtools4chains.RPCCallJSON(rpcInfo, "getblockcount", nil, nil)
+		if b != nil && strings.Contains(string(b), "Loading wallet") {
+			return fmt.Errorf("Loading wallet")
+		}
+		return err
+	})
+
 	{ // import addresses
-		err = cli.Importprivkey(clibtcjson.ImportPrivKeyCmd{
-			PrivKey: a0.Privkey,
-		})
+		_, err := devtools4chains.RPCCallJSON(rpcInfo, "importprivkey", []string{a0.Privkey}, nil)
 		rq.Nil(err)
 
 		for _, add := range []string{a1.Address, a2.Address, a3.Address} {
-			err = cli.Importaddress(clibtcjson.ImportAddressCmd{Address: add})
+			_, err := devtools4chains.RPCCallJSON(rpcInfo, "importaddress", []string{add}, nil)
 			rq.Nil(err)
 		}
 	}
 
-	{
-		_, err = cli.Generatetoaddress(101, a0.Address, nil)
-		rq.Nil(err)
-	}
+	_, err = devtools4chains.RPCCallJSON(rpcInfo, "generatetoaddress", []interface{}{101, a0.Address}, nil)
+	rq.Nil(err)
 
 	var multisigAddress, redeemScript string
 	{ // create multisig address,and import to bitcoind
@@ -52,26 +85,23 @@ func TestMultisig(t *testing.T) {
 		rq.Len(arr, 2, "")
 		multisigAddress, redeemScript = arr[0], arr[1]
 
-		err = cli.Importaddress(clibtcjson.ImportAddressCmd{
-			Address: multisigAddress,
-		})
+		_, err = devtools4chains.RPCCallJSON(rpcInfo, "importaddress", []string{multisigAddress}, nil)
 		rq.Nil(err)
 	}
 
 	{ //send to multisig address for next step
-		txid, err := cli.Sendtoaddress(&clibtcjson.SendToAddressCmd{
-			Address: multisigAddress, Amount: 23.3,
-		})
+		_, err = devtools4chains.RPCCallJSON(rpcInfo, "sendtoaddress", []interface{}{multisigAddress, 23.3}, nil)
 		rq.Nil(err)
-		rq.NotContains(txid, "error", "")
 	}
 
-	unspents, err := cli.Listunspent(0, 999, []string{multisigAddress}, nil, nil)
+	var unspents []ListUnspentResult
+	resp, err := devtools4chains.RPCCallJSON(rpcInfo, "listunspent", []interface{}{0, 999, []string{multisigAddress}}, nil)
 	rq.Nil(err)
-	rq.Len(unspents, 1, "")
+	rq.NoError(json.Unmarshal(resp, &unspents), string(resp))
+	rq.Len(unspents, 1, string(resp))
 
 	utxo := unspents[0]
-	fmt.Printf("%#v", utxo)
+	fmt.Printf("%#v\n", utxo)
 
 	var signedHex string
 	transferAmount := 2.3
@@ -117,26 +147,17 @@ func TestMultisig(t *testing.T) {
 		}
 	}
 
-	{ // relay tx
-		txid, err := cli.Sendrawtransaction(clibtcjson.SendRawTransactionCmd{
-			HexTx: signedHex,
-		})
-		rq.Nil(err)
-		fmt.Println("txid", txid)
-		rq.NotContains(txid, "error", "")
-	}
+	_, err = devtools4chains.RPCCallJSON(rpcInfo, "sendrawtransaction", []interface{}{signedHex}, nil)
+	rq.Nil(err)
 
-	{ //generate 1 block
-		_, err := cli.Generatetoaddress(1, a0.Address, nil)
-		rq.Nil(err)
-	}
+	_, err = devtools4chains.RPCCallJSON(rpcInfo, "generatetoaddress", []interface{}{1, a0.Address}, nil)
+	rq.Nil(err)
 
 	{ // validate utxo for receiver
-		unspentsForA1, err := cli.Listunspent(0, 999, []string{a1.Address}, clibtcjson.Bool(true), nil)
+		resp, err := devtools4chains.RPCCallJSON(rpcInfo, "listunspent", []interface{}{0, 999, []string{a1.Address}}, nil)
 		rq.Nil(err)
-		rq.True(len(unspentsForA1) > 0, "No utxo of a1 fund!")
-		fmt.Println("utxo for a1", btccli.ToJSONIndent(unspentsForA1))
-		rq.Equal(transferAmount, unspentsForA1[0].Amount, "Wrong amount")
+
+		fmt.Println("utxo for a1", string(resp))
 	}
 
 }

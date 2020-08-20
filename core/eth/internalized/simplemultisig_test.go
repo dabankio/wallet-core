@@ -1,5 +1,3 @@
-// +build integration
-
 package internalized
 
 import (
@@ -17,7 +15,9 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/stretchr/testify/require"
 
+	"github.com/dabankio/devtools4chains"
 	"github.com/dabankio/wallet-core/core/eth/internalized/contracts"
 	"github.com/dabankio/wallet-core/core/eth/internalized/testtool"
 )
@@ -29,18 +29,24 @@ const chainID = 1
 func TestSimplemultisigGanacheERC20(t *testing.T) {
 	// t.SkipNow()
 
+	killFunc, port, err := devtools4chains.DockerRunGanacheCli(&devtools4chains.DockerRunOptions{
+		AutoRemove: true,
+	})
+	require.NoError(t, err)
+	t.Cleanup(killFunc)
+
 	const (
-		rpcHost   = "http://localhost:8545"
 		bucketNum = 10
 		bucketIdx = 0
 	)
+	var rpcHost = fmt.Sprintf("http://localhost:%d", port)
+
 	var (
 		a0, a1, a2, a3       *testtool.AddrInfo
 		addrs                []*testtool.AddrInfo
 		rpcClient            *ethclient.Client
 		erc20Contract        *contracts.FixedSupplyToken
 		erc20ContractAddress common.Address
-		err                  error
 		expireTime           = big.NewInt(time.Now().Add(3 * 24 * time.Hour).Unix())
 	)
 	{ //init vars
@@ -54,6 +60,8 @@ func TestSimplemultisigGanacheERC20(t *testing.T) {
 		a0, a1, a2, a3 = addrs[0], addrs[1], addrs[2], addrs[3]
 		rpcClient, err = ethclient.Dial(rpcHost)
 		testtool.FailOnErr(t, err, "dial failed")
+
+		testtool.WaitSomething(t, time.Minute, func() error { _, e := rpcClient.NetworkID(context.Background()); return e })
 	}
 
 	//准备点eth做手续费
@@ -256,16 +264,21 @@ func TestSimplemultisigGanacheERC20(t *testing.T) {
 func TestSimplemultisigGanache(t *testing.T) {
 	// t.SkipNow()
 
+	killFunc, port, err := devtools4chains.DockerRunGanacheCli(&devtools4chains.DockerRunOptions{
+		AutoRemove: true,
+	})
+	require.NoError(t, err)
+	t.Cleanup(killFunc)
+
 	const (
-		rpcHost   = "http://localhost:8545"
 		bucketNum = 10
 		bucketIdx = 0
 	)
+	var rpcHost = fmt.Sprintf("http://localhost:%d", port)
 	var (
 		a0, a1, a2, a3 *testtool.AddrInfo
 		addrs          []*testtool.AddrInfo
 		client         *ethclient.Client
-		err            error
 		expireTime     = big.NewInt(time.Now().Add(3 * 24 * time.Hour).Unix())
 	)
 	{ // init vars
@@ -281,6 +294,7 @@ func TestSimplemultisigGanache(t *testing.T) {
 
 		client, err = ethclient.Dial(rpcHost)
 		testtool.FailOnErr(t, err, "dial failed")
+		testtool.WaitSomething(t, time.Minute, func() error { _, e := client.NetworkID(context.Background()); return e })
 	}
 
 	{ //ganache only

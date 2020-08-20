@@ -1,17 +1,17 @@
-// +build integration
-
 package eth
 
 import (
 	"context"
 	"fmt"
-	"github.com/dabankio/wallet-core/core/eth"
-	"github.com/stretchr/testify/require"
 	"math/big"
 	"sort"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/dabankio/devtools4chains"
+	"github.com/dabankio/wallet-core/core/eth"
+	"github.com/dabankio/wallet-core/core/eth/internalized/testtool"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -21,6 +21,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/stretchr/testify/require"
 )
 
 // 示例代码，展示如何使用多签sdk 进行以太坊开发
@@ -30,13 +31,16 @@ import (
 // (多签本质上时合约交易调用，避免调用时又pay)
 func TestSimplemultisigAbiHelper(t *testing.T) {
 	rq := require.New(t)
-	killGanache, err := RunGanacheCli()
-	rq.Nil(err)
-	defer killGanache()
 
+	killFunc, port, err := devtools4chains.DockerRunGanacheCli(&devtools4chains.DockerRunOptions{
+		AutoRemove: true,
+	})
+	t.Cleanup(killFunc)
+	var rpcHost = fmt.Sprintf("http://localhost:%d", port)
 	const (
-		rpcHost = "http://127.0.0.1:8545"
-		chainID = 2
+		bucketNum = 10
+		bucketIdx = 0
+		chainID   = 2
 	)
 	var (
 		ctx      = context.Background()
@@ -47,6 +51,7 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 		client          *ethclient.Client
 		abiHelper       *eth.SimpleMultiSigABIHelper
 		suggestGasPrice *big.Int
+		expireTime      = time.Now().Add(3 * 24 * time.Hour)
 	)
 	{ // init vars
 		// 生成4个地址，并排序
@@ -55,13 +60,14 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 			addrs = append(addrs, addr)
 		}
 		sort.Slice(addrs, func(i, j int) bool {
-			return addrs[i].Address < addrs[j].Address
+			return strings.ToLower(addrs[i].Address) < strings.ToLower(addrs[j].Address)
 		})
 		a0, a1, a2, a3 = addrs[0], addrs[1], addrs[2], addrs[3]
 
 		client, err = ethclient.Dial(rpcHost)
 		rq.Nil(err, "dial failed")
-		_ = a3
+
+		testtool.WaitSomething(t, time.Minute, func() error { _, e := client.NetworkID(context.Background()); return e })
 
 		abiHelper = eth.NewSimpleMultiSigABIHelper()
 
@@ -97,7 +103,7 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 			}
 		}
 
-		createMultisigData, err := eth.PackedDeploySimpleMultiSig(eth.NewBigInt(int64(mRequired)), ownersAddrWrap, eth.NewBigInt(chainID))
+		createMultisigData, err := eth.PackedDeploySimpleMultiSig(bucketNum, eth.NewBigInt(int64(mRequired)), ownersAddrWrap, eth.NewBigInt(chainID))
 		rq.Nil(err, "Failed to pack create simplemultisig contract data")
 		a0Nonce, err := client.PendingNonceAt(context.Background(), a0.ToAddress())
 		rq.Nil(err, "Failed to get a0 nonce")
@@ -186,14 +192,14 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 	outAddr := a3.Address
 	transferValue := eth.NewBigInt(E18)
 	{ // 多签交易测试
-		callNonceData, _ := abiHelper.PackedNonce()
+		callNonceData, _ := abiHelper.PackedNonceBucket(eth.NewBigInt(bucketIdx))
 		callNonceBytes, err := client.CallContract(context.Background(), ethereum.CallMsg{
 			From: a0.ToAddress(),
 			To:   &contractAddress,
 			Data: callNonceData,
 		}, nil)
 		rq.Nil(err, "Failed to call contract")
-		nonce, err := abiHelper.UnpackNonce(callNonceBytes)
+		nonce, err := abiHelper.UnpackNonceBucket(callNonceBytes)
 		rq.Nil(err, "Failed to unpack nonce")
 
 		var (
@@ -216,7 +222,7 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 
 		for _, add := range []*AddrInfo{a0, a2} {
 			//实际的使用场景中，应该把需要签名的数据分发给需要签名的人，分别签名，然后在合起来
-			signRes, err := eth.UtilSimpleMultiSigExecuteSign(chainID, add.PrivkHex, multisigContractAddress, destination, executor, nonce.GetInt64(), value, gasLimit, data)
+			signRes, err := eth.UtilSimpleMultiSigExecuteSign(expireTime, chainID, add.PrivkHex, multisigContractAddress, destination, executor, nonce.GetInt64(), value, gasLimit, data)
 			rq.Nil(err, "Failed to sign execute")
 
 			sigV.AddOne(int8(signRes.V))
@@ -228,7 +234,7 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 		rq.Nil(err, "Failed to new eth addr from hex")
 		// executorAddr, err := NewETHAddressFromHex(executor)
 		// rq.Nil(err, "Failed to new eth addr from hex")
-		packedExecuteData, err := abiHelper.PackedExecute(sigV, sigR, sigS, destAddr, value, data, &eth.ETHAddress{}, gasLimit)
+		packedExecuteData, err := abiHelper.PackedExecute(bucketIdx, eth.NewBigInt(expireTime.Unix()), sigV, sigR, sigS, destAddr, value, data, &eth.ETHAddress{}, gasLimit)
 		rq.Nil(err, "Pack multisig execute faied")
 
 		a0Nonce, err := client.NonceAt(ctx, a0.ToAddress(), nil)
@@ -304,14 +310,14 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 	erc20TransferValue := eth.NewBigInt(E18 * 2)
 	{ // 交易测试,a0+a2签名，从合约内转账erc20资金到a3 上
 		//获取多签合约内部的nonce
-		callNonceData, _ := abiHelper.PackedNonce()
+		callNonceData, _ := abiHelper.PackedNonceBucket(eth.NewBigInt(bucketIdx))
 		callNonceBytes, err := client.CallContract(context.Background(), ethereum.CallMsg{
 			From: a0.ToAddress(),
 			To:   &contractAddress,
 			Data: callNonceData,
 		}, nil)
 		rq.Nil(err, "Failed to call contract")
-		nonce, err := abiHelper.UnpackNonce(callNonceBytes)
+		nonce, err := abiHelper.UnpackNonceBucket(callNonceBytes)
 		rq.Nil(err, "Failed to unpack nonce")
 
 		var (
@@ -338,7 +344,7 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 
 		for _, add := range []*AddrInfo{a0, a2} {
 			//实际的使用场景中，应该把需要签名的数据分发给需要签名的人，分别签名，然后在合起来
-			signRes, err := eth.UtilSimpleMultiSigExecuteSign(chainID, add.PrivkHex, multisigContractAddress, destination, executor, nonce.GetInt64(), value, gasLimit, data)
+			signRes, err := eth.UtilSimpleMultiSigExecuteSign(expireTime, chainID, add.PrivkHex, multisigContractAddress, destination, executor, nonce.GetInt64(), value, gasLimit, data)
 			rq.Nil(err, "Failed to sign execute")
 
 			sigV.AddOne(int8(signRes.V))
@@ -350,7 +356,7 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 		rq.Nil(err, "Failed to new eth addr from hex")
 		executorAddr, err := eth.NewETHAddressFromHex(executor)
 		rq.Nil(err, "Failed to new eth addr from hex")
-		packedExecuteData, err := abiHelper.PackedExecute(sigV, sigR, sigS, destAddr, value, data, executorAddr, gasLimit)
+		packedExecuteData, err := abiHelper.PackedExecute(bucketIdx, eth.NewBigInt(expireTime.Unix()), sigV, sigR, sigS, destAddr, value, data, executorAddr, gasLimit)
 		rq.Nil(err, "Pack multisig execute faied")
 
 		a0Nonce, err := client.NonceAt(ctx, a0.ToAddress(), nil)

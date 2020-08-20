@@ -5,10 +5,13 @@ import (
 	"testing"
 
 	"github.com/dabankio/bbrpc"
+	"github.com/dabankio/devtools4chains"
 	"github.com/dabankio/wallet-core/bip39"
 	"github.com/dabankio/wallet-core/core/bbc"
 	"github.com/stretchr/testify/require"
 )
+
+const bbcCoreImage = "dabankio/bbccore:0.11"
 
 // 演示BBC sdk一般性用法
 // 警告: 不要在生产环境中直接使用注释中的助记词
@@ -16,12 +19,16 @@ func TestExampleBBC(t *testing.T) {
 	r := require.New(t)
 	const pass = "123"
 	// 临时启动一个测试节点
-	killFunc, jsonRPC, minerAddress := bbrpc.TesttoolRunServerAndBeginMint(t)
-	defer killFunc() //释放节点
+
+	nodeInfo := devtools4chains.MustRunDockerDevCore(t, bbcCoreImage, true, true)
+
+	jsonRPC := nodeInfo.Client
+	minerAddress := nodeInfo.MinerAddress
 
 	var seed []byte
 	var err error
-	{ // 种子
+	var key *bbc.KeyInfo
+	t.Run("私钥、地址推导", func(t *testing.T) {
 		entropy, err := bip39.NewEntropy(128) // <<=== sdk 生成熵, 128-256 32倍数
 		require.NoError(t, err)
 		err = bip39.SetWordListLang(bip39.LangChineseSimplified) // <<=== sdk 设定助记词语言,参考语言常量
@@ -30,20 +37,18 @@ func TestExampleBBC(t *testing.T) {
 		require.NoError(t, err)
 		fmt.Println("mnemonic:", mnemonic) //mnemonic: 旦 件 言 毫 树 名 当 氧 旨 弧 落 功
 		seed = bip39.NewSeed(mnemonic, "") // <<=== sdk 获取种子，第二个参数相当于salt,生产后请始终保持一致
-	}
 
-	var key *bbc.KeyInfo
-	{
 		key, err = bbc.DeriveKeySimple(seed) // <<=== sdk 推导key （账号0，作为向外部转账使用，第0个地址）
 		r.NoError(err)
 		fmt.Println("key", key) //key {0066760c7374abb65611092edd3176b5545772ed61b3672e1888a78846cbe308 8b48882c4e4d61e242d0da2c3b0bf025f77f0b6fef37a4efab7e996baeb93d6d 1dmyvkbkbk5zaqvx46zqpy2vzywjz02sv5kdd0gq2c56mwb48925hfhpd}
-	}
+	})
 
 	registeredAssets := 12.34
 	{ // 导入公钥
 		_, err = jsonRPC.Importpubkey(key.PublicKey) // <<=== RPC 导入公钥
 		r.NoError(err)
 		r.NoError(bbrpc.Wait4balanceReach(minerAddress, 10, jsonRPC))
+		jsonRPC.Unlockkey(nodeInfo.MinerOwnerPubk, nodeInfo.UnlockPass, nil)
 		_, err = jsonRPC.Sendfrom(bbrpc.CmdSendfrom{
 			From: minerAddress, To: key.Address, Amount: registeredAssets,
 		})
@@ -52,7 +57,9 @@ func TestExampleBBC(t *testing.T) {
 	}
 
 	outAmount := 2.3
-	{ //创建交易、签名、广播、检查余额
+
+	t.Run("简单交易签名", func(t *testing.T) {
+		//创建交易、签名、广播、检查余额
 		rawTX, err := jsonRPC.Createtransaction(bbrpc.CmdCreatetransaction{ // <<=== RPC 创建交易
 			From: key.Address, To: minerAddress, Amount: outAmount,
 		})
@@ -77,10 +84,14 @@ func TestExampleBBC(t *testing.T) {
 		r.Len(bal, 1)
 		r.True(bal[0].Avail < registeredAssets-outAmount)
 		fmt.Println("balance after send", bal[0]) //balance after send {1dmyvkbkbk5zaqvx46zqpy2vzywjz02sv5kdd0gq2c56mwb48925hfhpd 0.9899 0 0}
-	}
+	})
 
 	var delegateTemplateAddress string
-	{ //准备dpos节点数据
+	voteAmount := 9.8
+	var voteTemplateAddress string
+	t.Run("投票用法", func(t *testing.T) {
+		t.Skip("测试镜像不支持dpos, 跳过； 下面的示例代码是可用的")
+		//准备dpos节点数据
 		delegateAddr, ownerAddr := bbrpc.TAddr0, bbrpc.TAddr1
 		tplAddr, err := jsonRPC.Addnewtemplate(bbrpc.AddnewtemplateParamDelegate{
 			Delegate: delegateAddr.Pubkey,
@@ -89,11 +100,7 @@ func TestExampleBBC(t *testing.T) {
 		r.Nil(err)
 		delegateTemplateAddress = *tplAddr
 		fmt.Println("delegate tpl addr:", delegateTemplateAddress)
-	}
 
-	voteAmount := 9.8
-	var voteTemplateAddress string
-	if 2 > 3 { //投票和赎回
 		// 首先添加投票地址
 		voteTemplateAddressP, err := jsonRPC.Addnewtemplate(bbrpc.AddnewtemplateParamVote{
 			Delegate: delegateTemplateAddress,
@@ -155,14 +162,15 @@ func TestExampleBBC(t *testing.T) {
 			r.True(bal[0].Avail < voteAmount-redeemAmount)
 			fmt.Println("vote template balance after redeem", bal[0]) //balance after vote
 		}
-	}
+	})
 
-	{ //直接使用私钥的场景
+	t.Run("直接使用私钥", func(t *testing.T) {
 		key, err = bbc.ParsePrivateKey(key.PrivateKey) // <<=== sdk 解析私钥为公钥/地址
-		r.NoError(err)
-	}
+		require.NoError(t, err)
+	})
 
-	{ //多签示例,警告：不要使用示例中的私钥
+	t.Run("多重签名示例", func(t *testing.T) { //多签示例,警告：不要使用示例中的私钥
+		r := require.New(t)
 		member0 := bbrpc.AddrKeypair{Keypair: bbrpc.Keypair{
 			Privkey: "195cd69eff4580ad2430f92d2c86865c596e72edb33f40df5d41c97883241c7c",
 			Pubkey:  "a7386f6cbe769fda91462637393970850ae7528d2cee5214c26cc4b27c014a65",
@@ -227,7 +235,7 @@ func TestExampleBBC(t *testing.T) {
 		r.NoError(err)
 		fmt.Printf("%#v\n", bal)
 		// r.NoError(bbrpc.Wait4balanceReach(member0.Address, 20, jsonRPC)) //等待member0到账
-	}
+	})
 }
 
 func replaceTXVersion(rawtx string) *string {
