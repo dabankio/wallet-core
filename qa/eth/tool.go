@@ -69,7 +69,7 @@ func PrepareFunds4address(t *testing.T, rpcHost, addr string, funds int64) {
 	for _, acc := range hexedAccounts {
 		bal, err := client.BalanceAt(context.Background(), common.HexToAddress(acc), nil)
 		rq.Nil(err, "Failed to get balance of account")
-		if bal.Cmp(big.NewInt(E18*funds+E18)) > 0 {
+		if bal.Cmp(big.NewInt(1).Mul(big.NewInt(E18), big.NewInt(funds))) > 0 {
 			fromAccount = acc
 		}
 	}
@@ -82,8 +82,8 @@ func PrepareFunds4address(t *testing.T, rpcHost, addr string, funds int64) {
 		"from": fromAccount,
 		"to":   addr,
 		// "gas": "0x76c0", // 30400
-		"gasPrice": "0x9184e72a000", // 10000000000000
-		"value":    E18 * funds,
+		"gasPrice": "0x9184e72a000", // 10,000,000,000,000
+		"value":    big.NewInt(1).Mul(big.NewInt(E18), big.NewInt(funds)),
 	}
 	var txHash string
 	err = rpcClient.Call(&txHash, "eth_sendTransaction", tx)

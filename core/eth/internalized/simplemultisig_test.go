@@ -29,7 +29,9 @@ const chainID = 1
 func TestSimplemultisigGanacheERC20(t *testing.T) {
 	// t.SkipNow()
 
-	killFunc, port, err := devtools4chains.DockerRunGanacheCli(nil)
+	killFunc, port, err := devtools4chains.DockerRunGanacheCli(&devtools4chains.DockerRunOptions{
+		AutoRemove: true,
+	})
 	require.NoError(t, err)
 	t.Cleanup(killFunc)
 
@@ -262,7 +264,9 @@ func TestSimplemultisigGanacheERC20(t *testing.T) {
 func TestSimplemultisigGanache(t *testing.T) {
 	// t.SkipNow()
 
-	killFunc, port, err := devtools4chains.DockerRunGanacheCli(nil)
+	killFunc, port, err := devtools4chains.DockerRunGanacheCli(&devtools4chains.DockerRunOptions{
+		AutoRemove: true,
+	})
 	require.NoError(t, err)
 	t.Cleanup(killFunc)
 

@@ -1,13 +1,16 @@
-// +build integration
-
 package eth
 
 import (
+	"context"
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"math/big"
 	"sort"
 	"testing"
+	"time"
+
+	"github.com/dabankio/devtools4chains"
+	"github.com/dabankio/wallet-core/core/eth/internalized/testtool"
+	"github.com/stretchr/testify/require"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -16,21 +19,20 @@ import (
 // 本测试要求本地7545端口运行有ganache,并且至少有一个账号余额超过5eth
 // 测试简单的erc20 (并不使用erc20,而是用来测试多签支持)
 func TestErc20(t *testing.T) {
-	const LocalRPCHost7545 = "http://localhost:8545"
+	killFunc, port, err := devtools4chains.DockerRunGanacheCli(&devtools4chains.DockerRunOptions{
+		AutoRemove: true,
+	})
+	t.Cleanup(killFunc)
+
+	var ganacheRPCHost = fmt.Sprintf("http://localhost:%d", port)
 	rq := require.New(t)
-	killGanache, err := RunGanacheCli()
-	rq.Nil(err)
-	defer killGanache()
 
 	var (
-		rpcClient      *ethclient.Client
-		contract       *FixedSupplyToken
-		a0, a1, a2, a3 *AddrInfo
-		addrs          []*AddrInfo
+		rpcClient *ethclient.Client
+		contract  *FixedSupplyToken
+		a0, a1    *AddrInfo
+		addrs     []*AddrInfo
 	)
-	{
-		_, _, _ = a1, a2, a3
-	}
 
 	{ //生成4个地址，并排序
 		for i := 0; i < 4; i++ {
@@ -40,18 +42,18 @@ func TestErc20(t *testing.T) {
 		sort.Slice(addrs, func(i, j int) bool {
 			return addrs[i].Address < addrs[j].Address
 		})
-		a0, a1, a2, a3 = addrs[0], addrs[1], addrs[2], addrs[3]
+		a0, a1 = addrs[0], addrs[1]
 	}
 
 	{ // init vars
-		rpcClient, err = ethclient.Dial(LocalRPCHost7545)
+		rpcClient, err = ethclient.Dial(ganacheRPCHost)
 		rq.Nil(err, "Failed to dial rpc")
+		testtool.WaitSomething(t, time.Minute, func() error { _, e := rpcClient.NetworkID(context.Background()); return e })
 	}
 
-	{ // 为操作的账号准备些手续费
-		for _, add := range addrs {
-			PrepareFunds4address(t, LocalRPCHost7545, add.Address, 1)
-		}
+	// 为操作的账号准备些手续费
+	for _, add := range addrs {
+		PrepareFunds4address(t, ganacheRPCHost, add.Address, 1)
 	}
 
 	{ // 部署erc20 合约, owner 为 a0

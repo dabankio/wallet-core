@@ -10,7 +10,7 @@ require (
 	github.com/btcsuite/btcutil v0.0.0-20190316010144-3ac1210f4b38
 	github.com/cespare/cp v1.1.1 // indirect
 	github.com/dabankio/bbrpc v1.2.0-beta.6
-	github.com/dabankio/devtools4chains v0.0.0-20200819090637-fb54cc9a1a3c
+	github.com/dabankio/devtools4chains v0.1.1-beta.2020020
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
 	github.com/ethereum/go-ethereum v1.9.18

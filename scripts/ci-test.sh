@@ -8,10 +8,13 @@ pkg=github.com/dabankio/wallet-core
 
 export GOPROXY=https://goproxy.cn
 
-go build \
-    && go test ${pkg}/qa/bbc/... \
+go build -o ci.out \
     && go test ${pkg}/bip39/... \
     && go test ${pkg}/bip44/... \
     && go test ${pkg}/core/bbc/... \
     && go test ${pkg}/core/btc/... \
-    && go test ${pkg}/core/eth/... 
+    && go test ${pkg}/core/eth/... \
+    && go test ${pkg}/qa/bbc/... \
+    && go test ${pkg}/qa/btc/... \
+    && go test ${pkg}/qa/eth/... \
+    && go test ${pkg}/qa/omni/... 

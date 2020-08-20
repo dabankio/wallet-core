@@ -58,7 +58,6 @@ func TestMultisig(t *testing.T) {
 
 	testtool.WaitSomething(t, time.Minute, func() error {
 		b, err := devtools4chains.RPCCallJSON(rpcInfo, "getblockcount", nil, nil)
-		// _, err := devtools4chains.RPCCallJSON(rpcInfo, "getblockcount", []interface{}{})
 		if b != nil && strings.Contains(string(b), "Loading wallet") {
 			return fmt.Errorf("Loading wallet")
 		}
@@ -148,15 +147,11 @@ func TestMultisig(t *testing.T) {
 		}
 	}
 
-	{ // relay tx
-		_, err := devtools4chains.RPCCallJSON(rpcInfo, "sendrawtransaction", []interface{}{signedHex}, nil)
-		rq.Nil(err)
-	}
+	_, err = devtools4chains.RPCCallJSON(rpcInfo, "sendrawtransaction", []interface{}{signedHex}, nil)
+	rq.Nil(err)
 
-	{ //generate 1 block
-		_, err = devtools4chains.RPCCallJSON(rpcInfo, "generatetoaddress", []interface{}{1, a0.Address}, nil)
-		rq.Nil(err)
-	}
+	_, err = devtools4chains.RPCCallJSON(rpcInfo, "generatetoaddress", []interface{}{1, a0.Address}, nil)
+	rq.Nil(err)
 
 	{ // validate utxo for receiver
 		resp, err := devtools4chains.RPCCallJSON(rpcInfo, "listunspent", []interface{}{0, 999, []string{a1.Address}}, nil)

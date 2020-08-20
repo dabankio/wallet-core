@@ -60,10 +60,8 @@ github.com/dabankio/bbrpc v1.2.0-beta.4 h1:1U8jSA1B+3/QQFoY+0ZV0vCFetau64LsrPKIC
 github.com/dabankio/bbrpc v1.2.0-beta.4/go.mod h1:rvHjZ+0o4Hi48sJnrTa7adbGAeLufvgokC0yHtvjy3A=
 github.com/dabankio/bbrpc v1.2.0-beta.6 h1:9zJ6ENIM/mqOaVc7yQ+mtJRP0DmdV89sPLQdGGUalDk=
 github.com/dabankio/bbrpc v1.2.0-beta.6/go.mod h1:rvHjZ+0o4Hi48sJnrTa7adbGAeLufvgokC0yHtvjy3A=
-github.com/dabankio/devtools4chains v0.0.0-20200818100840-18436fe66df1 h1:xuSayRQSrfn6zcGEILwEMdua1jhSPoqEFDoWplGzpiI=
-github.com/dabankio/devtools4chains v0.0.0-20200818100840-18436fe66df1/go.mod h1:+DnJusofJsEzVBnAIqSm8tciKMnA7u0oA8Z8h5xVMWg=
-github.com/dabankio/devtools4chains v0.0.0-20200819090637-fb54cc9a1a3c h1:yDZdLqfbU9ZkY/yMVbVv17+iF2lTQ79GyLSqBZip730=
-github.com/dabankio/devtools4chains v0.0.0-20200819090637-fb54cc9a1a3c/go.mod h1:+DnJusofJsEzVBnAIqSm8tciKMnA7u0oA8Z8h5xVMWg=
+github.com/dabankio/devtools4chains v0.1.1-beta.2020020 h1:Lp5KhedBikzDXJUKu+6hYLcwyr0JAvUZmAIHKVXR5q8=
+github.com/dabankio/devtools4chains v0.1.1-beta.2020020/go.mod h1:+DnJusofJsEzVBnAIqSm8tciKMnA7u0oA8Z8h5xVMWg=
 github.com/davecgh/go-spew v0.0.0-20171005155431-ecdeabc65495/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

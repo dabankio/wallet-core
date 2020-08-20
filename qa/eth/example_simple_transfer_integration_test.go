@@ -1,21 +1,21 @@
-// +build integration
-
 package eth
 
 import (
 	"context"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rlp"
 	"math/big"
 	"testing"
+	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
-
+	"github.com/dabankio/devtools4chains"
 	"github.com/dabankio/wallet-core/bip39"
 	"github.com/dabankio/wallet-core/core/eth"
+	"github.com/dabankio/wallet-core/core/eth/internalized/testtool"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/stretchr/testify/require"
 )
 
@@ -29,75 +29,69 @@ func TestSimpleTransfer(t *testing.T) {
 
 	addrs := new([2]addressInfo)
 
-	{ //bip44推导私钥
-		for i := range addrs {
-			var seed []byte
-			var mnemonic string
-			{ //bip39 生成种子
-				bip39.SetWordListLang(bip39.LangChineseSimplified)
-				ent, err := bip39.NewEntropy(128)
-				rq.Nil(err)
-
-				mnemonic, err = bip39.NewMnemonic(ent)
-				rq.Nil(err)
-				fmt.Println("mnemonic:", mnemonic)
-
-				seed, err = bip39.NewSeedWithErrorChecking(mnemonic, "")
-				rq.Nil(err)
-			}
-			deriver, err := eth.NewBip44Deriver(seed)
+	//bip44推导私钥
+	for i := range addrs {
+		var seed []byte
+		var mnemonic string
+		{ //bip39 生成种子
+			bip39.SetWordListLang(bip39.LangChineseSimplified)
+			ent, err := bip39.NewEntropy(128)
 			rq.Nil(err)
 
-			address, err := deriver.DeriveAddress()
+			mnemonic, err = bip39.NewMnemonic(ent)
 			rq.Nil(err)
-			privateKey, err := deriver.DerivePrivateKey()
+			fmt.Println("mnemonic:", mnemonic)
+
+			seed, err = bip39.NewSeedWithErrorChecking(mnemonic, "")
 			rq.Nil(err)
-			publicKey, err := deriver.DerivePublicKey()
-			rq.Nil(err)
-			fmt.Printf("address/private/public: \n%s\n%s\n%s\n", address, privateKey, publicKey)
-			addrs[i] = addressInfo{
-				address:    address,
-				privateKey: "0x" + privateKey,
-				publicKey:  publicKey,
-				mnemonic:   mnemonic,
-			}
+		}
+		deriver, err := eth.NewBip44Deriver(seed)
+		rq.Nil(err)
+
+		address, err := deriver.DeriveAddress()
+		rq.Nil(err)
+		privateKey, err := deriver.DerivePrivateKey()
+		rq.Nil(err)
+		publicKey, err := deriver.DerivePublicKey()
+		rq.Nil(err)
+		fmt.Printf("address/private/public: \n%s\n%s\n%s\n", address, privateKey, publicKey)
+		addrs[i] = addressInfo{
+			address:    address,
+			privateKey: "0x" + privateKey,
+			publicKey:  publicKey,
+			mnemonic:   mnemonic,
 		}
 	}
 
-	{ //启动本地测试节点
-		killGanache, err := RunGanacheCli(addrs[0].privateKey) //addrs[0] 有初始100ETH
-		rq.Nil(err)
-		defer killGanache()
-	}
-
-	const (
-		rpcHost = "http://127.0.0.1:8545"
-	)
-	var (
-		rpcClient *ethclient.Client
-		err       error
-	)
+	//启动本地测试节点
+	killFunc, port, err := devtools4chains.DockerRunGanacheCli(&devtools4chains.DockerRunOptions{
+		AutoRemove: true,
+	})
+	t.Cleanup(killFunc)
+	var rpcHost = fmt.Sprintf("http://localhost:%d", port)
+	var rpcClient *ethclient.Client
 	{ //rpc client
 		rpcClient, err = ethclient.Dial(rpcHost)
 		rq.Nil(err, "dial failed")
+		testtool.WaitSomething(t, time.Minute, func() error { _, e := rpcClient.NetworkID(context.Background()); return e })
 	}
 
-	{ //首先确定addrs[0]里确实有100ETH, addrs[1]里为0
-		fmt.Println("Get balance --------")
-		rightBalances := []struct {
-			address string
-			balance *big.Int
-		}{
-			{address: addrs[0].address, balance: big.NewInt(100).Mul(big.NewInt(E18), big.NewInt(100))},
-			{address: addrs[1].address, balance: big.NewInt(0)},
-		}
+	PrepareFunds4address(t, rpcHost, addrs[0].address, 50)
+	//首先确定addrs[0]里确实有50ETH, addrs[1]里为0
+	rightBalances := []struct {
+		address string
+		balance *big.Int
+	}{
+		{address: addrs[0].address, balance: big.NewInt(0).Mul(big.NewInt(E18), big.NewInt(50))},
+		{address: addrs[1].address, balance: big.NewInt(0)},
+	}
 
-		for _, rightBal := range rightBalances {
-			bal, err := rpcClient.BalanceAt(context.Background(), common.HexToAddress(rightBal.address), nil)
-			rq.Nil(err, "无法获取地址的余额")
-			fmt.Println("addr余额", rightBal.address, bal)
-			rq.True(bal.Cmp(rightBal.balance) == 0, "Wrong balance")
-		}
+	for _, rightBal := range rightBalances {
+		bal, err := rpcClient.BalanceAt(context.Background(), common.HexToAddress(rightBal.address), nil)
+		rq.Nil(err, "无法获取地址的余额")
+		fmt.Println("addr余额", rightBal.address, bal)
+		rq.Equal(bal.String(), rightBal.balance.String(), "Wrong balance")
+		// rq.True(bal.Cmp(rightBal.balance) == 0, "Wrong balance")
 	}
 
 	gasLimit := 6721975
@@ -129,24 +123,23 @@ func TestSimpleTransfer(t *testing.T) {
 
 	}
 
-	{ //确认到账
-		{ //首先确定addrs[0]里确实有100ETH, addrs[1]里为0
-			fmt.Println("Get balance --------")
-			rightBalances := []struct {
-				address string
-				balance *big.Int
-			}{
-				{address: addrs[0].address, balance: nil},
-				{address: addrs[1].address, balance: big.NewInt(int64(transferAmount))},
-			}
+	{ //确认到账, 首先确定addrs[0]里确实有100ETH, addrs[1]里为0
+		fmt.Println("Get balance --------")
+		rightBalances := []struct {
+			address string
+			balance *big.Int
+		}{
+			{address: addrs[0].address, balance: nil},
+			{address: addrs[1].address, balance: big.NewInt(int64(transferAmount))},
+		}
 
-			for _, rightBal := range rightBalances {
-				bal, err := rpcClient.BalanceAt(context.Background(), common.HexToAddress(rightBal.address), nil)
-				rq.Nil(err, "无法获取地址的余额")
-				fmt.Println("addr余额", rightBal.address, bal)
-				if rightBal.balance != nil {
-					rq.True(bal.Cmp(rightBal.balance) == 0, "Wrong balance")
-				}
+		for _, rightBal := range rightBalances {
+			bal, err := rpcClient.BalanceAt(context.Background(), common.HexToAddress(rightBal.address), nil)
+			rq.Nil(err, "无法获取地址的余额")
+			fmt.Println("addr余额", rightBal.address, bal)
+			if rightBal.balance != nil {
+				rq.Equal(bal.String(), rightBal.balance.String(), "Wrong balance")
+				// rq.True(bal.Cmp(rightBal.balance) == 0, "Wrong balance")
 			}
 		}
 	}
