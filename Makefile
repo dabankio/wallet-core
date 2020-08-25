@@ -14,7 +14,7 @@ pkgEth = ${module}/core/eth
 pkgWallet = ${module}/wallet
 pkgCore = ${module}/core
 
-pkgAll = $(pkgBip39) $(pkgBip44) $(pkgBtc) $(pkgEth) $(pkgOmni) $(pkgWallet)
+pkgAll = $(pkgBip39) $(pkgBip44) $(pkgBtc) $(pkgEth) $(pkgOmni) $(pkgWallet) $(pkgBBC)
 
 fmt:  # 格式化go代码
 	@go fmt ./...
