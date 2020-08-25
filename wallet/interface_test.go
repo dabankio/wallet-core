@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/dabankio/wallet-core/bip44"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -15,33 +16,31 @@ var (
 
 func init() {
 	wallet, _ = NewHDWalletFromMnemonic(testMnemonic, false)
+	wallet.path = bip44.PathFormat
 }
 
 func TestCoin_DeriveAddress(t *testing.T) {
-	addr, err := wallet.DeriveAddress("ETH")
-	require.NoError(t, err)
-	assert.Equal(t, "0x947ab281Df5ec46E801F78Ad1363FaaCbe4bfd12", addr)
-	t.Log(addr)
+	for _, tt := range []struct {
+		Symbol, Address string
+		Apply           func(*Wallet)
+	}{
+		{"ETH", "0x947ab281Df5ec46E801F78Ad1363FaaCbe4bfd12", nil},
+		{"BTC", "13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT", nil},
+		{"OMNI", "1AzTauTdhZ4VKC88MAb7iu9jU3yNzpx937", nil},                                                            //not: 13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT
+		{"USDT(Omni)", "1AzTauTdhZ4VKC88MAb7iu9jU3yNzpx937", nil},                                                      //not: 13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT
+		{"USDT(Omni)", "13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT", func(w *Wallet) { w.ShareAccountWithParentChain = true }}, //not: 13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT
+		{"BBC", "1zebxse3jm1c0jg0a2p22jaqyj7nerh6f1a5ck71g66j7at1w87th34gx", nil},
+	} {
+		wallet, _ = NewHDWalletFromMnemonic(testMnemonic, false)
+		wallet.path = bip44.PathFormat
+		if tt.Apply != nil {
+			tt.Apply(wallet)
+		}
 
-	addr, err = wallet.DeriveAddress("BTC")
-	assert.NoError(t, err)
-	assert.Equal(t, "13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT", addr)
-	t.Log(addr)
-
-	wallet.ShareAccountWithParentChain = false
-	addr, err = wallet.DeriveAddress("USDT(Omni)")
-	assert.NoError(t, err)
-	assert.NotEqual(t, "13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT", addr)
-	assert.Equal(t, "1AzTauTdhZ4VKC88MAb7iu9jU3yNzpx937", addr)
-	t.Log(addr)
-
-	wallet.ShareAccountWithParentChain = true
-	addr, err = wallet.DeriveAddress("USDT(Omni)")
-	assert.NoError(t, err)
-	assert.NotEqual(t, "1AzTauTdhZ4VKC88MAb7iu9jU3yNzpx937", addr)
-	assert.Equal(t, "13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT", addr)
-	t.Log(addr)
-	wallet.ShareAccountWithParentChain = false
+		addr, err := wallet.DeriveAddress(tt.Symbol)
+		require.NoError(t, err)
+		assert.Equal(t, tt.Address, addr)
+	}
 }
 
 func TestWallet_GetAvailableCoinList(t *testing.T) {

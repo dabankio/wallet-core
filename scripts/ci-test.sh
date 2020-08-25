@@ -11,6 +11,7 @@ export GOPROXY=https://goproxy.cn
 go build -o ci.out \
     && go test ${pkg}/bip39/... \
     && go test ${pkg}/bip44/... \
+    && go test ${pkg}/wallet/... \
     && go test ${pkg}/core/bbc/... \
     && go test ${pkg}/core/btc/... \
     && go test ${pkg}/core/eth/... \

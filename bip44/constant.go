@@ -50,7 +50,7 @@ func combineCoinType() {
 
 func GetCoinType(symbol string) (coinType uint32, err error) {
 	if strings.Compare(strings.ToUpper(symbol), symbol) != 0 {
-		fmt.Printf("symbol has been converted to uppercase. (%s) -> (%s)", symbol, strings.ToUpper(symbol))
+		// fmt.Printf("symbol has been converted to uppercase. (%s) -> (%s)", symbol, strings.ToUpper(symbol))
 		symbol = strings.ToUpper(symbol)
 	}
 	coinType, exist := registeredCoinType[symbol]
@@ -311,6 +311,7 @@ var registeredCoinType = map[string]uint32{
 	"ODN":    0x800000ad,
 	"OK":     0x80000045,
 	"OMNI":   0x800000c8,
+	"USDT(OMNI)":   0x800000c8, //same as omni
 	"ONE":    0x8000010e,
 	"ONT":    0x80000400,
 	"ONX":    0x800000ae,

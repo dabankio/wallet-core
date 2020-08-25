@@ -34,7 +34,7 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 		}
 	case "BTCTest":
 		coin, err = btc.NewFromMetadata(md)
-	case "USDT(Omni)":
+	case "USDT(Omni)", "OMNI":
 		// TODO more elegant way to support custom options, make the wallet instance a argument?
 		if c.ShareAccountWithParentChain {
 			coin, err = omni.NewWithOptions(c.seed, c.testNet, map[string]interface{}{
@@ -66,31 +66,32 @@ func GetAvailableCoinList() string {
 		// BTC series
 		"BTC",
 		// "BCH",//TODO BCH 对 BTC 的代码依赖问题暂时没有解决，先注释掉
-		"MGD",
-		"LMC",
+		// "MGD",
+		// "LMC",
 
 		// OMNI series
 		"USDT(Omni)",
+		"OMNI",
 
 		// ETH series
 		"ETH",
 		// ERC20 series
-		"XT",
-		"THM",
-		"ALI",
-		"RED",
-		"USO",
-		"BTK",
-		"EGT",
-		"HOTC(HOTCOIN)",
+		// "XT",
+		// "THM",
+		// "ALI",
+		// "RED",
+		// "USO",
+		// "BTK",
+		// "EGT",
+		// "HOTC(HOTCOIN)",
 
 		// ripple
-		"XRP",
+		// "XRP",
 
 		// tron
-		"TRX",
+		// "TRX",
 		// TRC10
-		"BTT",
+		// "BTT",
 	}
 	return strings.Join(availableCoin, " ")
 }
