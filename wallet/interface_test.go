@@ -1,6 +1,7 @@
 package wallet
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -71,44 +72,70 @@ func TestGetVersion(t *testing.T) {
 }
 
 func TestIMTokenCompatibility(t *testing.T) {
-	testMnemonic := "lecture leg select like delay limit spread retire toward west grape bachelor"
-	var options WalletOptions
-	options.Add(
-		WithPassword( /*bip44.Password*/ ""),
-	)
-	options.Add(
-		WithPathFormat("m/44'/0'/0'/0/0"),
-	)
-	wallet, err := BuildWalletFromMnemonic(
-		testMnemonic,
-		false,
-		&options,
-	)
-	assert.NoError(t, err)
-	//btc
-	{
-		coin, err := wallet.initCoin("BTCTest")
-		assert.NoError(t, err)
-		addr, err := coin.DeriveAddress()
-		assert.NoError(t, err)
-		imTokenBTCAddr := "1NCvbkHN9bq97JfvTGQAonNn3KpPk73LEZ"
-		assert.Equal(t, imTokenBTCAddr, addr)
-		t.Log(addr)
-	}
-	//eth
-	{
-		var options WalletOptions
-		options.Add(
-			WithPathFormat("m/44'/60'/0'/0/0"),
-		)
-		wallet, err := wallet.Clone(&options)
-		assert.NoError(t, err)
-		coin, err := wallet.initCoin("ETHTest")
-		assert.NoError(t, err)
-		addr, err := coin.DeriveAddress()
-		assert.NoError(t, err)
-		imTokenETHAddr := "0x18CACe95E0d5a3E0AC610dD8064490EdC16C176f"
-		assert.Equal(t, imTokenETHAddr, addr)
-		t.Log(addr)
+	for _, tt := range []struct {
+		skip                       bool
+		name, mnemonic, pass, path string
+		addrs                      map[string]string
+	}{
+		{
+			name:     "legacy wallet",
+			mnemonic: "lecture leg select like delay limit spread retire toward west grape bachelor",
+			pass:     bip44.Password,
+			path:     bip44.PathFormat,
+			addrs: map[string]string{
+				"BTC": "13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT",
+				"ETH": "0x947ab281Df5ec46E801F78Ad1363FaaCbe4bfd12",
+			},
+		},
+		{
+			name:     "imToken wallet",
+			mnemonic: "lecture leg select like delay limit spread retire toward west grape bachelor",
+			pass:     "",
+			path:     bip44.FullPathFormat,
+			addrs: map[string]string{
+				"BTC": "1NCvbkHN9bq97JfvTGQAonNn3KpPk73LEZ",
+				"ETH": "0x18CACe95E0d5a3E0AC610dD8064490EdC16C176f",
+			},
+		},
+		{
+			name:     "legacy wallet2",
+			mnemonic: "connect auto goose panda extend ozone absent climb abstract doll west crazy",
+			pass:     bip44.Password,
+			path:     bip44.PathFormat,
+			addrs: map[string]string{
+				"BTC": "12X2swpFCeeoVVofn6UHaRpfDAiH9ew2U6",
+				"ETH": "0x5f7838c98581f48b9Dc77Cd6410D37AEeAA1e14B",
+			},
+		},
+		{
+			name:     "imToken wallet2",
+			mnemonic: "connect auto goose panda extend ozone absent climb abstract doll west crazy",
+			pass:     "",
+			path:     bip44.FullPathFormat,
+			addrs: map[string]string{
+				"BTC": "12Yj7jHxkQhddZVqQd697Qpq4nhEZiXAzn",
+				"ETH": "0xf90b1d47964149Ab7F815F1564E0f41Cac0Dc456",
+			},
+		},
+	} {
+		if tt.skip {
+			continue
+		}
+		t.Run(tt.name, func(t *testing.T) {
+			var options WalletOptions
+			options.Add(WithPassword(tt.pass)) /*bip44.Password*/
+			options.Add(WithPathFormat(tt.path))
+			wallet, err := BuildWalletFromMnemonic(
+				tt.mnemonic,
+				false,
+				&options,
+			)
+			assert.NoError(t, err)
+			for symbol, addr := range tt.addrs {
+				deriveAddr, err := wallet.DeriveAddress(symbol)
+				require.NoError(t, err, fmt.Sprintf("symbol:%s", symbol))
+				require.Equal(t, addr, deriveAddr)
+			}
+		})
 	}
 }

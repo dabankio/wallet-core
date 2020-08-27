@@ -26,13 +26,13 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 	switch symbol {
 	case "BBC":
 		coin, err = bbc.NewCoin(c.seed, c.path)
-	case "BTC":
+	case "BTC_DISABLED": //temporary disabled
 		if c.testNet {
 			coin, err = btc.New(c.seed, btc.ChainTestNet3)
 		} else {
 			coin, err = btc.New(c.seed, btc.ChainMainNet)
 		}
-	case "BTCTest":
+	case "BTC":
 		coin, err = btc.NewFromMetadata(md)
 	case "USDT(Omni)", "OMNI":
 		// TODO more elegant way to support custom options, make the wallet instance a argument?
@@ -45,9 +45,9 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 		}
 	// case "BCH": //TODO BCH 对 BTC 的代码依赖问题暂时没有解决，先注释掉
 	// coin, err = bch.New(c.seed, c.testNet)
-	case "ETH", "XT", "THM", "ALI", "RED", "USO", "BTK", "EGT", "HOTC(HOTCOIN)":
-		coin, err = eth.New(c.seed)
-	case "ETHTest":
+	// case "ETH_X", "XT", "THM", "ALI", "RED", "USO", "BTK", "EGT", "HOTC(HOTCOIN)":
+	// 	coin, err = eth.New(c.seed) //temporay disabled
+	case "ETH":
 		coin, err = eth.NewFromMetadata(md)
 	case "XRP":
 		coin, err = xrp.New(c.seed)
