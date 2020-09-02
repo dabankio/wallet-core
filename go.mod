@@ -10,7 +10,7 @@ require (
 	github.com/btcsuite/btcutil v0.0.0-20190316010144-3ac1210f4b38
 	github.com/cespare/cp v1.1.1 // indirect
 	github.com/dabankio/bbrpc v1.2.0-beta.6
-	github.com/dabankio/devtools4chains v0.1.1-beta.2020020
+	github.com/dabankio/devtools4chains v0.1.1-beta.20200902
 	github.com/dabankio/gobbc v1.0.9
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
@@ -29,11 +29,8 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/tyler-smith/go-bip39 v1.0.2 // indirect
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
-	golang.org/x/mobile v0.0.0-20200801112145-973feb4309de // indirect
 	golang.org/x/net v0.0.0-20200813134508-3edf25e44fcc // indirect
 	golang.org/x/sys v0.0.0-20200817155316-9781c653f443 // indirect
 	golang.org/x/tools v0.0.0-20200117012304-6edc0a871e69 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15
 )
-
-replace github.com/dabankio/devtools4chains => /Users/sunxiansong/Documents/lomo/projects/devtools4chains
