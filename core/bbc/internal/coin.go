@@ -5,16 +5,21 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/dabankio/gobbc"
 	"github.com/dabankio/wallet-core/bip44"
 	"github.com/dabankio/wallet-core/core"
 	"github.com/ethereum/go-ethereum/accounts"
-	"github.com/lomocoin/gobbc"
 	"github.com/pkg/errors"
 )
 
 const (
-	symbol = "BBC"
+	SymbolBBC = "BBC"
+	SymbolMKF = "MKF"
 )
+
+var knownSymbols = []string{
+	SymbolBBC, SymbolMKF,
+}
 
 type BBC struct {
 	Symbol         string
@@ -25,12 +30,34 @@ type BBC struct {
 var _ core.Coin = (*BBC)(nil) //type ensure
 
 // NewCoin new bbc coin implementation
-func NewCoin(seed []byte) (core.Coin, error) {
-	return NewCoinWithPath(seed, bip44.PathFormat)
+func NewCoin(symbol string, seed []byte) (core.Coin, error) {
+	return NewCoinWithPath(symbol, seed, bip44.PathFormat)
+}
+
+func isKnownSymbol(symbol string) error {
+	for _, s := range knownSymbols {
+		if s == symbol {
+			return nil
+		}
+	}
+	return fmt.Errorf("Unknown symbol %s", symbol)
+}
+func SymbolSerializer(symbol string) gobbc.Serializer {
+	switch symbol {
+	case SymbolBBC:
+		return gobbc.BBCSerializer
+	case SymbolMKF:
+		return gobbc.MKFSerializer
+	default:
+		return nil
+	}
 }
 
 // NewCoinWithPath new bbc coin implementation, 只推导1个地址
-func NewCoinWithPath(seed []byte, path string) (core.Coin, error) {
+func NewCoinWithPath(symbol string, seed []byte, path string) (core.Coin, error) {
+	if e := isKnownSymbol(symbol); e != nil {
+		return nil, e
+	}
 	if strings.Count(path, "%d") != 1 {
 		return nil, errors.New("path 应包含且仅且包含1个%d占位符")
 	}
@@ -46,13 +73,16 @@ func NewCoinWithPath(seed []byte, path string) (core.Coin, error) {
 	}
 	c.MasterKey, err = NewMaster(seed)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to new master key for bbc")
+		return c, errors.Wrap(err, "unable to new master key for bbc")
 	}
 	return c, nil
 }
 
 // NewCoinFullPath new bbc coin implementation, with full bip44 path
-func NewCoinFullPath(seed []byte, accountIndex, changeType, index int) (core.Coin, error) {
+func NewCoinFullPath(symbol string, seed []byte, accountIndex, changeType, index int) (core.Coin, error) {
+	if e := isKnownSymbol(symbol); e != nil {
+		return nil, e
+	}
 	var err error
 	c := new(BBC)
 	c.Symbol = symbol
@@ -110,9 +140,8 @@ func (c *BBC) DerivePrivateKey() (privateKey string, err error) {
 	return gobbc.Seed2string(child.key), nil
 }
 
-// DecodeTx decodes raw tx to human readable format
-func (c *BBC) DecodeTx(msg string) (string, error) {
-	tx, err := gobbc.DecodeRawTransaction(msg, false)
+func DecodeSymbolTx(symbol, txData string) (string, error) {
+	tx, err := gobbc.DecodeRawTransaction(SymbolSerializer(symbol), txData, false)
 	if err != nil {
 		return "", err
 	}
@@ -121,6 +150,11 @@ func (c *BBC) DecodeTx(msg string) (string, error) {
 		return "", errors.Wrapf(err, "unable to marshal json, %#v", tx)
 	}
 	return string(b), nil
+}
+
+// DecodeTx decodes raw tx to human readable format
+func (c *BBC) DecodeTx(msg string) (string, error) {
+	return DecodeSymbolTx(c.Symbol, msg)
 }
 
 // Sign signs raw tx with privateKey
@@ -142,17 +176,20 @@ func (c *BBC) Sign(msg, privateKey string) (string, error) {
 
 // SignTemplate signs raw tx with privateKey
 func (c *BBC) SignTemplate(msg, templateData, privateKey string) (sig string, err error) {
+	if c.Symbol == "" {
+		return "", errors.New("symbol not specified")
+	}
 	//尝试解析为原始交易
-	tx, err := gobbc.DecodeRawTransaction(msg, true)
+	tx, err := gobbc.DecodeRawTransaction(SymbolSerializer(c.Symbol), msg, true)
 	if err != nil {
 		return msg, errors.Wrap(err, "unable to parse tx data")
 	}
 
-	err = tx.SignWithPrivateKey(templateData, privateKey)
+	err = tx.SignWithPrivateKey(SymbolSerializer(c.Symbol), templateData, privateKey)
 	if err != nil {
 		return msg, errors.Wrap(err, "sign failed")
 	}
-	return tx.Encode(true)
+	return tx.Encode(SymbolSerializer(c.Symbol), true)
 }
 
 // VerifySignature verifies rawTx's signature is intact
