@@ -11,16 +11,23 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const bbcCoreImage = "dabankio/bbccore:0.11"
+const mkfImage = "dabankio/mkfdev:1"
+
+func TestDecodeTX(t *testing.T) {
+	t.Skip("bad test")
+	raw := "0200000051b64d5f00000000017a26dfcba4ed6c3e46a7b0f0ec6c8214a23c211613559b8768a843aa4cb64d5f0002030001e21d6d49931304681ac8ed683d8e90dc8eb6793a875d5361b0bb72bdf9601823000000000030750000000000000000"
+	tx, err := bbc.DecodeTX(raw)
+	fmt.Println(tx, err)
+}
 
 // 演示BBC sdk一般性用法
 // 警告: 不要在生产环境中直接使用注释中的助记词
-func TestExampleBBC(t *testing.T) {
+func TestExampleMKF(t *testing.T) {
 	r := require.New(t)
 	const pass = "123"
 	// 临时启动一个测试节点
 
-	nodeInfo := devtools4chains.MustRunDockerDevCore(t, bbcCoreImage, true, true)
+	nodeInfo := devtools4chains.MustRunDockerMKFDev(t, mkfImage, true, true)
 
 	jsonRPC := nodeInfo.Client
 	minerAddress := nodeInfo.MinerAddress
@@ -38,7 +45,7 @@ func TestExampleBBC(t *testing.T) {
 		fmt.Println("mnemonic:", mnemonic) //mnemonic: 旦 件 言 毫 树 名 当 氧 旨 弧 落 功
 		seed = bip39.NewSeed(mnemonic, "") // <<=== sdk 获取种子，第二个参数相当于salt,生产后请始终保持一致
 
-		key, err = bbc.DeriveKeySimple(seed) // <<=== sdk 推导key （账号0，作为向外部转账使用，第0个地址）
+		key, err = bbc.DeriveSymbolKeySimple(bbc.SymbolMKF, seed) // <<=== sdk 推导key （账号0，作为向外部转账使用，第0个地址）
 		r.NoError(err)
 		fmt.Println("key", key) //key {0066760c7374abb65611092edd3176b5545772ed61b3672e1888a78846cbe308 8b48882c4e4d61e242d0da2c3b0bf025f77f0b6fef37a4efab7e996baeb93d6d 1dmyvkbkbk5zaqvx46zqpy2vzywjz02sv5kdd0gq2c56mwb48925hfhpd}
 	})
@@ -67,11 +74,12 @@ func TestExampleBBC(t *testing.T) {
 
 		rawTX = replaceTXVersion(*rawTX)
 
-		deTx, err := bbc.DecodeSymbolTX("BBC", *rawTX) // <<=== sdk 反序列化交易
+		fmt.Println("rawTX:", *rawTX)
+		deTx, err := bbc.DecodeSymbolTX("MKF", *rawTX) // <<=== sdk 反序列化交易
 		r.NoError(err)
 		fmt.Println("decoded tx", deTx) //decoded tx {"Version":1,"Typ":0,"Timestamp":1584952846,"LockUntil":0,"SizeIn":1,"Prefix":2,"Amount":1340000,"TxFee":100,"SizeOut":0,"SizeSign":0,"HashAnchor":"00000000c335f935650a427bf548242eac4e4a444e25691b47351e7945f4a8d4","Address":"10g06z2bmwb71n9xg9zsv4vzay86ab7avt6n97hm6ra2z3rsbrtc2ncer","Sign":""}
 
-		signedTX, err := bbc.SignWithPrivateKey(*rawTX, "", key.PrivateKey) // <<=== sdk 使用私钥对交易进行签名
+		signedTX, err := bbc.SymbolSignWithPrivateKey(bbc.SymbolMKF, *rawTX, "", key.PrivateKey) // <<=== sdk 使用私钥对交易进行签名
 		r.NoError(err)
 
 		_, err = jsonRPC.Sendtransaction(signedTX) // <<=== RPC 发送交易
@@ -84,84 +92,6 @@ func TestExampleBBC(t *testing.T) {
 		r.Len(bal, 1)
 		r.True(bal[0].Avail < registeredAssets-outAmount)
 		fmt.Println("balance after send", bal[0]) //balance after send {1dmyvkbkbk5zaqvx46zqpy2vzywjz02sv5kdd0gq2c56mwb48925hfhpd 0.9899 0 0}
-	})
-
-	var delegateTemplateAddress string
-	voteAmount := 9.8
-	var voteTemplateAddress string
-	t.Run("投票用法", func(t *testing.T) {
-		t.Skip("测试镜像不支持dpos, 跳过； 下面的示例代码是可用的")
-		//准备dpos节点数据
-		delegateAddr, ownerAddr := bbrpc.TAddr0, bbrpc.TAddr1
-		tplAddr, err := jsonRPC.Addnewtemplate(bbrpc.AddnewtemplateParamDelegate{
-			Delegate: delegateAddr.Pubkey,
-			Owner:    ownerAddr.Address,
-		})
-		r.Nil(err)
-		delegateTemplateAddress = *tplAddr
-		fmt.Println("delegate tpl addr:", delegateTemplateAddress)
-
-		// 首先添加投票地址
-		voteTemplateAddressP, err := jsonRPC.Addnewtemplate(bbrpc.AddnewtemplateParamVote{
-			Delegate: delegateTemplateAddress,
-			Owner:    key.Address,
-		})
-		r.NoError(err)
-		voteTemplateAddress = *voteTemplateAddressP
-
-		addrInfo, err := jsonRPC.Validateaddress(voteTemplateAddress)
-		r.NoError(err)
-
-		rawTX, err := jsonRPC.Createtransaction(bbrpc.CmdCreatetransaction{
-			From:   key.Address,
-			To:     voteTemplateAddress,
-			Amount: voteAmount,
-		})
-		rawTX = replaceTXVersion(*rawTX)
-		// fmt.Println("rawtx", *rawTX)
-
-		deTx, err := bbc.DecodeTX(*rawTX) // <<=== sdk 反序列化交易
-		r.NoError(err)
-		fmt.Println("decoded tx", deTx) //decoded tx {"Version":1,"Typ":0,"Timestamp":1584952846,"LockUntil":0,"SizeIn":1,"Prefix":2,"Amount":1340000,"TxFee":100,"SizeOut":0,"SizeSign":0,"HashAnchor":"00000000c335f935650a427bf548242eac4e4a444e25691b47351e7945f4a8d4","Address":"10g06z2bmwb71n9xg9zsv4vzay86ab7avt6n97hm6ra2z3rsbrtc2ncer","Sign":""}
-
-		signedTX, err := bbc.SignWithPrivateKey(*rawTX, addrInfo.Addressdata.Templatedata.Hex, key.PrivateKey) // <<=== sdk 使用私钥对交易进行签名,传入投票模版地址数据
-		// fmt.Println("signed tx", signedTX)
-		r.NoError(err)
-
-		_, err = jsonRPC.Sendtransaction(signedTX) // <<=== RPC 发送交易
-		r.NoError(err)
-
-		r.NoError(bbrpc.Wait4nBlocks(1, jsonRPC))
-
-		bal, err := jsonRPC.Getbalance(nil, &voteTemplateAddress) // <<=== RPC 查询余额
-		r.NoError(err)
-		r.Len(bal, 1)
-		r.Equal(bal[0].Avail, voteAmount)
-		fmt.Println("vote template balance", bal[0]) //balance after vote
-
-		{ //赎回部分投票
-			redeemAmount := 2.3
-			tx2, err := jsonRPC.Createtransaction(bbrpc.CmdCreatetransaction{
-				From:   voteTemplateAddress,
-				To:     key.Address,
-				Amount: redeemAmount,
-			})
-			r.NoError(err)
-			tx2 = replaceTXVersion(*tx2)
-			deTx, err = bbc.DecodeTX(*tx2)
-			r.NoError(err)
-			signedTX, err = bbc.SignWithPrivateKey(*tx2, addrInfo.Addressdata.Templatedata.Hex, key.PrivateKey)
-			r.NoError(err)
-			_, err = jsonRPC.Sendtransaction(signedTX) // <<=== RPC 发送交易
-			r.NoError(err)
-
-			r.NoError(bbrpc.Wait4nBlocks(1, jsonRPC))
-			bal, err := jsonRPC.Getbalance(nil, &voteTemplateAddress) // <<=== RPC 查询余额
-			r.NoError(err)
-			r.Len(bal, 1)
-			r.True(bal[0].Avail < voteAmount-redeemAmount)
-			fmt.Println("vote template balance after redeem", bal[0]) //balance after vote
-		}
 	})
 
 	t.Run("直接使用私钥", func(t *testing.T) {
@@ -219,11 +149,11 @@ func TestExampleBBC(t *testing.T) {
 		}
 
 		//member0签名
-		member0Sign, err := bbc.SignWithPrivateKey(*rawTX, templateData, member0.Privkey)
+		member0Sign, err := bbc.SymbolSignWithPrivateKey(bbc.SymbolMKF, *rawTX, templateData, member0.Privkey)
 		r.NoError(err)
 
 		//member1签名
-		member1Sign, err := bbc.SignWithPrivateKey(member0Sign, templateData, member1.Privkey)
+		member1Sign, err := bbc.SymbolSignWithPrivateKey(bbc.SymbolMKF, member0Sign, templateData, member1.Privkey)
 		r.NoError(err)
 
 		txid, err := jsonRPC.Sendtransaction(member1Sign)
@@ -236,9 +166,4 @@ func TestExampleBBC(t *testing.T) {
 		fmt.Printf("%#v\n", bal)
 		// r.NoError(bbrpc.Wait4balanceReach(member0.Address, 20, jsonRPC)) //等待member0到账
 	})
-}
-
-func replaceTXVersion(rawtx string) *string {
-	// _dposTx := "ffff" + rawtx[4:] //dpos测试链需要修改tx version，主网不需要该环节
-	return &rawtx
 }

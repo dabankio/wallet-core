@@ -31,6 +31,7 @@ func TestCoin_DeriveAddress(t *testing.T) {
 		{"USDT(Omni)", "1AzTauTdhZ4VKC88MAb7iu9jU3yNzpx937", nil},                                                      //not: 13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT
 		{"USDT(Omni)", "13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT", func(w *Wallet) { w.ShareAccountWithParentChain = true }}, //not: 13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT
 		{"BBC", "1zebxse3jm1c0jg0a2p22jaqyj7nerh6f1a5ck71g66j7at1w87th34gx", nil},
+		{"MKF", "1hzk1r21qc7aehbt7w0kbzrjcwrvxcbypms50sxk5c68hm90g8cdd46rv", nil},
 	} {
 		wallet, _ = NewHDWalletFromMnemonic(testMnemonic, false)
 		wallet.path = bip44.PathFormat

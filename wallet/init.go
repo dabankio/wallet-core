@@ -24,8 +24,8 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 		return
 	}
 	switch symbol {
-	case "BBC":
-		coin, err = bbc.NewCoin(c.seed, c.path)
+	case bbc.SymbolMKF, bbc.SymbolBBC:
+		coin, err = bbc.NewSymbolCoin(symbol, c.seed, c.path)
 	case "BTC_DISABLED": //temporary disabled
 		if c.testNet {
 			coin, err = btc.New(c.seed, btc.ChainTestNet3)
@@ -72,6 +72,9 @@ func GetAvailableCoinList() string {
 		// OMNI series
 		"USDT(Omni)",
 		"OMNI",
+
+		"BBC",
+		"MKF",
 
 		// ETH series
 		"ETH",

@@ -1,5 +1,10 @@
 # Change log
 
+## 2020-09-02
+- 新增MKF支持， 以及部分相关API
+- bbc，废弃了部分API
+    - bbc.DecodeTx, 新的 API 为 bbc.DecodeSymbolTx
+
 ## 2020-08-10
 ETH 多签新增 bucketNonce 以支持并行签名
 ETH 多签新增 expireTime 参数 以提高安全性
