@@ -162,6 +162,6 @@ TBD
     - ~~参考 https://github.com/ethereum/go-ethereum/issues/20160 ， https://github.com/elastic/gosigar/pull/134~~
     - ~~这个问题已经有PR修复了，但还没有合并，可以clone到本地后用go.mod replace 替换成本地的依赖，具体参考 `go.mod`,后续PR合并后可以移除replace~~
 
-## 开源许可
+## License
 
 BSD-3-Clause

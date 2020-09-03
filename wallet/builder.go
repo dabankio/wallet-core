@@ -65,6 +65,20 @@ func WithPathFormat(pathFormat string) WalletOption {
 	}
 }
 
+type flagOpt struct {
+	flag string
+}
+
+func (f flagOpt) Visit(wallet *Wallet) error {
+	wallet.flags[f.flag] = struct{}{}
+	return nil
+}
+
+// WithFlag 该选项添加特殊配置flag, flag参考 FlagXXX 常量
+func WithFlag(flag string) WalletOption {
+	return flagOpt{flag}
+}
+
 type passwordOpt struct {
 	password string
 }

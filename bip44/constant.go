@@ -67,24 +67,34 @@ func GetCoinDerivationPath(symbol string) (derivationPath accounts.DerivationPat
 	if err != nil {
 		return
 	}
-	path := fmt.Sprintf(PathFormat, coinType)
-	return accounts.ParseDerivationPath(path)
+	return GetDerivePath(PathFormat, coinType, nil)
 }
 
-// GetFullCoinDerivationPath 获取完整的bip44路径
-func GetFullCoinDerivationPath(symbol string, accountIndex, changeType, index int) (derivationPath accounts.DerivationPath, err error) {
-	if accountIndex < 0 || index < 0 {
-		return nil, errors.Errorf("accountIndex(%d), index(%d) 需 >= 0", accountIndex, index)
+// AdditionalDeriveParam 额外的推导参数
+type AdditionalDeriveParam struct {
+	AccountIndex, ChangeType, Index int
+}
+
+// GetDerivePath .
+func GetDerivePath(path string, symbolID uint32, ap *AdditionalDeriveParam) (accounts.DerivationPath, error) {
+	count := strings.Count(path, "%d")
+	switch count {
+	case 1:
+		return accounts.ParseDerivationPath(fmt.Sprintf(path, symbolID))
+	case 4:
+		if ap == nil {
+			return nil, errors.Errorf("bip44 additional param not provided")
+		}
+		if ap.AccountIndex < 0 || ap.Index < 0 {
+			return nil, errors.Errorf("invalid account index or index")
+		}
+		if ap.ChangeType != ChangeTypeExternal && ap.ChangeType != ChangeTypeInternal {
+			return nil, errors.Errorf("invalid change type %d", ap.ChangeType)
+		}
+		return accounts.ParseDerivationPath(fmt.Sprintf(path, symbolID, ap.AccountIndex, ap.ChangeType, ap.Index))
+	default:
+		return nil, errors.Errorf("bip44 derive path unknown format: %s", path)
 	}
-	if changeType != ChangeTypeExternal && changeType != ChangeTypeInternal {
-		return nil, errors.Errorf("changeType 需为0或1，参数：%d", changeType)
-	}
-	coinType, err := GetCoinType(symbol)
-	if err != nil {
-		return
-	}
-	path := fmt.Sprintf(FullPathFormat4, coinType, accountIndex, changeType, index)
-	return accounts.ParseDerivationPath(path)
 }
 
 var customCoinType = map[string]uint32{
@@ -95,6 +105,9 @@ var customCoinType = map[string]uint32{
 
 // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
 var registeredCoinType = map[string]uint32{
+	"BIGBANG CORE":  0x80000224,
+	"MARKETFINANCE": 0x80000225,
+
 	"AC":         0x80000033,
 	"ACC":        0x800000a1,
 	"ACM":        0x800000e4,
@@ -276,7 +289,7 @@ var registeredCoinType = map[string]uint32{
 	"MEC":        0x800000d9,
 	"MEM":        0x8000014d,
 	"MIX":        0x8000004c,
-	"MKF":        0x80000236,
+	"MKF":        0x80000225,
 	"MNX":        0x800000b6,
 	"MOIN":       0x80000027,
 	"MONA":       0x80000016,

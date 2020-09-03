@@ -20,28 +20,72 @@ func init() {
 	wallet.path = bip44.PathFormat
 }
 
+// 该测试应该始终保持通过，且测试数据不应该被修改,除非你知道这意味着什么（即兼容性问题）
 func TestCoin_DeriveAddress(t *testing.T) {
+	const mnemonic = "lecture leg select like delay limit spread retire toward west grape bachelor"
 	for _, tt := range []struct {
-		Symbol, Address string
-		Apply           func(*Wallet)
+		name            string
+		symbol, address string
+		apply           func(*Wallet)
 	}{
-		{"ETH", "0x947ab281Df5ec46E801F78Ad1363FaaCbe4bfd12", nil},
-		{"BTC", "13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT", nil},
-		{"OMNI", "1AzTauTdhZ4VKC88MAb7iu9jU3yNzpx937", nil},                                                            //not: 13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT
-		{"USDT(Omni)", "1AzTauTdhZ4VKC88MAb7iu9jU3yNzpx937", nil},                                                      //not: 13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT
-		{"USDT(Omni)", "13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT", func(w *Wallet) { w.ShareAccountWithParentChain = true }}, //not: 13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT
-		{"BBC", "1zebxse3jm1c0jg0a2p22jaqyj7nerh6f1a5ck71g66j7at1w87th34gx", nil},
-		{"MKF", "1hzk1r21qc7aehbt7w0kbzrjcwrvxcbypms50sxk5c68hm90g8cdd46rv", nil},
+		{name: "ETH default",
+			symbol:  "ETH",
+			address: "0x947ab281Df5ec46E801F78Ad1363FaaCbe4bfd12",
+		},
+		{name: "BTC default",
+			symbol:  "BTC",
+			address: "13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT",
+		},
+		{name: "OMNI default",
+			symbol:  "OMNI",
+			address: "1AzTauTdhZ4VKC88MAb7iu9jU3yNzpx937",
+		}, //not: 13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT
+		{name: "BBC default",
+			symbol:  "BBC",
+			address: "1zebxse3jm1c0jg0a2p22jaqyj7nerh6f1a5ck71g66j7at1w87th34gx",
+		},
+		{name: "BBC using std bip44 id",
+			symbol:  "BBC",
+			address: "126xdeftrb77mg6vy78zdn9rcny3zgvm9rp1wek3npqc2w8s142pfjdtz",
+			apply:   func(w *Wallet) { w.flags[FlagBBCUseStandardBip44ID] = struct{}{} }},
+		{name: "MKF default",
+			symbol:  "MKF",
+			address: "1vx6bd4d0jvhte4qndwgcf0hdc4cstmz3zqg8eh2bfsrarewv65xezpdz",
+		},
+		{name: "MKF share address with BBC",
+			symbol:  "MKF",
+			address: "1zebxse3jm1c0jg0a2p22jaqyj7nerh6f1a5ck71g66j7at1w87th34gx",
+			apply:   func(w *Wallet) { w.flags[FlagMKFUseBBCBip44ID] = struct{}{} },
+		},
+		{name: "BBC use std bip44 id and MKF share address with BBC",
+			symbol:  "MKF",
+			address: "126xdeftrb77mg6vy78zdn9rcny3zgvm9rp1wek3npqc2w8s142pfjdtz",
+			apply: func(w *Wallet) {
+				w.flags[FlagMKFUseBBCBip44ID] = struct{}{}
+				w.flags[FlagBBCUseStandardBip44ID] = struct{}{}
+			},
+		},
+		{name: "USDT(Omni) default",
+			symbol:  "USDT(Omni)",
+			address: "1AzTauTdhZ4VKC88MAb7iu9jU3yNzpx937",
+		}, //not: 13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT
+		{name: "omni share address with btc",
+			symbol:  "USDT(Omni)",
+			address: "13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT",
+			apply:   func(w *Wallet) { w.ShareAccountWithParentChain = true }},
 	} {
-		wallet, _ = NewHDWalletFromMnemonic(testMnemonic, false)
-		wallet.path = bip44.PathFormat
-		if tt.Apply != nil {
-			tt.Apply(wallet)
-		}
+		t.Run(tt.name, func(t *testing.T) {
+			wt, err := NewHDWalletFromMnemonic(mnemonic, false)
+			require.NoError(t, err)
+			wt.path = bip44.PathFormat
+			if tt.apply != nil {
+				tt.apply(wt)
+			}
 
-		addr, err := wallet.DeriveAddress(tt.Symbol)
-		require.NoError(t, err)
-		assert.Equal(t, tt.Address, addr)
+			addr, err := wt.DeriveAddress(tt.symbol)
+			require.NoError(t, err)
+			assert.Equal(t, tt.address, addr)
+		})
 	}
 }
 
