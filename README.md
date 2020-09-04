@@ -14,7 +14,7 @@
 
 这是一个加密货币签名库，核心目的在于提供离线（在线也可以）环境下加密货币的交易签名。主要使用场景偏向于移动端。
 
-跨平台，使用golang实现，通过[gomobile](https://github.com/golang/mobile) 打包为二进制库供android(.aar) iOS(.framework)使用。(React Native / Flutter 验证可用，但目前还没有计划直接提供为依赖，有简单的教程)
+跨平台，使用golang实现，通过[gomobile](https://github.com/golang/mobile) 打包为二进制库供android(.aar) iOS(.framework)使用。(React Native / Flutter (参考实现： https://github.com/dabankio/flutter-wallet-core)
 
 目前支持BTC Omni(USDT) ETH ,后续会加入更多币种支持。
 
@@ -22,6 +22,7 @@
 
 ## 特性
 - bip39 助记词,bip44 多币种私钥推导
+- 单签
 - BTC
     - 构造原始交易
     - 签名交易(不支持隔离见证地址)
@@ -162,6 +163,6 @@ TBD
     - ~~参考 https://github.com/ethereum/go-ethereum/issues/20160 ， https://github.com/elastic/gosigar/pull/134~~
     - ~~这个问题已经有PR修复了，但还没有合并，可以clone到本地后用go.mod replace 替换成本地的依赖，具体参考 `go.mod`,后续PR合并后可以移除replace~~
 
-## 开源许可
+## License
 
 BSD-3-Clause

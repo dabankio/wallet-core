@@ -25,30 +25,33 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 	}
 	switch symbol {
 	case bbc.SymbolMKF, bbc.SymbolBBC:
-		coin, err = bbc.NewSymbolCoin(symbol, c.seed, c.path)
+		var bip44Key = symbol
+		if symbol == bbc.SymbolMKF && c.HasFlag(FlagMKFUseBBCBip44ID) { //MKF使用BBC 地址
+			bip44Key = bbc.SymbolBBC
+		}
+		if bip44Key == bbc.SymbolBBC && c.HasFlag(FlagBBCUseStandardBip44ID) { //BBC使用标准bip44 id
+			bip44Key = bbc.FullnameMap[bip44Key]
+		}
+		coin, err = bbc.NewSymbolCoin(symbol, c.seed, c.path, bip44Key)
+	case "BTC":
+		coin, err = btc.NewFromMetadata(md)
+	case "ETH":
+		coin, err = eth.NewFromMetadata(md)
+	case "USDT(Omni)", "OMNI":
+		// TODO more elegant way to support custom options, make the wallet instance a argument?
+		options := map[string]interface{}{}
+		if c.ShareAccountWithParentChain {
+			options[omni.OptionShareAccountWithParentChain] = true
+		}
+		coin, err = omni.NewWithOptions(c.path, c.seed, c.testNet, options)
+	// case "BCH": //TODO BCH 对 BTC 的代码依赖问题暂时没有解决，先注释掉
+	// coin, err = bch.New(c.seed, c.testNet)
 	case "BTC_DISABLED": //temporary disabled
 		if c.testNet {
 			coin, err = btc.New(c.seed, btc.ChainTestNet3)
 		} else {
 			coin, err = btc.New(c.seed, btc.ChainMainNet)
 		}
-	case "BTC":
-		coin, err = btc.NewFromMetadata(md)
-	case "USDT(Omni)", "OMNI":
-		// TODO more elegant way to support custom options, make the wallet instance a argument?
-		if c.ShareAccountWithParentChain {
-			coin, err = omni.NewWithOptions(c.seed, c.testNet, map[string]interface{}{
-				"shareAccountWithParentChain": true,
-			})
-		} else {
-			coin, err = omni.New(c.seed, c.testNet)
-		}
-	// case "BCH": //TODO BCH 对 BTC 的代码依赖问题暂时没有解决，先注释掉
-	// coin, err = bch.New(c.seed, c.testNet)
-	// case "ETH_X", "XT", "THM", "ALI", "RED", "USO", "BTK", "EGT", "HOTC(HOTCOIN)":
-	// 	coin, err = eth.New(c.seed) //temporay disabled
-	case "ETH":
-		coin, err = eth.NewFromMetadata(md)
 	case "XRP":
 		coin, err = xrp.New(c.seed)
 	case "TRX", "BTT":

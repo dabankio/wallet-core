@@ -20,7 +20,7 @@ fmt:  # 格式化go代码
 	@go fmt ./...
 
 test:  # go单元测试
-	@go test ./...
+	@bash script/ci-test.sh
 
 modTidy:
 	@go mod tidy
@@ -87,3 +87,6 @@ buildAllIOS:
 depGraph: #生成工程依赖图，需要安装graphviz 和 https://github.com/loov/goda （go get github.com/loov/goda）
 	@goda graph github.com/dabankio/wallet-core/...:root | dot -Tsvg -o local_graph.svg
 #---------------------依赖图  end -----------------
+
+docServer:
+	godoc -templates=$GOPATH/src/golang.org/x/tools/godoc/static -http=:6060

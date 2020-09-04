@@ -4,8 +4,48 @@ import (
 	"testing"
 
 	"github.com/dabankio/wallet-core/bip39"
+	"github.com/dabankio/wallet-core/bip44"
 	"github.com/stretchr/testify/require"
 )
+
+// 兼容性测试，确保代码改动不会破坏已有的数据, 该测试的测试数据不要改动
+func TestDeriveAddressCompatible(t *testing.T) {
+	for _, tt := range []struct {
+		name                            string
+		mnemonic, salt, symbol, address string
+		// Apply                     func(*Wallet)
+	}{
+		{
+			name:     "PMine",
+			mnemonic: "connect auto goose panda extend ozone absent climb abstract doll west crazy",
+			salt:     "bbc_keys",
+			symbol:   "BBC",
+			address:  "18y6y4mdkt2c3q0cypsevs8xt2q08b5ng8j4ztgbdhfpfthpgtp9484re",
+		},
+		{
+			name:     "ColdLegacy",
+			mnemonic: "connect auto goose panda extend ozone absent climb abstract doll west crazy",
+			salt:     bip44.Password,
+			symbol:   "BBC",
+			address:  "18wq4j7gewb4zkg0h51jk72f9rhp995g0baxxcky7nbz2zyevjjdypp2g",
+		},
+		{
+			name:     "MKFLegacy",
+			mnemonic: "lecture leg select like delay limit spread retire toward west grape bachelor",
+			salt:     bip44.Password,
+			symbol:   "MKF",
+			address:  "1vx6bd4d0jvhte4qndwgcf0hdc4cstmz3zqg8eh2bfsrarewv65xezpdz",
+		},
+		// TODO BBC 使用新的ID, MKF 使用和BBC一样的ID
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			seed := bip39.NewSeed(tt.mnemonic, tt.salt)
+			key, err := DeriveSymbolKeySimple(tt.symbol, seed)
+			require.NoError(t, err)
+			require.Equal(t, tt.address, key.Address)
+		})
+	}
+}
 
 func TestNewBip44Deriver(t *testing.T) {
 	entropy, err := bip39.NewEntropy(128)

@@ -65,6 +65,20 @@ func WithPathFormat(pathFormat string) WalletOption {
 	}
 }
 
+type flagOpt struct {
+	flag string
+}
+
+func (f flagOpt) Visit(wallet *Wallet) error {
+	wallet.flags[f.flag] = struct{}{}
+	return nil
+}
+
+// WithFlag 该选项添加特殊配置flag, flag参考 FlagXXX 常量
+func WithFlag(flag string) WalletOption {
+	return flagOpt{flag}
+}
+
 type passwordOpt struct {
 	password string
 }
@@ -144,10 +158,12 @@ func BuildWalletFromMnemonic(mnemonic string, testNet bool, options *WalletOptio
 	if err != nil {
 		return
 	}
-	for _, opt := range options.getOptions() {
-		err = opt.Visit(wallet)
-		if err != nil {
-			return
+	if options != nil {
+		for _, opt := range options.getOptions() {
+			err = opt.Visit(wallet)
+			if err != nil {
+				return
+			}
 		}
 	}
 	//TODO verify wallet

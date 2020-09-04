@@ -25,7 +25,11 @@ func New(seed []byte, chainID int) (c *BTC, err error) {
 	c = new(BTC)
 
 	c.Symbol = symbol
-	c.DerivationPath, err = bip44.GetCoinDerivationPath(symbol)
+	bip44ID, err := bip44.GetCoinType(symbol)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to find bip44 id")
+	}
+	c.DerivationPath, err = bip44.GetDerivePath(bip44.PathFormat, bip44ID, nil)
 	if err != nil {
 		err = errors.Wrap(err, "bip44.GetCoinDerivationPath err:")
 		return
@@ -48,7 +52,11 @@ func NewFromMetadata(metadata core.MetadataProvider) (c *BTC, err error) {
 	c = new(BTC)
 	c.Symbol = symbol
 	c.DerivationPath = metadata.GetDerivationPath()
-	c.ChainCfg, err = ChainFlag2ChainParams(metadata.GetChainID())
+	chainID := ChainMainNet
+	if metadata.IsTestNet() {
+		chainID = ChainRegtest
+	}
+	c.ChainCfg, err = ChainFlag2ChainParams(chainID)
 	if err != nil {
 		return nil, err
 	}
