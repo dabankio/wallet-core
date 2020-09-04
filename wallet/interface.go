@@ -10,12 +10,10 @@ import (
 	"strings"
 
 	"github.com/dabankio/wallet-core/bip39"
+	"github.com/dabankio/wallet-core/bip44"
+	"github.com/dabankio/wallet-core/core"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/pkg/errors"
-
-	"github.com/dabankio/wallet-core/bip44"
-
-	"github.com/dabankio/wallet-core/core"
 )
 
 type Wallet struct {
@@ -29,8 +27,19 @@ type Wallet struct {
 	flags                       map[string]struct{} //存在一些特殊情况，使用通用的配置可能产生级连影响，所有用了flag以实现灵活的配置，缺点是逻辑比较分散。 (举个例子:ShareAccountWithParentChain来控制BTC和OMNI用1个地址，但如果这时候BBC和MKF不需要用同一个地址则会有问题)
 }
 
+// 检查并设置默认值
+func (c *Wallet) init() error {
+	if len(c.seed) == 0 {
+		return errors.New("seed not provided")
+	}
+	if c.path == "" {
+		c.path = bip44.PathFormat //默认使用短格式bip44 path
+	}
+	return nil
+}
+
 // HasFlag 是否存在flag
-func (w *Wallet) HasFlag(flag string) bool { _, ok := w.flags[flag]; return ok }
+func (c *Wallet) HasFlag(flag string) bool { _, ok := c.flags[flag]; return ok }
 
 // MnemonicFromEntropy 根据 entropy， 获取对应助记词
 func MnemonicFromEntropy(entropy string) (mnemonic string, err error) {
@@ -85,6 +94,9 @@ func NewHDWalletFromMnemonic(mnemonic string, testNet bool) (w *Wallet, err erro
 	w.flags = make(map[string]struct{})
 	// TODO for backward compatibility, should not be presented in public domain
 	w.password = bip44.Password
+	if e := w.init(); e != nil {
+		return nil, e
+	}
 	return
 }
 
@@ -146,9 +158,6 @@ func (c Wallet) Metadata(symbol string) (core.MetadataProvider, error) {
 		return nil, err
 	}
 	path := c.path
-	if path == "" { //默认使用短格式bip44 path
-		path = bip44.PathFormat
-	}
 	if strings.Contains(path, "%d") {
 		symbolBip44ID, err := bip44.GetCoinType(symbol)
 		if err != nil {

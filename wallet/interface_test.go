@@ -20,7 +20,33 @@ func init() {
 	wallet.path = bip44.PathFormat
 }
 
-// 该测试应该始终保持通过，且测试数据不应该被修改,除非你知道这意味着什么（即兼容性问题）
+// 该测试验证不同的path推导出不同的地址，以确保path确实生效
+func TestCoin_DeriveAddressPath(t *testing.T) {
+	const mnemonic = "lecture leg select like delay limit spread retire toward west grape bachelor"
+	w, err := BuildWalletFromMnemonic(mnemonic, true, nil)
+	require.NoError(t, err)
+
+	options := &WalletOptions{}
+	options.Add(WithPathFormat(bip44.FullPathFormat))
+	w2, err := BuildWalletFromMnemonic(mnemonic, true, options)
+	require.NoError(t, err)
+
+	for _, s := range []string{
+		"BTC", "ETH", "OMNI", "BBC", "MKF",
+	} {
+		t.Run("symbol: "+s, func(t *testing.T) {
+			a1, err := w.DeriveAddress(s)
+			require.NoError(t, err)
+
+			a2, err := w2.DeriveAddress(s)
+			require.NoError(t, err)
+
+			require.NotEqual(t, a1, a2, "path 不同时推导的地址也应该不同")
+		})
+	}
+}
+
+// 该测试确保历史环境的逻辑兼容性，应该始终保持通过，且测试数据不应该被修改,除非你知道这意味着什么（即兼容性问题）
 func TestCoin_DeriveAddress(t *testing.T) {
 	const mnemonic = "lecture leg select like delay limit spread retire toward west grape bachelor"
 	for _, tt := range []struct {
@@ -35,6 +61,11 @@ func TestCoin_DeriveAddress(t *testing.T) {
 		{name: "BTC default",
 			symbol:  "BTC",
 			address: "13vvVPKZjsStYRZft3RyfgmCVVFsYm8nDT",
+		},
+		{name: "BTC testnet",
+			symbol:  "BTC",
+			address: "miSsnSQYYtt9KY3HbcQMVbyXMUraV9u9Qa",
+			apply:   func(w *Wallet) { w.testNet = true },
 		},
 		{name: "OMNI default",
 			symbol:  "OMNI",

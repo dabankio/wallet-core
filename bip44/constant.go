@@ -48,6 +48,7 @@ func combineCoinType() {
 	}
 }
 
+// GetCoinType get bip44 id for symbol, 
 func GetCoinType(symbol string) (coinType uint32, err error) {
 	if strings.Compare(strings.ToUpper(symbol), symbol) != 0 {
 		// fmt.Printf("symbol has been converted to uppercase. (%s) -> (%s)", symbol, strings.ToUpper(symbol))
@@ -62,6 +63,7 @@ func GetCoinType(symbol string) (coinType uint32, err error) {
 	return
 }
 
+// GetCoinDerivationPath (deprecated), use GetDerivePath insted
 func GetCoinDerivationPath(symbol string) (derivationPath accounts.DerivationPath, err error) {
 	coinType, err := GetCoinType(symbol)
 	if err != nil {
@@ -75,7 +77,7 @@ type AdditionalDeriveParam struct {
 	AccountIndex, ChangeType, Index int
 }
 
-// GetDerivePath .
+// GetDerivePath provide path, symbole id (and other param ) to get bip44 derivation path
 func GetDerivePath(path string, symbolID uint32, ap *AdditionalDeriveParam) (accounts.DerivationPath, error) {
 	count := strings.Count(path, "%d")
 	switch count {

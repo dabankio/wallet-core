@@ -25,7 +25,11 @@ func New(seed []byte, chainID int) (c *BTC, err error) {
 	c = new(BTC)
 
 	c.Symbol = symbol
-	c.DerivationPath, err = bip44.GetCoinDerivationPath(symbol)
+	bip44ID, err := bip44.GetCoinType(symbol)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to find bip44 id")
+	}
+	c.DerivationPath, err = bip44.GetDerivePath(bip44.PathFormat, bip44ID, nil)
 	if err != nil {
 		err = errors.Wrap(err, "bip44.GetCoinDerivationPath err:")
 		return

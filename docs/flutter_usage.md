@@ -8,3 +8,4 @@
 
 另外，可以参考我们写的eth flutter 多签冷热钱包demo: https://github.com/dabankio/wallet-sdk-demo
 
+额外的，作为参考的flutter lib: https://github.com/dabankio/flutter-wallet-core

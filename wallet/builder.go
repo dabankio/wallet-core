@@ -158,10 +158,12 @@ func BuildWalletFromMnemonic(mnemonic string, testNet bool, options *WalletOptio
 	if err != nil {
 		return
 	}
-	for _, opt := range options.getOptions() {
-		err = opt.Visit(wallet)
-		if err != nil {
-			return
+	if options != nil {
+		for _, opt := range options.getOptions() {
+			err = opt.Visit(wallet)
+			if err != nil {
+				return
+			}
 		}
 	}
 	//TODO verify wallet

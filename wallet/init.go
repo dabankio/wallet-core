@@ -39,13 +39,11 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 		coin, err = eth.NewFromMetadata(md)
 	case "USDT(Omni)", "OMNI":
 		// TODO more elegant way to support custom options, make the wallet instance a argument?
+		options := map[string]interface{}{}
 		if c.ShareAccountWithParentChain {
-			coin, err = omni.NewWithOptions(c.seed, c.testNet, map[string]interface{}{
-				"shareAccountWithParentChain": true,
-			})
-		} else {
-			coin, err = omni.New(c.seed, c.testNet)
+			options[omni.OptionShareAccountWithParentChain] = true
 		}
+		coin, err = omni.NewWithOptions(c.path, c.seed, c.testNet, options)
 	// case "BCH": //TODO BCH 对 BTC 的代码依赖问题暂时没有解决，先注释掉
 	// coin, err = bch.New(c.seed, c.testNet)
 	case "BTC_DISABLED": //temporary disabled
