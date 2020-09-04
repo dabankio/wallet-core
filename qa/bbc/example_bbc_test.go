@@ -18,8 +18,6 @@ const bbcCoreImage = "dabankio/bbccore:0.11"
 func TestExampleBBC(t *testing.T) {
 	r := require.New(t)
 	const pass = "123"
-	// 临时启动一个测试节点
-
 	nodeInfo := devtools4chains.MustRunDockerDevCore(t, bbcCoreImage, true, true)
 
 	jsonRPC := nodeInfo.Client

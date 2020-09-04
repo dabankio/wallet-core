@@ -48,7 +48,11 @@ func NewFromMetadata(metadata core.MetadataProvider) (c *BTC, err error) {
 	c = new(BTC)
 	c.Symbol = symbol
 	c.DerivationPath = metadata.GetDerivationPath()
-	c.ChainCfg, err = ChainFlag2ChainParams(metadata.GetChainID())
+	chainID := ChainMainNet
+	if metadata.IsTestNet() {
+		chainID = ChainRegtest
+	}
+	c.ChainCfg, err = ChainFlag2ChainParams(chainID)
 	if err != nil {
 		return nil, err
 	}

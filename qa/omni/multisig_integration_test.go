@@ -22,7 +22,7 @@ func TestMultisig(t *testing.T) {
 	rq := require.New(t)
 	killFunc, nodeInfo, err := devtools4chains.DockerRunOmnicored(devtools4chains.DockerRunOptions{
 		AutoRemove: true,
-		Image:      &testImage,
+		Image:      &TestImage,
 	})
 	rq.NoError(err)
 	t.Cleanup(killFunc)
@@ -76,7 +76,7 @@ func TestMultisig(t *testing.T) {
 
 	}
 
-	propertyID := createToken(t, rpcInfo, OmniSenddissuancefixedCmd{
+	propertyID := CreateToken(t, rpcInfo, OmniSenddissuancefixedCmd{
 		Fromaddress: a0.Address,
 		Ecosystem:   2, //2 fot test
 		Typ:         1, // 1 for indivisible

@@ -18,4 +18,5 @@ go build -o ci.out \
     && go test ${pkg}/qa/bbc/... \
     && go test ${pkg}/qa/btc/... \
     && go test ${pkg}/qa/eth/... \
-    && go test ${pkg}/qa/omni/... 
+    && go test ${pkg}/qa/omni/... \
+    && go test ${pkg}/qa/wallet/... 
