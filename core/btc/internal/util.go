@@ -3,7 +3,6 @@ package internal
 import (
 	"encoding/hex"
 
-	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcutil"
 )
 
@@ -14,6 +13,6 @@ const (
 )
 
 // GenerateScriptPubKey4PayToPubkeyHash pay to public key hash -> scriptPubKey
-func GenerateScriptPubKey4PayToPubkeyHash(pubk *btcec.PublicKey) string {
-	return pay2pubkHashScriptPrefix + hex.EncodeToString(btcutil.Hash160(pubk.SerializeCompressed())) + pay2pubkHashScriptSuffix
+func GenerateScriptPubKey4PayToPubkeyHash(pubk []byte) string {
+	return pay2pubkHashScriptPrefix + hex.EncodeToString(btcutil.Hash160(pubk)) + pay2pubkHashScriptSuffix
 }

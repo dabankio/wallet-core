@@ -4,13 +4,10 @@ import (
 	"strings"
 
 	"github.com/dabankio/wallet-core/core"
-	// "github.com/dabankio/wallet-core/core/bch"
 	"github.com/dabankio/wallet-core/core/bbc"
 	"github.com/dabankio/wallet-core/core/btc"
 	"github.com/dabankio/wallet-core/core/eth"
 	"github.com/dabankio/wallet-core/core/omni"
-	"github.com/dabankio/wallet-core/core/trx"
-	"github.com/dabankio/wallet-core/core/xrp"
 	"github.com/pkg/errors"
 )
 
@@ -44,18 +41,12 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 			options[omni.OptionShareAccountWithParentChain] = true
 		}
 		coin, err = omni.NewWithOptions(c.path, c.seed, c.testNet, options)
-	// case "BCH": //TODO BCH 对 BTC 的代码依赖问题暂时没有解决，先注释掉
-	// coin, err = bch.New(c.seed, c.testNet)
 	case "BTC_DISABLED": //temporary disabled
 		if c.testNet {
 			coin, err = btc.New(c.seed, btc.ChainTestNet3)
 		} else {
 			coin, err = btc.New(c.seed, btc.ChainMainNet)
 		}
-	case "XRP":
-		coin, err = xrp.New(c.seed)
-	case "TRX", "BTT":
-		coin, err = trx.New(c.seed)
 	default:
 		err = errors.Errorf("no entry for coin (%s) was found.", symbol)
 	}
@@ -68,36 +59,17 @@ func GetAvailableCoinList() string {
 	availableCoin := []string{
 		// BTC series
 		"BTC",
-		// "BCH",//TODO BCH 对 BTC 的代码依赖问题暂时没有解决，先注释掉
-		// "MGD",
-		// "LMC",
 
 		// OMNI series
 		"USDT(Omni)",
 		"OMNI",
 
+		// BBC series
 		"BBC",
 		"MKF",
 
 		// ETH series
 		"ETH",
-		// ERC20 series
-		// "XT",
-		// "THM",
-		// "ALI",
-		// "RED",
-		// "USO",
-		// "BTK",
-		// "EGT",
-		// "HOTC(HOTCOIN)",
-
-		// ripple
-		// "XRP",
-
-		// tron
-		// "TRX",
-		// TRC10
-		// "BTT",
 	}
 	return strings.Join(availableCoin, " ")
 }

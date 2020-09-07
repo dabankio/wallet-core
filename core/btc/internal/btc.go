@@ -171,13 +171,13 @@ func (c *BTC) Sign(rawTx, privateKeyWif string) (signedRawTx string, err error) 
 	}
 
 	if msg.Inputs != nil {
-		privk, err := c.derivePrivateKey()
+		wif, err := btcutil.DecodeWIF(privateKeyWif)
 		if err != nil {
-			return "", errors.Wrap(err, "failed to derive key")
+			return "", err
 		}
 		for i := 0; i < len(*msg.Inputs); i++ {
 			if (*msg.Inputs)[i].ScriptPubKey == "" && (*msg.Inputs)[i].RedeemScript == "" { //未提供 ScriptPubKey, RedeemScript 则默认认为是单签,自动填充scriptPubKey
-				(*msg.Inputs)[i].ScriptPubKey = GenerateScriptPubKey4PayToPubkeyHash(privk.PubKey())
+				(*msg.Inputs)[i].ScriptPubKey = GenerateScriptPubKey4PayToPubkeyHash(wif.SerializePubKey())
 			}
 		}
 	}

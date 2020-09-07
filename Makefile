@@ -80,6 +80,13 @@ buildAllAndroid:
 buildAllIOS:
 	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/Bip39.framework ${pkgAll}
 
+packageAll:
+	rm -rf ${outdir}/*
+	@make buildAllAndroid && make buildAllIOS
+	@cd ${outdir} && mkdir android && mv wallet* android
+	@cd ${outdir} && tar czvf android.tar.gz android/*
+	@cd ${outdir} && tar czvf Bip39.framework.tar.gz Bip39.framework/*
+
 
 #---------------------构建  end -----------------
 
