@@ -33,9 +33,11 @@ func TestOneKeySign(t *testing.T) {
 		symbol string
 		testFn func(*testing.T, *wallet.Wallet, ctx)
 	}{
-		{skip: false, symbol: "ETH", testFn: testERC20PubkSign},
 		{skip: false, symbol: "ETH", testFn: testETHPubkSign},
+		{skip: false, symbol: "ETH", testFn: testERC20PubkSign},
 		{skip: false, symbol: "OMNI", testFn: testOmniPubkSign},
+		{skip: false, symbol: "BTC", testFn: testBTCPubkSign},
+		{skip: false, symbol: "BBC", testFn: testBBCPubkSign},
 		{skip: false, symbol: "MKF", testFn: testMKFPubkSign},
 	} {
 		if tt.skip {

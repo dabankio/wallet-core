@@ -22,7 +22,6 @@ func testBBCPubkSign(t *testing.T, w *wallet.Wallet, c ctx) {
 	pubk, address := c.pubk, c.address
 	var err error
 
-
 	registeredAssets := 12.34
 	{ // 导入公钥
 		_, err = jsonRPC.Importpubkey(pubk) // <<=== RPC 导入公钥
