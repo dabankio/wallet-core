@@ -46,7 +46,8 @@ func testETHPubkSign(t *testing.T, w *wallet.Wallet, c ctx) {
 
 	qaEth.PrepareFunds4address(t, rpcHost, c.address, 50)
 
-	outAmount := big.NewInt(E18 + 1e17)
+	outAmountInt := int64(E18 + 1e17)
+	outAmount := big.NewInt(outAmountInt)
 	{ //prepare tx
 		var (
 			nonce    uint64
@@ -58,12 +59,24 @@ func testETHPubkSign(t *testing.T, w *wallet.Wallet, c ctx) {
 		rq.NoError(err)
 		gasPrice, err = rpcClient.SuggestGasPrice(context.Background())
 		rq.NoError(err)
-		tx := types.NewTransaction(nonce, common.HexToAddress(toAddress), outAmount, gasLimit, gasPrice, nil)
 
-		buf := bytes.NewBuffer(nil)
-		rq.NoError(tx.EncodeRLP(buf))
+		ethToAddress, err := eth.NewETHAddressFromHex(toAddress)
+		rq.NoError(err)
 
-		sig, err := w.Sign("ETH", "0x"+hex.EncodeToString(buf.Bytes()))
+		tx := eth.NewETHTransaction(int64(nonce), ethToAddress, eth.NewBigInt(outAmountInt), int64(gasLimit), eth.NewBigInt(gasPrice.Int64()), nil)
+
+		{ //等同于
+			tx := types.NewTransaction(nonce, common.HexToAddress(toAddress), outAmount, gasLimit, gasPrice, nil)
+
+			buf := bytes.NewBuffer(nil)
+			rq.NoError(tx.EncodeRLP(buf))
+			toSignData := "0x" + hex.EncodeToString(buf.Bytes())
+			_ = toSignData
+		}
+		toSignData, err := tx.EncodeRLP() //编码为可签名/传输数据
+		rq.NoError(err)
+
+		sig, err := w.Sign("ETH", toSignData) //签名
 		rq.NoError(err)
 
 		resp, err := devtools4chains.RPCCallJSON(rpcInfo, "eth_sendRawTransaction", []string{sig}, nil)
@@ -126,16 +139,26 @@ func testERC20PubkSign(t *testing.T, w *wallet.Wallet, c ctx) {
 	rq.NoError(err)
 	gasPrice, err = rpcClient.SuggestGasPrice(context.Background())
 	rq.NoError(err)
-	tx := types.NewTransaction(nonce, erc20ContractAddress, new(big.Int), gasLimit, gasPrice, packedData)
 
-	buf := bytes.NewBuffer(nil)
-	rq.NoError(tx.EncodeRLP(buf))
+	ethToAddress := eth.NewETHAddress()
+	rq.NoError(ethToAddress.SetHex(erc20ContractAddress.Hex()))
 
-	toSign := "0x" + hex.EncodeToString(buf.Bytes())
-	sig, err := w.Sign("ETH", toSign)
+	tx := eth.NewETHTransaction(int64(nonce), ethToAddress, eth.NewBigInt(0), int64(gasLimit), eth.NewBigInt(gasPrice.Int64()), packedData)
+	toSignData, err := tx.EncodeRLP()
+	rq.NoError(err)
+
+	{ //tx创建等同于
+		tx := types.NewTransaction(nonce, erc20ContractAddress, new(big.Int), gasLimit, gasPrice, packedData)
+
+		buf := bytes.NewBuffer(nil)
+		rq.NoError(tx.EncodeRLP(buf))
+		toSign := "0x" + hex.EncodeToString(buf.Bytes())
+		_ = toSign
+	}
+	sig, err := w.Sign("ETH", toSignData)
 	rq.NoError(err)
 	fmt.Println("packed", hex.EncodeToString(packedData))
-	fmt.Println("toSign", toSign)
+	fmt.Println("toSignData", toSignData)
 	fmt.Println("sig   ", sig)
 
 	resp, err := devtools4chains.RPCCallJSON(rpcInfo, "eth_sendRawTransaction", []string{sig}, nil)

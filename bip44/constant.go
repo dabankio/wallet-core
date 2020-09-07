@@ -48,7 +48,7 @@ func combineCoinType() {
 	}
 }
 
-// GetCoinType get bip44 id for symbol, 
+// GetCoinType get bip44 id for symbol,
 func GetCoinType(symbol string) (coinType uint32, err error) {
 	if strings.Compare(strings.ToUpper(symbol), symbol) != 0 {
 		// fmt.Printf("symbol has been converted to uppercase. (%s) -> (%s)", symbol, strings.ToUpper(symbol))
