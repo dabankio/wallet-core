@@ -55,29 +55,22 @@ func testBTCPubkSign(t *testing.T, w *wallet.Wallet, c ctx) {
 
 	_, err = devtools4chains.RPCCallJSON(rpcInfo, "generatetoaddress", []interface{}{101, coinbaseAddress}, nil)
 	rq.Nil(err)
-
 	_, err = devtools4chains.RPCCallJSON(rpcInfo, "sendtoaddress", []interface{}{c.address, 1.1}, nil)
 	rq.Nil(err)
-
 	_, err = devtools4chains.RPCCallJSON(rpcInfo, "generatetoaddress", []interface{}{101, coinbaseAddress}, nil)
 	rq.Nil(err)
 
-	var unspents []omni.ListUnspentResult
-	_, err = devtools4chains.RPCCallJSON(rpcInfo, "listunspent", []interface{}{0, 999, []string{c.address}}, &unspents)
-	rq.Nil(err)
-	utxo := unspents[0]
-	fmt.Printf("%#v\n", utxo)
+	t.Run("使用RPC创建交易", func(t *testing.T) {
+		var unspents []omni.ListUnspentResult
+		_, err = devtools4chains.RPCCallJSON(rpcInfo, "listunspent", []interface{}{0, 999, []string{c.address}}, &unspents)
+		rq.Nil(err)
+		utxo := unspents[0]
+		fmt.Printf("utxo %#v\n", utxo)
 
-	{ //RPC创建交易， SDK签名
 		var createdTx string
 		_, err = devtools4chains.RPCCallJSON(rpcInfo, "createrawtransaction", []interface{}{
-			// []interface{}{map[string]interface{}{
-			// 	"txid": utxo.TxID,
-			// 	"vout": utxo.Vout,
-			// }},
-			// []interface{}{map[string]interface{}{
-			// 	sendtoAddress: 1.09999,
-			// }},
+			// []interface{}{map[string]interface{}{"txid": utxo.TxID, "vout": utxo.Vout}},
+			// []interface{}{map[string]interface{}{sendtoAddress: 1.09999}},
 			json.RawMessage(fmt.Sprintf(`[{"txid":"%s","vout":%d}]`, utxo.TxID, utxo.Vout)),
 			json.RawMessage(fmt.Sprintf(`[{"%s":%f}]`, sendtoAddress, 1.09999)),
 		}, &createdTx)
@@ -86,13 +79,11 @@ func testBTCPubkSign(t *testing.T, w *wallet.Wallet, c ctx) {
 
 		m := map[string]interface{}{
 			"RawTx": createdTx,
-			"Inputs": []map[string]interface{}{
-				{
-					"txid":         utxo.TxID,
-					"vout":         utxo.Vout,
-					"scriptPubKey": utxo.ScriptPubKey,
-				},
-			},
+			"Inputs": []map[string]interface{}{{
+				"txid":         utxo.TxID,
+				"vout":         utxo.Vout,
+				"scriptPubKey": utxo.ScriptPubKey,
+			}},
 		}
 		msgB, err := json.Marshal(&m)
 		rq.NoError(err)
@@ -117,34 +108,50 @@ func testBTCPubkSign(t *testing.T, w *wallet.Wallet, c ctx) {
 			fmt.Println("utxo for sendto address", string(resp))
 			rq.Len(unspents, 1, "需要有1个UTXO")
 		}
-	}
 
-	if 2 < 1 { //这种办法暂时不能顺利的构建tx
+	})
+
+	t.Run("使用SDK创建交易", func(t *testing.T) {
+		_, err = devtools4chains.RPCCallJSON(rpcInfo, "sendtoaddress", []interface{}{c.address, 1.1}, nil)
+		rq.Nil(err)
+
+		var unspents []omni.ListUnspentResult
+		_, err = devtools4chains.RPCCallJSON(rpcInfo, "listunspent", []interface{}{0, 999, []string{c.address}}, &unspents)
+		rq.Nil(err)
+		utxo := unspents[0]
+
 		var tx *btc.BTCTransaction
 		unspent := new(btc.BTCUnspent) //java: new btc.BTCUnspent()
 		unspent.Add(utxo.TxID, int64(utxo.Vout), utxo.Amount, utxo.ScriptPubKey, "")
 
-		amount, err := btc.NewBTCAmount(0.6)
+		amount, err := btc.NewBTCAmount(0.0021)
 		rq.Nil(err)
 
-		toAddressA1, err := btc.NewBTCAddressFromString(coinbaseAddress, btc.ChainRegtest)
+		toAddress, err := btc.NewBTCAddressFromString(coinbaseAddress, btc.ChainRegtest)
 		rq.Nil(err)
 
 		outputAmount := btc.BTCOutputAmount{} //java: new btc.BTCOutputAmount()
-		outputAmount.Add(toAddressA1, amount)
+		outputAmount.Add(toAddress, amount)
 
 		feeRate := int64(80)
 
-		changeAddress, err := btc.NewBTCAddressFromString(c.address, btc.ChainRegtest)
+		changeAddress, err := btc.NewBTCAddressFromString(c.address, btc.ChainRegtest) //找零地址
 		rq.Nil(err)
 
 		tx, err = btc.NewBTCTransaction(unspent, &outputAmount, changeAddress, feeRate, btc.ChainRegtest)
 		rq.Nil(err)
-		_ = tx
-	}
 
-	// var signedHex string
-	// transferAmount := 2.3
-	// chainID := btc.ChainRegtest
+		toSignTx, err := tx.EncodeToSignCmd() //编码为可签名的格式
+		rq.NoError(err)
+
+		sig, err := w.Sign("BTC", toSignTx) //签名
+		rq.NoError(err)
+
+		fmt.Println("sig:", sig)
+		var txid string
+		_, err = devtools4chains.RPCCallJSON(rpcInfo, "sendrawtransaction", []interface{}{sig}, &txid)
+		rq.Nil(err)
+		fmt.Println("txid:", txid)
+	})
 
 }

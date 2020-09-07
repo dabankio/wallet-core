@@ -77,103 +77,112 @@ func testOmniPubkSign(t *testing.T, w *wallet.Wallet, c ctx) {
 	_, err = devtools4chains.RPCCallJSON(rpcInfo, "generatetoaddress", []interface{}{102, coinbaseAddress}, nil)
 	rq.Nil(err)
 
-	var unspents []omni.ListUnspentResult
-	_, err = devtools4chains.RPCCallJSON(rpcInfo, "listunspent", []interface{}{0, 999, []string{c.address}}, &unspents)
-	rq.Nil(err)
-	rq.Greater(len(unspents), 0)
-	utxo := unspents[0]
-	fmt.Printf("utxo %#v\n", utxo)
+	t.Run("使用RPC创建交易", func(t *testing.T) {
 
-	{ //RPC创建交易， SDK签名, OMNI构造交易过程参考 https://github.com/OmniLayer/omnicore/wiki/Use-the-raw-transaction-API-to-create-a-Simple-Send-transaction
-		var payload string
-		_, err = devtools4chains.RPCCallJSON(rpcInfo, "omni_createpayload_simplesend", []interface{}{propertyID, "101"}, &payload)
-		rq.NoError(err)
-
-		var createdTx string
-		_, err = devtools4chains.RPCCallJSON(rpcInfo, "createrawtransaction", []interface{}{
-			json.RawMessage(fmt.Sprintf(`[{"txid":"%s","vout":%d}]`, utxo.TxID, utxo.Vout)),
-			json.RawMessage(fmt.Sprintf(`{}`)),
-		}, &createdTx)
+		var unspents []omni.ListUnspentResult
+		_, err = devtools4chains.RPCCallJSON(rpcInfo, "listunspent", []interface{}{0, 999, []string{c.address}}, &unspents)
 		rq.Nil(err)
-		fmt.Println("created tx:", createdTx)
+		rq.Greater(len(unspents), 0)
+		utxo := unspents[0]
+		fmt.Printf("utxo %#v\n", utxo)
 
-		var payloadAttached string
-		_, err = devtools4chains.RPCCallJSON(rpcInfo, "omni_createrawtx_opreturn", []interface{}{createdTx, payload}, &payloadAttached)
-		rq.NoError(err)
+		{ //RPC创建交易， SDK签名, OMNI构造交易过程参考 https://github.com/OmniLayer/omnicore/wiki/Use-the-raw-transaction-API-to-create-a-Simple-Send-transaction
+			var payload string
+			_, err = devtools4chains.RPCCallJSON(rpcInfo, "omni_createpayload_simplesend", []interface{}{propertyID, "101"}, &payload)
+			rq.NoError(err)
 
-		var receiverAttached string
-		_, err = devtools4chains.RPCCallJSON(rpcInfo, "omni_createrawtx_reference", []interface{}{payloadAttached, toAddress}, &receiverAttached)
-		rq.NoError(err)
+			var createdTx string
+			_, err = devtools4chains.RPCCallJSON(rpcInfo, "createrawtransaction", []interface{}{
+				json.RawMessage(fmt.Sprintf(`[{"txid":"%s","vout":%d}]`, utxo.TxID, utxo.Vout)),
+				json.RawMessage(fmt.Sprintf(`{}`)),
+			}, &createdTx)
+			rq.Nil(err)
+			fmt.Println("created tx:", createdTx)
 
-		var minerFeeAndChangeAttached string
-		_, err = devtools4chains.RPCCallJSON(rpcInfo, "omni_createrawtx_change", []interface{}{
-			receiverAttached,
-			json.RawMessage(fmt.Sprintf(`[{"txid":"%s","vout":%d, "scriptPubKey": "%s", "value": %f}]`, utxo.TxID, utxo.Vout, utxo.ScriptPubKey, utxo.Amount)),
-			c.address,
-			0.0006,
-		}, &minerFeeAndChangeAttached)
-		rq.NoError(err)
+			var payloadAttached string
+			_, err = devtools4chains.RPCCallJSON(rpcInfo, "omni_createrawtx_opreturn", []interface{}{createdTx, payload}, &payloadAttached)
+			rq.NoError(err)
 
-		fmt.Println("tx to sign:", minerFeeAndChangeAttached)
+			var receiverAttached string
+			_, err = devtools4chains.RPCCallJSON(rpcInfo, "omni_createrawtx_reference", []interface{}{payloadAttached, toAddress}, &receiverAttached)
+			rq.NoError(err)
 
-		m := map[string]interface{}{
-			"RawTx": minerFeeAndChangeAttached,
-			"Inputs": []map[string]interface{}{
-				{
-					"txid":         utxo.TxID,
-					"vout":         utxo.Vout,
-					"scriptPubKey": utxo.ScriptPubKey,
+			var minerFeeAndChangeAttached string
+			_, err = devtools4chains.RPCCallJSON(rpcInfo, "omni_createrawtx_change", []interface{}{
+				receiverAttached,
+				json.RawMessage(fmt.Sprintf(`[{"txid":"%s","vout":%d, "scriptPubKey": "%s", "value": %f}]`, utxo.TxID, utxo.Vout, utxo.ScriptPubKey, utxo.Amount)),
+				c.address,
+				0.006,
+			}, &minerFeeAndChangeAttached)
+			rq.NoError(err)
+
+			fmt.Println("tx to sign:", minerFeeAndChangeAttached)
+
+			m := map[string]interface{}{
+				"RawTx": minerFeeAndChangeAttached,
+				"Inputs": []map[string]interface{}{
+					{
+						"txid":         utxo.TxID,
+						"vout":         utxo.Vout,
+						"scriptPubKey": utxo.ScriptPubKey,
+					},
 				},
-			},
-		}
-		msgB, err := json.Marshal(&m)
-		rq.NoError(err)
-		fmt.Println("msgB", string(msgB))
+			}
+			msgB, err := json.Marshal(&m)
+			rq.NoError(err)
+			fmt.Println("msgB", string(msgB))
 
-		sig, err := w.Sign("OMNI", hex.EncodeToString(msgB))
-		rq.NoError(err)
+			sig, err := w.Sign("OMNI", hex.EncodeToString(msgB))
+			rq.NoError(err)
 
-		fmt.Println("sig:", sig)
+			fmt.Println("sig:", sig)
 
-		{ //omnicored sign
-			// var coreSig string
-			// resp, err := devtools4chains.RPCCallJSON(rpcInfo, "signrawtransactionwithkey", []interface{}{
-			// 	minerFeeAndChangeAttached,
-			// 	[]string{privk},
-			// 	json.RawMessage(fmt.Sprintf(`[{"txid":"%s","vout":%d,"scriptPubKey":"%s","amount":%f}]`, utxo.TxID, utxo.Vout, utxo.ScriptPubKey, utxo.Amount)),
-			// }, nil)
-			// rq.Nil(err)
-			// fmt.Println("core sig resp", string(resp))
-			// fmt.Println("core sig:", coreSig)
-		}
+			{ //omnicored sign
+				// var coreSig string
+				// resp, err := devtools4chains.RPCCallJSON(rpcInfo, "signrawtransactionwithkey", []interface{}{
+				// 	minerFeeAndChangeAttached,
+				// 	[]string{privk},
+				// 	json.RawMessage(fmt.Sprintf(`[{"txid":"%s","vout":%d,"scriptPubKey":"%s","amount":%f}]`, utxo.TxID, utxo.Vout, utxo.ScriptPubKey, utxo.Amount)),
+				// }, nil)
+				// rq.Nil(err)
+				// fmt.Println("core sig resp", string(resp))
+				// fmt.Println("core sig:", coreSig)
+			}
 
-		var txid string
-		_, err = devtools4chains.RPCCallJSON(rpcInfo, "sendrawtransaction", []interface{}{sig}, &txid)
-		rq.Nil(err)
-		fmt.Println("txid:", txid)
+			var txid string
+			_, err = devtools4chains.RPCCallJSON(rpcInfo, "sendrawtransaction", []interface{}{sig}, &txid)
+			rq.Nil(err)
+			fmt.Println("txid:", txid)
 
-		_, err = devtools4chains.RPCCallJSON(rpcInfo, "generatetoaddress", []interface{}{1, c.address}, nil)
-		rq.Nil(err)
-
-		{ // validate utxo for receiver
-			resp, err := devtools4chains.RPCCallJSON(rpcInfo, "listunspent", []interface{}{0, 999, []string{toAddress}}, &unspents)
+			_, err = devtools4chains.RPCCallJSON(rpcInfo, "generatetoaddress", []interface{}{1, c.address}, nil)
 			rq.Nil(err)
 
-			fmt.Println("utxo for sendto address", string(resp))
-			rq.Len(unspents, 1, "需要有1个UTXO")
-
-			for _, x := range []struct {
-				address string
-				balance float64
-			}{
-				{c.address, 998 - 101},
-				{toAddress, 101},
-			} {
-				resp, err = devtools4chains.RPCCallJSON(rpcInfo, "omni_getbalance", []interface{}{x.address, propertyID}, nil)
+			{ // validate utxo for receiver
+				resp, err := devtools4chains.RPCCallJSON(rpcInfo, "listunspent", []interface{}{0, 999, []string{toAddress}}, &unspents)
 				rq.Nil(err)
-				rq.Contains(string(resp), fmt.Sprintf("%v", x.balance))
-				fmt.Println("balance", string(resp))
+
+				fmt.Println("utxo for sendto address", string(resp))
+				rq.Len(unspents, 1, "需要有1个UTXO")
+
+				for _, x := range []struct {
+					address string
+					balance float64
+				}{
+					{c.address, 998 - 101},
+					{toAddress, 101},
+				} {
+					resp, err = devtools4chains.RPCCallJSON(rpcInfo, "omni_getbalance", []interface{}{x.address, propertyID}, nil)
+					rq.Nil(err)
+					rq.Contains(string(resp), fmt.Sprintf("%v", x.balance))
+					fmt.Println("balance", string(resp))
+				}
 			}
 		}
-	}
+	})
+
+	t.Run("使用SDK创建交易", func(t *testing.T) {
+		t.Skip()
+		// TBD
+	})
+
 }

@@ -9,15 +9,21 @@ import (
 )
 
 func TestOneKeySign(t *testing.T) {
-	mnemonic, err := wallet.NewMnemonic()
+	mnemonic, err := wallet.NewMnemonic() //生成新的助记词
 	require.NoError(t, err)
 
 	options := &wallet.WalletOptions{}
-	options.Add(wallet.WithPathFormat(bip44.FullPathFormat))
-	options.Add(wallet.WithPassword(""))
-	options.Add(wallet.WithShareAccountWithParentChain(true))
-	options.Add(wallet.WithFlag(wallet.FlagBBCUseStandardBip44ID))
-	options.Add(wallet.WithFlag(wallet.FlagMKFUseBBCBip44ID))
+	options.Add(wallet.WithPathFormat(bip44.FullPathFormat))       //m/44'/%d'/0'/0/0, 确保兼容imToken
+	options.Add(wallet.WithPassword(""))                           //确保兼容imToken
+	options.Add(wallet.WithShareAccountWithParentChain(true))      //USDT BTC共用地址
+	options.Add(wallet.WithFlag(wallet.FlagBBCUseStandardBip44ID)) //BBC使用标准bip44 ID
+	options.Add(wallet.WithFlag(wallet.FlagMKFUseBBCBip44ID))      //MKF 和BBC共用地址
+
+	if 2 < 1 {
+		// options.Add(wallet.WithFlag(wallet.FlagBBCUseStandardBip44ID)) //兼容pockmine不要这个
+		options.Add(wallet.WithPathFormat("m/44'/%d'"))        //pockmine的path
+		options.Add(wallet.WithPassword("$pockmine的password")) //确保兼容pockmine
+	}
 
 	w, err := wallet.BuildWalletFromMnemonic(mnemonic, true, options)
 	require.NoError(t, err)
@@ -28,11 +34,9 @@ func TestOneKeySign(t *testing.T) {
 		testFn func(*testing.T, *wallet.Wallet, ctx)
 	}{
 		{skip: false, symbol: "ETH", testFn: testERC20PubkSign},
-		{skip: true, symbol: "ETH", testFn: testETHPubkSign},
-		{skip: true, symbol: "OMNI", testFn: testOmniPubkSign},
-		{skip: true, symbol: "BTC", testFn: testBTCPubkSign},
-		{skip: true, symbol: "BBC", testFn: testBBCPubkSign},
-		{skip: true, symbol: "MKF", testFn: testMKFPubkSign},
+		{skip: false, symbol: "ETH", testFn: testETHPubkSign},
+		{skip: false, symbol: "OMNI", testFn: testOmniPubkSign},
+		{zskip: false, symbol: "MKF", testFn: testMKFPubkSign},
 	} {
 		if tt.skip {
 			continue
