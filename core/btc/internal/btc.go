@@ -169,6 +169,19 @@ func (c *BTC) Sign(rawTx, privateKeyWif string) (signedRawTx string, err error) 
 		var flagALL = "ALL"
 		msg.Flags = &flagALL
 	}
+
+	if msg.Inputs != nil {
+		privk, err := c.derivePrivateKey()
+		if err != nil {
+			return "", errors.Wrap(err, "failed to derive key")
+		}
+		for i := 0; i < len(*msg.Inputs); i++ {
+			if (*msg.Inputs)[i].ScriptPubKey == "" && (*msg.Inputs)[i].RedeemScript == "" { //未提供 ScriptPubKey, RedeemScript 则默认认为是单签,自动填充scriptPubKey
+				(*msg.Inputs)[i].ScriptPubKey = GenerateScriptPubKey4PayToPubkeyHash(privk.PubKey())
+			}
+		}
+	}
+
 	signCmd := &SignRawTransactionCmd{
 		RawTx:    msg.RawTx,
 		Inputs:   msg.Inputs,

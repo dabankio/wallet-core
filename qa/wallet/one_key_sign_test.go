@@ -11,6 +11,7 @@ import (
 func TestOneKeySign(t *testing.T) {
 	mnemonic, err := wallet.NewMnemonic() //生成新的助记词
 	require.NoError(t, err)
+	t.Log("mnemonic:", mnemonic)
 
 	options := &wallet.WalletOptions{}
 	options.Add(wallet.WithPathFormat(bip44.FullPathFormat))       //m/44'/%d'/0'/0/0, 确保兼容imToken

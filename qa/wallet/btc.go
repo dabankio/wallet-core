@@ -154,4 +154,48 @@ func testBTCPubkSign(t *testing.T, w *wallet.Wallet, c ctx) {
 		fmt.Println("txid:", txid)
 	})
 
+	t.Run("使用SDK创建交易,但不提供scriptPubKey", func(t *testing.T) {
+		_, err = devtools4chains.RPCCallJSON(rpcInfo, "sendtoaddress", []interface{}{c.address, 1.1}, nil)
+		rq.Nil(err)
+
+		var unspents []omni.ListUnspentResult
+		_, err = devtools4chains.RPCCallJSON(rpcInfo, "listunspent", []interface{}{0, 999, []string{c.address}}, &unspents)
+		rq.Nil(err)
+		utxo := unspents[0]
+
+		var tx *btc.BTCTransaction
+		unspent := new(btc.BTCUnspent) //java: new btc.BTCUnspent()
+		// unspent.Add(utxo.TxID, int64(utxo.Vout), utxo.Amount, utxo.ScriptPubKey, "")
+		unspent.Add(utxo.TxID, int64(utxo.Vout), utxo.Amount, "", "")
+
+		amount, err := btc.NewBTCAmount(0.0021)
+		rq.Nil(err)
+
+		toAddress, err := btc.NewBTCAddressFromString(coinbaseAddress, btc.ChainRegtest)
+		rq.Nil(err)
+
+		outputAmount := btc.BTCOutputAmount{} //java: new btc.BTCOutputAmount()
+		outputAmount.Add(toAddress, amount)
+
+		feeRate := int64(80)
+
+		changeAddress, err := btc.NewBTCAddressFromString(c.address, btc.ChainRegtest) //找零地址
+		rq.Nil(err)
+
+		tx, err = btc.NewBTCTransaction(unspent, &outputAmount, changeAddress, feeRate, btc.ChainRegtest)
+		rq.Nil(err)
+
+		toSignTx, err := tx.EncodeToSignCmd() //编码为可签名的格式
+		rq.NoError(err)
+
+		sig, err := w.Sign("BTC", toSignTx) //签名
+		rq.NoError(err)
+
+		fmt.Println("sig:", sig)
+		var txid string
+		_, err = devtools4chains.RPCCallJSON(rpcInfo, "sendrawtransaction", []interface{}{sig}, &txid)
+		rq.Nil(err)
+		fmt.Println("txid:", txid)
+	})
+
 }
