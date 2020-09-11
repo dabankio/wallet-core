@@ -92,8 +92,6 @@ func NewHDWalletFromMnemonic(mnemonic string, testNet bool) (w *Wallet, err erro
 	w.seed = seed
 	w.testNet = testNet
 	w.flags = make(map[string]struct{})
-	// TODO for backward compatibility, should not be presented in public domain
-	w.password = bip44.Password
 	if e := w.init(); e != nil {
 		return nil, e
 	}
