@@ -16,24 +16,32 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Wallet all in one signer
 type Wallet struct {
 	mnemonic string
+	testNet  bool
+	password string
 	// ShareAccountWithParentChain break the HD rule, use the metadata of the parent chain to generate keys and addresses.
 	ShareAccountWithParentChain bool
-	seed                        []byte
-	testNet                     bool
-	password                    string
 	path                        string
 	flags                       map[string]struct{} //存在一些特殊情况，使用通用的配置可能产生级连影响，所有用了flag以实现灵活的配置，缺点是逻辑比较分散。 (举个例子:ShareAccountWithParentChain来控制BTC和OMNI用1个地址，但如果这时候BBC和MKF不需要用同一个地址则会有问题)
+
+	// seed []byte //seed 需要用password推导，所以不要直接用(用.Bip39Seed()替代)，避免取了seed后修改了password
+}
+
+// Bip39Seed get bip39 seed,调用该函数后不要求该mnemonic和password
+func (c *Wallet) Bip39Seed() ([]byte, error) {
+	seed, err := core.NewSeedFromMnemonic(c.mnemonic, c.password)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to calc bip 39 seed")
+	}
+	return seed, nil
 }
 
 // 检查并设置默认值
 func (c *Wallet) init() error {
-	if len(c.seed) == 0 {
-		return errors.New("seed not provided")
-	}
 	if c.path == "" {
-		c.path = bip44.PathFormat //默认使用短格式bip44 path
+		c.path = bip44.FullPathFormat //默认使用标准格式bip44 path
 	}
 	return nil
 }
@@ -74,22 +82,17 @@ func NewMnemonic() (mnemonic string, err error) {
 
 // ValidateMnemonic 验证助记词的正确性
 func ValidateMnemonic(mnemonic string) (err error) {
-	_, err = core.NewSeedFromMnemonic(mnemonic)
+	_, err = core.NewSeedFromMnemonic(mnemonic, "")
 	if err != nil {
 		return
 	}
 	return
 }
 
-// NewMnemonic 通过助记词得到一个 HD 对象
-func NewHDWalletFromMnemonic(mnemonic string, testNet bool) (w *Wallet, err error) {
-	seed, err := core.NewSeedFromMnemonic(mnemonic)
-	if err != nil {
-		return
-	}
+// NewHDWalletFromMnemonic 通过助记词得到一个 HD 对象
+func NewHDWalletFromMnemonic(mnemonic, password string, testNet bool) (w *Wallet, err error) {
 	w = new(Wallet)
 	w.mnemonic = mnemonic
-	w.seed = seed
 	w.testNet = testNet
 	w.flags = make(map[string]struct{})
 	if e := w.init(); e != nil {

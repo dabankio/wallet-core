@@ -6,7 +6,7 @@ import (
 )
 
 // NewBip44Deriver btc bip44 实现
-func NewBip44Deriver(seed []byte, chainID int) (bip44.Deriver, error) {
-	coin, err := internal.New(seed, chainID)
+func NewBip44Deriver(bip44Path string, seed []byte, chainID int) (bip44.Deriver, error) {
+	coin, err := internal.New(bip44Path, seed, chainID)
 	return coin, err
 }

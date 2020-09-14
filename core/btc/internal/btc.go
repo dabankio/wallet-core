@@ -21,7 +21,7 @@ type BTC struct {
 // New Factory of BTC key derivation service
 //
 // The order of publicKeys is important.
-func New(seed []byte, chainID int) (c *BTC, err error) {
+func New(bip44Path string, seed []byte, chainID int) (c *BTC, err error) {
 	c = new(BTC)
 
 	c.Symbol = symbol
@@ -29,7 +29,7 @@ func New(seed []byte, chainID int) (c *BTC, err error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to find bip44 id")
 	}
-	c.DerivationPath, err = bip44.GetDerivePath(bip44.PathFormat, bip44ID, nil)
+	c.DerivationPath, err = bip44.GetDerivePath(bip44Path, bip44ID, nil)
 	if err != nil {
 		err = errors.Wrap(err, "bip44.GetCoinDerivationPath err:")
 		return

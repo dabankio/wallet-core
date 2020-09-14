@@ -83,7 +83,13 @@ func testOmniPubkSign(t *testing.T, w *wallet.Wallet, c ctx) {
 		_, err = devtools4chains.RPCCallJSON(rpcInfo, "listunspent", []interface{}{0, 999, []string{c.address}}, &unspents)
 		rq.Nil(err)
 		rq.Greater(len(unspents), 0)
-		utxo := unspents[0]
+		var utxo omni.ListUnspentResult
+		for _, out := range unspents {
+			if out.Amount > 0.01 {
+				utxo = out
+				break
+			}
+		}
 		fmt.Printf("utxo %#v\n", utxo)
 
 		{ //RPC创建交易， SDK签名, OMNI构造交易过程参考 https://github.com/OmniLayer/omnicore/wiki/Use-the-raw-transaction-API-to-create-a-Simple-Send-transaction
@@ -112,11 +118,17 @@ func testOmniPubkSign(t *testing.T, w *wallet.Wallet, c ctx) {
 				receiverAttached,
 				json.RawMessage(fmt.Sprintf(`[{"txid":"%s","vout":%d, "scriptPubKey": "%s", "value": %f}]`, utxo.TxID, utxo.Vout, utxo.ScriptPubKey, utxo.Amount)),
 				c.address,
-				0.006,
+				0.000035,
 			}, &minerFeeAndChangeAttached)
 			rq.NoError(err)
 
 			fmt.Println("tx to sign:", minerFeeAndChangeAttached)
+
+			var decodeTx map[string]interface{}
+			_, err = devtools4chains.RPCCallJSON(rpcInfo, "decoderawtransaction", []string{minerFeeAndChangeAttached}, &decodeTx)
+			rq.NoError(err)
+			b, _ := json.MarshalIndent(decodeTx, "", "  ")
+			fmt.Println("decodeTx:", string(b))
 
 			m := map[string]interface{}{
 				"RawTx": minerFeeAndChangeAttached,

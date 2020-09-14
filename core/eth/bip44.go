@@ -6,7 +6,7 @@ import (
 )
 
 // NewBip44Deriver eth bip44 实现
-func NewBip44Deriver(seed []byte) (bip44.Deriver, error) {
-	coin, err := internal.New(seed)
+func NewBip44Deriver(bip44Path string, seed []byte) (bip44.Deriver, error) {
+	coin, err := internal.New(bip44Path, seed)
 	return coin, err
 }

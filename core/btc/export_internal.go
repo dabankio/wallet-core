@@ -11,8 +11,8 @@ type Btc struct {
 }
 
 // NewCoin btc impl of core.Coin
-func NewCoin(seed []byte, chainID int) (core.Coin, error) {
-	coin, err := internal.New(seed, chainID)
+func NewCoin(bip44Path string, seed []byte, chainID int) (core.Coin, error) {
+	coin, err := internal.New(bip44Path, seed, chainID)
 	return coin, err
 }
 

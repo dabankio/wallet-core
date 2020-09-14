@@ -7,6 +7,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/dabankio/wallet-core/bip44"
 	"github.com/dabankio/wallet-core/core/btc/internal"
 )
 
@@ -61,7 +62,7 @@ func TestNewBTCTransaction(t *testing.T) {
 	t.Log("hahah", hh)
 	t.Log(tt.GetFee())
 
-	bb, _ := internal.New(nil, ChainTestNet3)
+	bb, _ := internal.New(bip44.PathFormat, nil, ChainTestNet3)
 	cc, err := bb.Sign(hh, "cVBp35B945nC4AEHgAdLJQaGewuFJH4PXAgETBxRmmjavJZtQCAB")
 	if err != nil {
 		t.Fatal(err)
@@ -149,7 +150,7 @@ func TestWorkflow_Multisig(t *testing.T) {
 		hh, err := tx.EncodeToSignCmd()
 		asrt.Nil(err)
 
-		btcCoin, _ := internal.New(nil, ChainTestNet3)
+		btcCoin, _ := internal.New(bip44.PathFormat, nil, ChainTestNet3)
 		signedRawHex, err := btcCoin.Sign(hh, a1.Privkey)
 		asrt.Nil(err)
 
@@ -157,7 +158,7 @@ func TestWorkflow_Multisig(t *testing.T) {
 		nextSignData, err = tx.EncodeToSignCmdForNextSigner(signedRawHex)
 	}
 	{ // 第二个人签名
-		btcCoin, err := internal.New(nil, ChainTestNet3)
+		btcCoin, err := internal.New(bip44.PathFormat, nil, ChainTestNet3)
 		asrt.NotNil(err) // TODO 这里先不管吧
 		signedRawHex, err := btcCoin.Sign(nextSignData, a3.Privkey)
 		asrt.Nil(err)

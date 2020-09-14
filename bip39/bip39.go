@@ -15,7 +15,6 @@ import (
 	"strings"
 
 	"github.com/dabankio/wallet-core/bip39/wordlists"
-
 	"golang.org/x/crypto/pbkdf2"
 )
 

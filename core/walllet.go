@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 
 	"github.com/dabankio/wallet-core/bip39"
-	"github.com/dabankio/wallet-core/bip44"
 	"github.com/pkg/errors"
 )
 
@@ -26,12 +25,12 @@ func NewSeed() (b []byte, err error) {
 }
 
 // NewSeedFromMnemonic returns a BIP-39 seed based on a BIP-39 mnemonic.
-func NewSeedFromMnemonic(mnemonic string) ([]byte, error) {
+func NewSeedFromMnemonic(mnemonic, password string) ([]byte, error) {
 	if mnemonic == "" {
 		return nil, errors.New("mnemonic is required")
 	}
 
-	return bip39.NewSeedWithErrorChecking(mnemonic, bip44.Password)
+	return bip39.NewSeedWithErrorChecking(mnemonic, password)
 }
 
 // EntropyFromMnemonic

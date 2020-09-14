@@ -3,6 +3,7 @@ package internalized
 import (
 	"testing"
 
+	"github.com/dabankio/wallet-core/bip44"
 	"github.com/dabankio/wallet-core/core"
 	"github.com/stretchr/testify/assert"
 )
@@ -76,8 +77,8 @@ func TestEth_DerivePrivateKey(t *testing.T) {
 }
 
 func TestNewETH(t *testing.T) {
-	seed, err := core.NewSeedFromMnemonic(testMnemonic)
+	seed, err := core.NewSeedFromMnemonic(testMnemonic, "")
 	assert.NoError(t, err)
-	ethCoin, err = New(seed)
+	ethCoin, err = New(bip44.PathFormat, seed)
 	assert.NoError(t, err)
 }

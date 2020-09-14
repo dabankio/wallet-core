@@ -8,6 +8,7 @@ import (
 
 	"github.com/dabankio/devtools4chains"
 
+	"github.com/dabankio/wallet-core/bip44"
 	"github.com/dabankio/wallet-core/core/btc"
 	"github.com/dabankio/wallet-core/core/eth/internalized/testtool"
 	"github.com/dabankio/wallet-core/core/omni"
@@ -110,7 +111,7 @@ func TestMultisig(t *testing.T) {
 			toSignMsg, err := btctx.EncodeToSignCmd()
 			rq.Nil(err, "failed to encode to sign")
 
-			btcCoin, _ := btc.New(nil, chainID)
+			btcCoin, _ := btc.New(bip44.PathFormat, nil, chainID)
 			signedRawHex, err := btcCoin.Sign(toSignMsg, a0.Privkey)
 			rq.Nil(err, "failed to sign")
 
@@ -163,7 +164,7 @@ func TestMultisig(t *testing.T) {
 			btctx, err := omni.CreateSimpleSendTransaction(propertyID, false, unspent, toAddr, transferAmount, changeAddr, feeRate, chainID)
 			rq.Nil(err, "Failed to crate btctx")
 
-			btcCoin, _ := btc.New(nil, chainID)
+			btcCoin, _ := btc.New(bip44.PathFormat, nil, chainID)
 			var nextSignData string
 			{ // a1签名
 				toSignMsg, err := btctx.EncodeToSignCmd()

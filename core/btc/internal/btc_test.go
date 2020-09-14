@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/btcsuite/btcd/btcjson"
+	"github.com/dabankio/wallet-core/bip44"
 	"github.com/dabankio/wallet-core/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -20,8 +21,8 @@ var (
 
 func init() {
 	var err error
-	seed, err := core.NewSeedFromMnemonic(testMnemonic)
-	btc, err = New(seed, ChainRegtest)
+	seed, err := core.NewSeedFromMnemonic(testMnemonic, "")
+	btc, err = New(bip44.PathFormat, seed, ChainRegtest)
 	if err != nil {
 		log.Fatal(err)
 	}

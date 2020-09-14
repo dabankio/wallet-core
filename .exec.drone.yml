@@ -8,6 +8,9 @@ platform:
 
 steps:
 - name: test
+  environment:
+    GOPATH: /home/drone/go
+    GOPROXY: 'https://goproxy.cn'
   commands:
   - bash scripts/ci-test.sh
 

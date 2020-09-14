@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dabankio/devtools4chains"
+	"github.com/dabankio/wallet-core/bip44"
 	"github.com/dabankio/wallet-core/core/btc"
 	"github.com/dabankio/wallet-core/core/eth/internalized/testtool"
 	"github.com/dabankio/wallet-core/core/omni"
@@ -81,7 +82,7 @@ func TestSimpleSend(t *testing.T) {
 		toSignMsg, err := btctx.EncodeToSignCmd()
 		rq.Nil(err, "failed to encode to sign")
 
-		btcCoin, _ := btc.New(nil, chainID)
+		btcCoin, _ := btc.New(bip44.PathFormat, nil, chainID)
 		signedRawHex, err := btcCoin.Sign(toSignMsg, a0.Privkey)
 		assert.Nil(t, err)
 

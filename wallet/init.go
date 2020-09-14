@@ -12,13 +12,13 @@ import (
 )
 
 func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
-	if len(c.seed) == 0 {
-		err = errors.New("seed is empty")
-		return
-	}
 	md, err := c.Metadata(symbol)
 	if err != nil {
 		return
+	}
+	bip39Seed, err := c.Bip39Seed()
+	if err != nil {
+		return nil, err
 	}
 	switch symbol {
 	case bbc.SymbolMKF, bbc.SymbolBBC:
@@ -29,7 +29,7 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 		if bip44Key == bbc.SymbolBBC && c.HasFlag(FlagBBCUseStandardBip44ID) { //BBC使用标准bip44 id
 			bip44Key = bbc.FullnameMap[bip44Key]
 		}
-		coin, err = bbc.NewSymbolCoin(symbol, c.seed, c.path, bip44Key)
+		coin, err = bbc.NewSymbolCoin(symbol, bip39Seed, c.path, bip44Key)
 	case "BTC":
 		coin, err = btc.NewFromMetadata(md)
 	case "ETH":
@@ -40,13 +40,13 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 		if c.ShareAccountWithParentChain {
 			options[omni.OptionShareAccountWithParentChain] = true
 		}
-		coin, err = omni.NewWithOptions(c.path, c.seed, c.testNet, options)
-	case "BTC_DISABLED": //temporary disabled
-		if c.testNet {
-			coin, err = btc.New(c.seed, btc.ChainTestNet3)
-		} else {
-			coin, err = btc.New(c.seed, btc.ChainMainNet)
-		}
+		coin, err = omni.NewWithOptions(c.path, bip39Seed, c.testNet, options)
+	// case "BTC_DISABLED": //temporary disabled
+	// if c.testNet {
+	// 	coin, err = btc.New(bip39Seed, btc.ChainTestNet3)
+	// } else {
+	// 	coin, err = btc.New(bip39Seed, btc.ChainMainNet)
+	// }
 	default:
 		err = errors.Errorf("no entry for coin (%s) was found.", symbol)
 	}

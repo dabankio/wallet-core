@@ -6,8 +6,6 @@
 
 pkg=github.com/dabankio/wallet-core
 
-export GOPROXY=https://goproxy.cn
-
 go build -o ci.out \
     && go test ${pkg}/bip39/... \
     && go test ${pkg}/bip44/... \

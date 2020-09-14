@@ -9,6 +9,7 @@ import (
 
 	"github.com/dabankio/devtools4chains"
 	"github.com/dabankio/wallet-core/bip39"
+	"github.com/dabankio/wallet-core/bip44"
 	"github.com/dabankio/wallet-core/core/eth"
 	"github.com/dabankio/wallet-core/core/eth/internalized/testtool"
 	"github.com/ethereum/go-ethereum/common"
@@ -45,7 +46,7 @@ func TestSimpleTransfer(t *testing.T) {
 			seed, err = bip39.NewSeedWithErrorChecking(mnemonic, "")
 			rq.Nil(err)
 		}
-		deriver, err := eth.NewBip44Deriver(seed)
+		deriver, err := eth.NewBip44Deriver(bip44.FullPathFormat, seed)
 		rq.Nil(err)
 
 		address, err := deriver.DeriveAddress()

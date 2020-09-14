@@ -1,6 +1,7 @@
 package eth
 
 import (
+	"github.com/dabankio/wallet-core/bip44"
 	internal "github.com/dabankio/wallet-core/core/eth/internalized"
 )
 
@@ -12,6 +13,6 @@ var (
 
 // SignRawTransaction .
 func SignRawTransaction(msg, privateKey string) (sig string, err error) {
-	eth, _ := internal.New(nil)
+	eth, _ := internal.New(bip44.FullPathFormat, nil)
 	return eth.Sign(msg, privateKey)
 }

@@ -10,40 +10,92 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var (
-	wallet       = new(Wallet)
-	testMnemonic = "lecture leg select like delay limit spread retire toward west grape bachelor"
-)
+// 该测试验证不同的通用参数推导出不同的地址，以确保path/password确实生效
+func TestCoin_DeriveAddressOptions(t *testing.T) {
+	const mnemonic = "lecture leg select like delay limit spread retire toward west grape bachelor"
+	options := &WalletOptions{}
+	options.Add(WithPathFormat(bip44.PathFormat))
+	w, err := BuildWalletFromMnemonic(mnemonic, true, options)
+	require.NoError(t, err)
 
-func init() {
-	wallet, _ = NewHDWalletFromMnemonic(testMnemonic, false)
-	wallet.path = bip44.PathFormat
+	symbols := []string{"BTC", "ETH", "OMNI", "BBC", "MKF"}
+	t.Run("不同path生成地址应该不一样", func(t *testing.T) {
+		options := &WalletOptions{}
+		options.Add(WithPathFormat(bip44.FullPathFormat))
+		w2, err := BuildWalletFromMnemonic(mnemonic, true, options)
+		require.NoError(t, err)
+		for _, s := range symbols {
+			t.Run("symbol: "+s, func(t *testing.T) {
+				a1, err := w.DeriveAddress(s)
+				require.NoError(t, err)
+
+				a2, err := w2.DeriveAddress(s)
+				require.NoError(t, err)
+
+				require.NotEqual(t, a1, a2, "path 不同时推导的地址也应该不同")
+			})
+		}
+	})
+	t.Run("不同password生成地址应该不一样", func(t *testing.T) {
+		options := &WalletOptions{}
+		options.Add(WithPathFormat(bip44.FullPathFormat))
+		options.Add(WithPassword("some_password"))
+		w2, err := BuildWalletFromMnemonic(mnemonic, true, options)
+		require.NoError(t, err)
+		for _, s := range symbols {
+			t.Run("symbol: "+s, func(t *testing.T) {
+				a1, err := w.DeriveAddress(s)
+				require.NoError(t, err)
+
+				a2, err := w2.DeriveAddress(s)
+				require.NoError(t, err)
+
+				require.NotEqual(t, a1, a2, "path 不同时推导的地址也应该不同")
+			})
+		}
+	})
 }
 
-// 该测试验证不同的path推导出不同的地址，以确保path确实生效
-func TestCoin_DeriveAddressPath(t *testing.T) {
+// 该测试验证 BTC USDT共享地址时 能始终生成一样的地址
+func TestCoin_DeriveAddressPathOMNI_BTC_shareAddress(t *testing.T) {
 	const mnemonic = "lecture leg select like delay limit spread retire toward west grape bachelor"
-	w, err := BuildWalletFromMnemonic(mnemonic, true, nil)
-	require.NoError(t, err)
 
-	options := &WalletOptions{}
-	options.Add(WithPathFormat(bip44.FullPathFormat))
-	w2, err := BuildWalletFromMnemonic(mnemonic, true, options)
-	require.NoError(t, err)
-
-	for _, s := range []string{
-		"BTC", "ETH", "OMNI", "BBC", "MKF",
+	for _, tt := range []struct {
+		name, path string
+	}{
+		{"短路径", bip44.PathFormat},
+		{"长路径", bip44.FullPathFormat},
 	} {
-		t.Run("symbol: "+s, func(t *testing.T) {
-			a1, err := w.DeriveAddress(s)
-			require.NoError(t, err)
+		t.Run(tt.name, func(t *testing.T) {
+			for _, _tt := range []struct{ name, pass string }{
+				{"其他密码", "passX"},
+				{"空密码", ""},
+				{"历史默认密码", bip44.Password},
+			} { //使用不同的密码也应该可以共享地址
+				t.Run(_tt.name, func(t *testing.T) {
+					opt := &WalletOptions{}
+					opt.Add(WithShareAccountWithParentChain(true))
+					opt.Add(WithPassword(_tt.pass))
+					opt.Add(WithPathFormat(tt.path))
+					w, err := BuildWalletFromMnemonic(mnemonic, false, opt)
+					require.NoError(t, err)
 
-			a2, err := w2.DeriveAddress(s)
-			require.NoError(t, err)
+					btcAddr, err := w.DeriveAddress("BTC")
+					require.NoError(t, err)
 
-			require.NotEqual(t, a1, a2, "path 不同时推导的地址也应该不同")
+					omniAddr, err := w.DeriveAddress("OMNI")
+					require.NoError(t, err)
+
+					usdtAddr, err := w.DeriveAddress("USDT(Omni)")
+					require.NoError(t, err)
+
+					assert.Equal(t, btcAddr, omniAddr, "OMNI 地址错误")
+					assert.Equal(t, btcAddr, usdtAddr, "USDT 地址错误")
+				})
+			}
 		})
 	}
+
 }
 
 // 该测试确保历史环境的逻辑兼容性，应该始终保持通过，且测试数据不应该被修改,除非你知道这意味着什么（即兼容性问题）
@@ -65,7 +117,9 @@ func TestCoin_DeriveAddress(t *testing.T) {
 		{name: "BTC testnet",
 			symbol:  "BTC",
 			address: "miSsnSQYYtt9KY3HbcQMVbyXMUraV9u9Qa",
-			apply:   func(w *Wallet) { w.testNet = true },
+			apply: func(w *Wallet) {
+				w.testNet = true
+			},
 		},
 		{name: "OMNI default",
 			symbol:  "OMNI",
@@ -106,9 +160,10 @@ func TestCoin_DeriveAddress(t *testing.T) {
 			apply:   func(w *Wallet) { w.ShareAccountWithParentChain = true }},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			wt, err := NewHDWalletFromMnemonic(mnemonic, false)
+			wt, err := NewHDWalletFromMnemonic(mnemonic, "", false)
 			require.NoError(t, err)
 			wt.path = bip44.PathFormat
+			wt.password = bip44.Password
 			if tt.apply != nil {
 				tt.apply(wt)
 			}
@@ -121,6 +176,11 @@ func TestCoin_DeriveAddress(t *testing.T) {
 }
 
 func TestWallet_GetAvailableCoinList(t *testing.T) {
+	const testMnemonic = "lecture leg select like delay limit spread retire toward west grape bachelor"
+	wallet := new(Wallet)
+
+	wallet, _ = NewHDWalletFromMnemonic(testMnemonic, "", false)
+	wallet.path = bip44.PathFormat
 	bb := GetAvailableCoinList()
 	t.Log(bb)
 	cc := strings.Split(bb, " ")

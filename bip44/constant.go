@@ -63,13 +63,13 @@ func GetCoinType(symbol string) (coinType uint32, err error) {
 	return
 }
 
-// GetCoinDerivationPath (deprecated), use GetDerivePath insted
-func GetCoinDerivationPath(symbol string) (derivationPath accounts.DerivationPath, err error) {
+// GetCoinDerivationPath get actual path for coin
+func GetCoinDerivationPath(path, symbol string) (derivationPath accounts.DerivationPath, err error) {
 	coinType, err := GetCoinType(symbol)
 	if err != nil {
-		return
+		return nil, err
 	}
-	return GetDerivePath(PathFormat, coinType, nil)
+	return GetDerivePath(path, coinType, nil)
 }
 
 // AdditionalDeriveParam 额外的推导参数

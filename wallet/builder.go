@@ -141,7 +141,7 @@ func (wb *WalletBuilder) Wallet() (wallet *Wallet, err error) {
 	if wb.mnemonic == "" {
 		return nil, errors.New("mnemonic should not be empty")
 	}
-	wallet, err = NewHDWalletFromMnemonic(wb.mnemonic, wb.testNet)
+	wallet, err = NewHDWalletFromMnemonic(wb.mnemonic, wb.password, wb.testNet)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func (wb *WalletBuilder) Wallet() (wallet *Wallet, err error) {
 
 // BuildWallet create a Wallet instance with fixed args (here is mnemonic and testNet) and other options
 func BuildWalletFromMnemonic(mnemonic string, testNet bool, options *WalletOptions) (wallet *Wallet, err error) {
-	wallet, err = NewHDWalletFromMnemonic(mnemonic, testNet)
+	wallet, err = NewHDWalletFromMnemonic(mnemonic, "", testNet)
 	if err != nil {
 		return
 	}

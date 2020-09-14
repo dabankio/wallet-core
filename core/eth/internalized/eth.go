@@ -26,10 +26,10 @@ type eth struct {
 	core.CoinInfo
 }
 
-func New(seed []byte) (c *eth, err error) {
+func New(bip44Path string, seed []byte) (c *eth, err error) {
 	c = new(eth)
 	c.Symbol = symbol
-	c.DerivationPath, err = bip44.GetCoinDerivationPath(symbol)
+	c.DerivationPath, err = bip44.GetCoinDerivationPath(bip44Path, symbol)
 	if err != nil {
 		err = errors.Wrap(err, "bip44.GetCoinDerivationPath err:")
 		return
