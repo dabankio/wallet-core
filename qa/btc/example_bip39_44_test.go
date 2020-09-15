@@ -27,7 +27,7 @@ func TestExampleBip39_44(t *testing.T) {
 	rq.Nil(err)
 
 	for _, chainID := range []int{btc.ChainMainNet, btc.ChainTestNet3, btc.ChainRegtest} {
-		deriver, err := btc.NewBip44Deriver(bip44.PathFormat, seed, chainID)
+		deriver, err := btc.NewBip44Deriver(bip44.PathFormat, false, seed, chainID)
 		rq.Nil(err)
 
 		address, err := deriver.DeriveAddress()
@@ -56,7 +56,7 @@ func TestExampleGenerateBeautifulAddress(t *testing.T) {
 		ent, _ := bip39.NewEntropy(128)
 		mnemonic, _ = bip39.NewMnemonic(ent)
 		seed, _ := bip39.NewSeedWithErrorChecking(mnemonic, "")
-		deriver, _ := btc.NewBip44Deriver(bip44.PathFormat, seed, chainID)
+		deriver, _ := btc.NewBip44Deriver(bip44.PathFormat, false, seed, chainID)
 		address, _ = deriver.DeriveAddress()
 		count++
 		if count%1000 == 0 { //每1000次打印日志

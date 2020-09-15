@@ -4,11 +4,11 @@ go 1.14
 
 require (
 	github.com/aristanetworks/goarista v0.0.0-20190319235110-489128639c40 // indirect
-	github.com/btcsuite/btcd v0.0.0-20190315201642-aa6e0f35703c
-	github.com/btcsuite/btcutil v0.0.0-20190316010144-3ac1210f4b38
+	github.com/btcsuite/btcd v0.20.1-beta
+	github.com/btcsuite/btcutil v1.0.2
 	github.com/cespare/cp v1.1.1 // indirect
 	github.com/dabankio/bbrpc v1.2.0-beta.7
-	github.com/dabankio/devtools4chains v0.1.1-beta.20200902
+	github.com/dabankio/devtools4chains v0.1.1-beta.2020091203
 	github.com/dabankio/gobbc v1.0.9
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/edsrzf/mmap-go v1.0.0 // indirect

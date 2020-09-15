@@ -31,15 +31,17 @@ func TestOneKeySign(t *testing.T) {
 
 	for _, tt := range []struct {
 		skip   bool
+		name   string
 		symbol string
 		testFn func(*testing.T, *wallet.Wallet, ctx)
 	}{
-		{skip: false, symbol: "ETH", testFn: testETHPubkSign},
-		{skip: false, symbol: "ETH", testFn: testERC20PubkSign},
-		{skip: false, symbol: "OMNI", testFn: testOmniPubkSign},
-		{skip: false, symbol: "BTC", testFn: testBTCPubkSign},
-		{skip: false, symbol: "BBC", testFn: testBBCPubkSign},
-		{skip: false, symbol: "MKF", testFn: testMKFPubkSign},
+		// {skip: false, symbol: "ETH", testFn: testETHPubkSign},
+		// {skip: false, symbol: "ETH", testFn: testERC20PubkSign},
+		// {skip: false, symbol: "OMNI", testFn: testOmniPubkSign},
+		// {skip: false, symbol: "BTC", testFn: testBTCPubkSign},
+		{skip: false, name: "BTC_segwit", symbol: "BTC", testFn: testBTCPubkSignSegwit},
+		// {skip: false, symbol: "BBC", testFn: testBBCPubkSign},
+		// {skip: false, symbol: "MKF", testFn: testMKFPubkSign},
 	} {
 		if tt.skip {
 			continue

@@ -37,8 +37,9 @@ type HasParentChain interface {
 // MetadataProvider we need a configuration data container per-symbol.
 type MetadataProvider interface {
 	GetChainID() int //获取链id
-	GetPath() string
+	GetPath() string //含%d的路径
 	IsTestNet() bool
-	GetSeed() []byte
-	GetDerivationPath() []uint32
+	GetSeed() []byte             //bip39 seed,受助记词和密码影响
+	GetDerivationPath() []uint32 //推导出的bip44路径，受path, symbol影响
+	HasFlag(string) bool         //是否存在flag
 }

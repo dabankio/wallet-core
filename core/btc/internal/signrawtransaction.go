@@ -144,6 +144,9 @@ func SignRawTransaction(cmd *SignRawTransactionCmd, chainCfg *chaincfg.Params) (
 	if err != nil {
 		return nil, err
 	}
+	if len(signErrs) > 0 {
+		return nil, errors.Errorf("sign errs: %#v", signErrs)
+	}
 
 	var buf bytes.Buffer
 	buf.Grow(tx.SerializeSize())

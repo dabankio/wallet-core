@@ -22,7 +22,7 @@ var (
 func init() {
 	var err error
 	seed, err := core.NewSeedFromMnemonic(testMnemonic, "")
-	btc, err = New(bip44.PathFormat, seed, ChainRegtest)
+	btc, err = New(bip44.PathFormat, false, seed, ChainRegtest)
 	if err != nil {
 		log.Fatal(err)
 	}

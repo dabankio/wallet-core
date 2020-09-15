@@ -28,6 +28,9 @@ const chainID = 1
 // 测试erc20多签
 func TestSimplemultisigGanacheERC20(t *testing.T) {
 	// t.SkipNow()
+	if testing.Short() {
+		t.Skip("skip for short testing")
+	}
 
 	killFunc, port, err := devtools4chains.DockerRunGanacheCli(&devtools4chains.DockerRunOptions{
 		AutoRemove: true,
@@ -262,7 +265,9 @@ func TestSimplemultisigGanacheERC20(t *testing.T) {
 }
 
 func TestSimplemultisigGanache(t *testing.T) {
-	// t.SkipNow()
+	if testing.Short() {
+		t.Skip("skip for short testing")
+	}
 
 	killFunc, port, err := devtools4chains.DockerRunGanacheCli(&devtools4chains.DockerRunOptions{
 		AutoRemove: true,

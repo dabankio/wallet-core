@@ -14,6 +14,7 @@ type metadataProviderImpl struct {
 	chainID        int
 	seed           []byte
 	derivationPath []uint32
+	flags          []string
 }
 
 func (md *metadataProviderImpl) GetPassword() string {
@@ -36,4 +37,13 @@ func (md *metadataProviderImpl) GetSeed() []byte {
 
 func (md *metadataProviderImpl) GetDerivationPath() []uint32 {
 	return md.derivationPath
+}
+
+func (md *metadataProviderImpl) HasFlag(f string) bool { //是否存在flag
+	for _, _f := range md.flags {
+		if f == _f {
+			return true
+		}
+	}
+	return false
 }

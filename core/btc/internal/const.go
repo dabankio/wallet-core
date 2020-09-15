@@ -5,14 +5,17 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 )
 
-// ChainMainNet 链：MainNet
-const ChainMainNet = 0
+const (
+	// ChainMainNet 链：MainNet
+	ChainMainNet = 0
+	// ChainTestNet3 链：TestNet3
+	ChainTestNet3 = 1
+	// ChainRegtest 链：Regression
+	ChainRegtest = 2
 
-// ChainTestNet3 链：TestNet3
-const ChainTestNet3 = 1
-
-// ChainRegtest 链：Regression
-const ChainRegtest = 2
+	// FlagBTCUseSegWitFormat BTC使用隔离见证地址
+	FlagUseSegWitFormat = "btc_use_segwit_fmt"
+)
 
 // ChainFlag2ChainParams get chainParams from const
 func ChainFlag2ChainParams(chainID int) (*chaincfg.Params, error) {

@@ -76,6 +76,7 @@ func (f flagOpt) Visit(wallet *Wallet) error {
 
 // WithFlag 该选项添加特殊配置flag, flag参考 FlagXXX 常量
 func WithFlag(flag string) WalletOption {
+	debugPrint("withFlag invoked:", flag)
 	return flagOpt{flag}
 }
 
@@ -152,7 +153,7 @@ func (wb *WalletBuilder) Wallet() (wallet *Wallet, err error) {
 	return
 }
 
-// BuildWallet create a Wallet instance with fixed args (here is mnemonic and testNet) and other options
+// BuildWalletFromMnemonic create a Wallet instance with fixed args (here is mnemonic and testNet) and other options
 func BuildWalletFromMnemonic(mnemonic string, testNet bool, options *WalletOptions) (wallet *Wallet, err error) {
 	wallet, err = NewHDWalletFromMnemonic(mnemonic, "", testNet)
 	if err != nil {
@@ -167,6 +168,13 @@ func BuildWalletFromMnemonic(mnemonic string, testNet bool, options *WalletOptio
 		}
 	}
 	//TODO verify wallet
+	debugPrint("buildWalletFromMnemonic")
+	debugPrint("mnemonic", wallet.mnemonic)
+	debugPrint("testNet", wallet.testNet)
+	debugPrint("pasword", wallet.password)
+	debugPrint("ShareAccount", wallet.ShareAccountWithParentChain)
+	debugPrint("path", wallet.path)
+	debugPrint("flags", wallet.flags)
 	return
 }
 

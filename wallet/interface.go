@@ -177,5 +177,13 @@ func (c Wallet) Metadata(symbol string) (core.MetadataProvider, error) {
 		seed:           seed,
 		derivationPath: derivationPath,
 	}
+	for k := range c.flags {
+		md.flags = append(md.flags, k)
+	}
 	return &md, nil
+}
+
+// AddFlag .
+func (c *Wallet) AddFlag(f string) {
+	c.flags[f] = struct{}{}
 }

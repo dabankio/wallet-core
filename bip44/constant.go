@@ -67,7 +67,7 @@ func GetCoinType(symbol string) (coinType uint32, err error) {
 func GetCoinDerivationPath(path, symbol string) (derivationPath accounts.DerivationPath, err error) {
 	coinType, err := GetCoinType(symbol)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "failed to get bip44 id for: %s", symbol)
 	}
 	return GetDerivePath(path, coinType, nil)
 }

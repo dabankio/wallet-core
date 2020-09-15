@@ -2,6 +2,7 @@ package internal
 
 import (
 	"encoding/hex"
+	"strings"
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcutil"
@@ -16,23 +17,24 @@ const symbol = "BTC"
 // BTC key derivation service
 type BTC struct {
 	core.CoinInfo
+	useSegWit bool //是否使用隔离见证地址
 }
 
 // New Factory of BTC key derivation service
 //
 // The order of publicKeys is important.
-func New(bip44Path string, seed []byte, chainID int) (c *BTC, err error) {
+// using segWit will replace m/44'... ==> m/49'
+func New(bip44Path string, isSegWit bool, seed []byte, chainID int) (c *BTC, err error) {
 	c = new(BTC)
 
 	c.Symbol = symbol
-	bip44ID, err := bip44.GetCoinType(symbol)
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to find bip44 id")
+	c.useSegWit = isSegWit
+	if isSegWit {
+		bip44Path = strings.Replace(bip44Path, "m/44'", "m/49'", 1)
 	}
-	c.DerivationPath, err = bip44.GetDerivePath(bip44Path, bip44ID, nil)
+	c.DerivationPath, err = bip44.GetCoinDerivationPath(bip44Path, c.Symbol)
 	if err != nil {
-		err = errors.Wrap(err, "bip44.GetCoinDerivationPath err:")
-		return
+		return nil, errors.Wrap(err, "bip44.GetCoinDerivationPath err")
 	}
 	c.ChainCfg, err = ChainFlag2ChainParams(chainID)
 	if err != nil {
@@ -43,29 +45,21 @@ func New(bip44Path string, seed []byte, chainID int) (c *BTC, err error) {
 		err = errors.Wrap(err, "hdkeychain.NewMaster")
 		return
 	}
-
-	return
+	return c, nil
 }
 
 // NewFromMetadata .
 func NewFromMetadata(metadata core.MetadataProvider) (c *BTC, err error) {
-	c = new(BTC)
-	c.Symbol = symbol
-	c.DerivationPath = metadata.GetDerivationPath()
 	chainID := ChainMainNet
 	if metadata.IsTestNet() {
 		chainID = ChainRegtest
 	}
-	c.ChainCfg, err = ChainFlag2ChainParams(chainID)
-	if err != nil {
-		return nil, err
-	}
-	c.MasterKey, err = hdkeychain.NewMaster(metadata.GetSeed(), c.ChainCfg)
-	if err != nil {
-		err = errors.Wrap(err, "hdkeychain.NewMaster")
-		return
-	}
-	return
+	return New(
+		metadata.GetPath(),
+		metadata.HasFlag(FlagUseSegWitFormat),
+		metadata.GetSeed(),
+		chainID,
+	)
 }
 
 // deriveChildKey derives the child key of the derivation path.
@@ -128,13 +122,23 @@ func (c *BTC) DeriveAddress() (address string, err error) {
 		err = errors.Wrap(err, "c.deriveChildKey")
 		return
 	}
-	P2PKHAddr, err := childKey.Address(c.ChainCfg)
-	if err != nil {
-		err = errors.Wrap(err, "childKey.Address")
-		return
+	if !c.useSegWit {
+		addrP2PKH, er := childKey.Address(c.ChainCfg)
+		if er != nil {
+			er = errors.Wrap(er, "childKey.Address")
+			return
+		}
+		address = addrP2PKH.String()
+	} else {
+		pubk, er := childKey.ECPubKey()
+		if er != nil {
+			return "", errors.Wrap(er, "childKey.ECPubKey err")
+		}
+		address, er = ConvertPubk2segWitP2WSHAddress(pubk, c.ChainCfg)
+		if er != nil {
+			return "", errors.Wrap(er, "convert segWit address err")
+		}
 	}
-
-	address = P2PKHAddr.String()
 	return
 }
 
