@@ -85,6 +85,30 @@ func TestCoin_DeriveAddressOptions(t *testing.T) {
 			})
 		}
 	})
+
+	t.Run("BBC MKF共用地址在不同参数下都有效", func(t *testing.T) {
+		passes := []string{bip44.Password, "", "bbc_keys"}
+		paths := []string{bip44.PathFormat, bip44.FullPathFormat}
+
+		for _, path := range paths {
+			for _, pass := range passes {
+				options := &WalletOptions{}
+				options.Add(WithPathFormat(path))
+				options.Add(WithPassword(pass))
+				options.Add(WithFlag(FlagMKFUseBBCBip44ID))
+				w, err := BuildWalletFromMnemonic(mnemonic, true, options)
+				require.NoError(t, err)
+
+				bbcA, err := w.DeriveAddress("BBC")
+				require.NoError(t, err)
+				mkfA, err := w.DeriveAddress("MKF")
+				require.NoError(t, err)
+
+				require.Equal(t, bbcA, mkfA)
+			}
+		}
+	})
+
 }
 
 // 该测试验证 BTC USDT共享地址时 能始终生成一样的地址
@@ -403,6 +427,37 @@ func TestMoneyOut(t *testing.T) { //BBC找币
 						fmt.Println("txid:", *txid)
 						return
 					}
+				}
+			}
+		}
+	}
+
+}
+func TestFindETH(t *testing.T) { //BBC找币
+	shouldEqual := ""
+
+	mnes := []string{}
+	paths := []string{bip44.PathFormat, bip44.FullPathFormat}
+	passwords := []string{bip44.Password, ""}
+
+	for _, mne := range mnes {
+		for _, path := range paths {
+			for _, pass := range passwords {
+				var options WalletOptions
+				options.Add(WithPassword(pass))
+				options.Add(WithPathFormat(path))
+				w, err := BuildWalletFromMnemonic(
+					mne,
+					false,
+					&options,
+				)
+				assert.NoError(t, err)
+				addr, err := w.DeriveAddress("ETH")
+				assert.NoError(t, err)
+
+				fmt.Println("add:", addr)
+				if strings.ToLower(addr) == strings.ToLower(shouldEqual) {
+					fmt.Println("===> bingo:", mne, path, pass)
 				}
 			}
 		}

@@ -241,7 +241,7 @@ func testBTCPubkSignSegwit(t *testing.T, w *wallet.Wallet, c ctx) {
 	T := t
 	rq := r.New(t)
 
-	w.AddFlag(wallet.FlagBTCUseSegWitFormat)
+	// w.AddFlag(wallet.FlagBTCUseSegWitFormat)
 	var err error
 	var rpcInfo devtools4chains.RPCInfo
 	var coinbaseAddress string
@@ -286,10 +286,11 @@ func testBTCPubkSignSegwit(t *testing.T, w *wallet.Wallet, c ctx) {
 
 	t.Run("使用RPC创建交易", func(t *testing.T) {
 		var unspents []omni.ListUnspentResult
-		_, err = devtools4chains.RPCCallJSON(rpcInfo, "listunspent", []interface{}{0, 999, []string{c.address}}, &unspents)
+		unB, err := devtools4chains.RPCCallJSON(rpcInfo, "listunspent", []interface{}{0, 999, []string{c.address}}, &unspents)
 		rq.Nil(err)
 		utxo := unspents[0]
 		fmt.Printf("utxo %#v\n", utxo)
+		fmt.Println("json utxo:", string(unB))
 
 		var createdTx string
 		_, err = devtools4chains.RPCCallJSON(rpcInfo, "createrawtransaction", []interface{}{
@@ -305,6 +306,8 @@ func testBTCPubkSignSegwit(t *testing.T, w *wallet.Wallet, c ctx) {
 				"txid":         utxo.TxID,
 				"vout":         utxo.Vout,
 				"scriptPubKey": utxo.ScriptPubKey,
+				"redeemScript": utxo.RedeemScript,
+				"amount":       utxo.Amount,
 			}},
 		}
 		msgB, err := json.Marshal(&m)
@@ -312,13 +315,14 @@ func testBTCPubkSignSegwit(t *testing.T, w *wallet.Wallet, c ctx) {
 		fmt.Println("msgB", string(msgB))
 
 		sig, err := w.Sign("BTC", hex.EncodeToString(msgB))
+		fmt.Println("signErr", err)
 		rq.NoError(err)
 
 		fmt.Println("sig:", sig)
 
 		walletSig := map[string]interface{}{}
-		wsRexp, err := devtools4chains.RPCCallJSON(rpcInfo, "signrawtransactionwithwallet", []interface{}{createdTx}, &walletSig)
-		fmt.Println("wsResp:", string(wsRexp))
+		wsResp, err := devtools4chains.RPCCallJSON(rpcInfo, "signrawtransactionwithwallet", []interface{}{createdTx}, &walletSig)
+		fmt.Println("wsResp:", string(wsResp))
 		rq.Nil(err)
 		fmt.Println("wsig", walletSig["hex"])
 

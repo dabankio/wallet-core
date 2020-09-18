@@ -175,6 +175,9 @@ func BuildWalletFromMnemonic(mnemonic string, testNet bool, options *WalletOptio
 	debugPrint("ShareAccount", wallet.ShareAccountWithParentChain)
 	debugPrint("path", wallet.path)
 	debugPrint("flags", wallet.flags)
+	if wallet.path == "" {
+		return nil, errors.New("path 未指定")
+	}
 	return
 }
 

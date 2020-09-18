@@ -19,6 +19,7 @@ func TestOneKeySign(t *testing.T) {
 	options.Add(wallet.WithShareAccountWithParentChain(true))      //USDT BTC共用地址
 	options.Add(wallet.WithFlag(wallet.FlagBBCUseStandardBip44ID)) //BBC使用标准bip44 ID
 	options.Add(wallet.WithFlag(wallet.FlagMKFUseBBCBip44ID))      //MKF 和BBC共用地址
+	options.Add(wallet.WithFlag(wallet.FlagBTCUseSegWitFormat))    //BTC 隔离见证支持
 
 	if 2 < 1 {
 		// options.Add(wallet.WithFlag(wallet.FlagBBCUseStandardBip44ID)) //兼容pockmine不要这个
@@ -36,7 +37,7 @@ func TestOneKeySign(t *testing.T) {
 		testFn func(*testing.T, *wallet.Wallet, ctx)
 	}{
 		// {skip: false, symbol: "ETH", testFn: testETHPubkSign},
-		// {skip: false, symbol: "ETH", testFn: testERC20PubkSign},
+		// {skip: false, name: "ERC20", symbol: "ETH", testFn: testERC20PubkSign},
 		// {skip: false, symbol: "OMNI", testFn: testOmniPubkSign},
 		// {skip: false, symbol: "BTC", testFn: testBTCPubkSign},
 		{skip: false, name: "BTC_segwit", symbol: "BTC", testFn: testBTCPubkSignSegwit},
@@ -58,6 +59,6 @@ func TestOneKeySign(t *testing.T) {
 			}
 		}(ctx{pubk: pubk, address: address}, tt.testFn)
 
-		t.Run(tt.symbol, testFn)
+		t.Run(tt.name, testFn)
 	}
 }
