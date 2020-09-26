@@ -52,8 +52,8 @@ func (b *TxBuilder) SetVersion(v int) *TxBuilder {
 	return &TxBuilder{b.TXBuilder.SetVersion(v), b.excludeAnchor}
 }
 
-// SetTpye 当前版本 1
-func (b *TxBuilder) SetTpye(v int) *TxBuilder {
+// SetType typ
+func (b *TxBuilder) SetType(v int) *TxBuilder {
 	return &TxBuilder{b.TXBuilder.SetType(v), b.excludeAnchor}
 }
 
