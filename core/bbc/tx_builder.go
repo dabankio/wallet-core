@@ -52,6 +52,11 @@ func (b *TxBuilder) SetVersion(v int) *TxBuilder {
 	return &TxBuilder{b.TXBuilder.SetVersion(v), b.excludeAnchor}
 }
 
+// SetTpye 当前版本 1
+func (b *TxBuilder) SetTpye(v int) *TxBuilder {
+	return &TxBuilder{b.TXBuilder.SetType(v), b.excludeAnchor}
+}
+
 // AddInput 参考listunspent,确保输入金额满足amount
 func (b *TxBuilder) AddInput(txid string, vout int8) *TxBuilder {
 	return &TxBuilder{b.TXBuilder.AddInput(txid, uint8(vout)), b.excludeAnchor}
