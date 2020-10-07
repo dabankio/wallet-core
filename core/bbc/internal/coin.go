@@ -48,9 +48,9 @@ type Wallet struct {
 }
 
 // NewSimpleWallet new bbc coin implementation, with short bip44 path
-func NewSimpleWallet(symbol string, seed []byte) (core.Coin, error) {
-	return NewWallet(symbol, seed, bip44.PathFormat, "", nil)
-}
+// func NewSimpleWallet(symbol string, seed []byte) (core.Coin, error) {
+// 	return NewWallet(symbol, seed, bip44.PathFormat, "", nil)
+// }
 
 // NewWallet new bbc coin implementation, 只推导1个地址
 // bip44Key 不为空时用来查找bip44 id，否则使用symbol查找
