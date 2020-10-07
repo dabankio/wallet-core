@@ -137,7 +137,7 @@ type TemplateInfo struct {
 func CreateTemplateDataDexOrder(
 	sellerAddress string,
 	coinpair string,
-	price int32,
+	price int64,
 	fee int32,
 	recvAddress string,
 	validHeight int32,
@@ -152,7 +152,7 @@ func CreateTemplateDataDexOrder(
 		RecvAddress:   recvAddress,
 		ValidHeight:   validHeight,
 		MatchAddress:  gobbc.Address(matchAddress),
-		DealAddress:   gobbc.Address(dealAddress),
+		DealAddress:   dealAddress,
 	})
 	if err != nil {
 		return nil, err
