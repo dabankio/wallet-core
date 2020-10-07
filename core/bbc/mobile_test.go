@@ -40,9 +40,11 @@ func TestDeriveAddressCompatible(t *testing.T) {
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			seed := bip39.NewSeed(tt.mnemonic, tt.salt)
-			key, err := DeriveSymbolKeySimple(tt.symbol, seed)
+			d, err := NewSymbolCoin(tt.symbol, seed, bip44.PathFormat, "")
 			require.NoError(t, err)
-			require.Equal(t, tt.address, key.Address)
+			add, err := d.DeriveAddress()
+			require.NoError(t, err)
+			require.Equal(t, tt.address, add)
 		})
 	}
 }
@@ -58,22 +60,13 @@ func TestNewBip44Deriver(t *testing.T) {
 	t.Log("mnemonic:", mnemonic)
 
 	seed := bip39.NewSeed(mnemonic, "")
-	d, err := NewSimpleBip44Deriver(seed)
+
+	d, err := NewSymbolCoin("BBC", seed, bip44.PathFormat, "")
 	require.NoError(t, err)
 
 	t.Log(d.DeriveAddress())
 	t.Log(d.DerivePrivateKey())
 	t.Log(d.DerivePublicKey())
-
-	for i := 0; i < 10; i++ {
-		d, err = NewBip44Deriver(seed, 0, 0, i)
-		require.NoError(t, err)
-
-		t.Log("index", i)
-		t.Log(d.DeriveAddress())
-		t.Log(d.DerivePrivateKey())
-		t.Log(d.DerivePublicKey())
-	}
 }
 
 // TestDeriveConsistent 该测试确保api的稳定性，代码改动过程中确保同样的助记词始终推导出一样的私钥/地址
@@ -82,9 +75,12 @@ func TestDeriveConsistent(t *testing.T) {
 	r := require.New(t)
 	r.NoError(bip39.SetWordListLang(bip39.LangChineseSimplified))
 
-	k, err := DeriveKeySimple(bip39.NewSeed(mnemonic, ""))
+	d, err := NewSymbolCoin("BBC", bip39.NewSeed(mnemonic, ""), bip44.PathFormat, "")
+	require.NoError(t, err)
 	r.NoError(err)
-	r.Equal("11qy08xpjwhv1y012n7c3zv74ww7vy4hnrgz3esv1hzaq115xvdfttng6", k.Address)
+	add, err := d.DeriveAddress()
+	require.NoError(t, err)
+	r.Equal("11qy08xpjwhv1y012n7c3zv74ww7vy4hnrgz3esv1hzaq115xvdfttng6", add)
 }
 
 func TestDecodeTX(t *testing.T) {

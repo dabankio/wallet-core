@@ -14,6 +14,8 @@ import (
 const (
 	SymbolBBC = internal.SymbolBBC
 	SymbolMKF = internal.SymbolMKF
+
+	templateDexorder = 9
 )
 
 // FullnameMap .
@@ -119,4 +121,45 @@ func ParsePrivateKey(privateKey string) (*KeyInfo, error) {
 // Address2pubk 将地址转换为公钥
 func Address2pubk(address string) (string, error) {
 	return gobbc.ConvertAddress2pubk(address)
+}
+
+// TemplateInfo 简要模版信息
+type TemplateInfo struct {
+	//Type 类型
+	Type int
+	//Address 地址
+	Address string
+	//RawHex hex编码的原始数据（TemplateData）
+	RawHex string
+}
+
+// CreateTemplateDataDexOrder 获取dexOrder模版数据
+func CreateTemplateDataDexOrder(
+	sellerAddress string,
+	coinpair string,
+	price int32,
+	fee int32,
+	recvAddress string,
+	validHeight int32,
+	matchAddress string,
+	dealAddress string,
+) (*TemplateInfo, error) {
+	add, raw, err := gobbc.CreateTemplateDataDexOrder(gobbc.DexOrderParam{
+		SellerAddress: gobbc.Address(sellerAddress),
+		Coinpair:      coinpair,
+		Price:         price,
+		Fee:           fee,
+		RecvAddress:   recvAddress,
+		ValidHeight:   validHeight,
+		MatchAddress:  gobbc.Address(matchAddress),
+		DealAddress:   gobbc.Address(dealAddress),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &TemplateInfo{
+		Type:    templateDexorder,
+		Address: add,
+		RawHex:  raw,
+	}, nil
 }
