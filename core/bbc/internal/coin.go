@@ -133,6 +133,9 @@ func (c *Wallet) Sign(msg, privateKey string) (string, error) {
 		if err != nil {
 			return msg, errors.Wrap(err, "failed to encode tx")
 		}
+		if !txData.ContainsMultisig() { //没有多签地址则认为单签完成，直接返回原始交易，直接广播
+			return txData.TxHex, nil
+		}
 		return txData.EncodeString()
 	}
 

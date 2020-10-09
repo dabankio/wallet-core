@@ -40,6 +40,7 @@ func TestOneKeySign(t *testing.T) {
 		{skip: false, symbol: "BTC", testFn: testBTCPubkSign},
 		{skip: false, symbol: "BBC", testFn: testBBCPubkSign},
 		{skip: false, symbol: "MKF", testFn: testMKFPubkSign},
+		{skip: false, symbol: "MKF", testFn: testMKFDexTXSign},
 	} {
 		if tt.skip {
 			continue
