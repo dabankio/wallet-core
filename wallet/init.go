@@ -8,6 +8,7 @@ import (
 	"github.com/dabankio/wallet-core/core/btc"
 	"github.com/dabankio/wallet-core/core/eth"
 	"github.com/dabankio/wallet-core/core/omni"
+	"github.com/dabankio/wallet-core/core/trx"
 	"github.com/pkg/errors"
 )
 
@@ -41,6 +42,9 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 			options[omni.OptionShareAccountWithParentChain] = true
 		}
 		coin, err = omni.NewWithOptions(c.path, bip39Seed, c.testNet, options)
+	case "TRX":
+		coin, err = trx.NewCoin(c.path, bip39Seed)
+
 	// case "BTC_DISABLED": //temporary disabled
 	// if c.testNet {
 	// 	coin, err = btc.New(bip39Seed, btc.ChainTestNet3)
@@ -70,6 +74,9 @@ func GetAvailableCoinList() string {
 
 		// ETH series
 		"ETH",
+
+		//tron
+		"TRX",
 	}
 	return strings.Join(availableCoin, " ")
 }
