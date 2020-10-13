@@ -96,8 +96,15 @@ func TestExampleMKF(t *testing.T) {
 		signedTX, err := bbc.SymbolSignWithPrivateKey(bbc.SymbolMKF, *rawTX, "", key.PrivateKey) // <<=== sdk 使用私钥对交易进行签名
 		r.NoError(err)
 
-		_, err = jsonRPC.Sendtransaction(signedTX) // <<=== RPC 发送交易
+		sendTxid, err := jsonRPC.Sendtransaction(signedTX) // <<=== RPC 发送交易
 		r.NoError(err)
+
+		sdkTxid, err := bbc.CalcTxid("MKF", signedTX)
+		r.NoError(err)
+		rpcDe, err := jsonRPC.Decodetransaction(signedTX)
+		r.NoError(err)
+		fmt.Printf("txidS\n sdk: %s\n snd: %s \n rpc: %s", sdkTxid, *sendTxid, rpcDe.Txid)
+		r.Equal(sdkTxid, *sendTxid)
 
 		r.NoError(bbrpc.Wait4nBlocks(1, jsonRPC))
 

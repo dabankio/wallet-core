@@ -123,6 +123,20 @@ func Address2pubk(address string) (string, error) {
 	return gobbc.ConvertAddress2pubk(address)
 }
 
+// CalcTxid 计算txid, symbol: BBC|MKF
+func CalcTxid(symbol, rawTx string) (string, error) {
+	if txData := internal.TryParseTxDataWithTemplate(rawTx); txData != nil {
+		rawTx = txData.TxHex
+	}
+
+	se := internal.SymbolSerializer(symbol)
+	tx, err := gobbc.DecodeRawTransaction(se, rawTx, true)
+	if err != nil {
+		return "", errors.Wrap(err, "unable to parse tx data")
+	}
+	return tx.Txid(se)
+}
+
 // TemplateInfo 简要模版信息
 type TemplateInfo struct {
 	//Type 类型

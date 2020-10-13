@@ -128,7 +128,7 @@ func (c *Wallet) DerivePrivateKey() (privateKey string, err error) {
 func (c *Wallet) Sign(msg, privateKey string) (string, error) {
 	var err error
 	// 1尝试解析为多签数据
-	if txData := tryParseTxDataWithTemplate(msg); txData != nil {
+	if txData := TryParseTxDataWithTemplate(msg); txData != nil {
 		txData.TxHex, err = c.SignTemplate(txData.TxHex, txData.TplHex, privateKey)
 		if err != nil {
 			return msg, errors.Wrap(err, "failed to encode tx")
@@ -148,7 +148,7 @@ func (c *Wallet) VerifySignature(pubKey, msg, signature string) error {
 	return errors.New("verify signature not supported for BBC currently")
 }
 
-func tryParseTxDataWithTemplate(msg string) *gobbc.TXData {
+func TryParseTxDataWithTemplate(msg string) *gobbc.TXData {
 	var data gobbc.TXData
 	if err := data.DecodeString(msg); err != nil {
 		return nil
