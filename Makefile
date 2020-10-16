@@ -56,6 +56,10 @@ buildBBCAndroid:
 	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/bbc.aar ${pkgBBC} ${pkgBip44} ${pkgBip39}
 buildBBCIOS:
 	gomobile bind -ldflags "-s -w" -target=ios -o=${outdir}/bbc.framework ${pkgBBC} ${pkgBip44} ${pkgBip39}
+packageBBCAll:
+	rm -rf ${outdir}/*
+	@make buildBBCAndroid && cd ${outdir} && mkdir android-bbc && mv bbc* android-bbc && tar czvf bbc-android.tar.gz android-bbc/*
+	@make buildBBCIOS && cd ${outdir} && tar czvf bbc.framework.tar.gz bbc.framework/*
 #btc
 buildBtcAndroid:
 	gomobile bind -ldflags "-s -w" -target=android -o=${outdir}/btc.aar ${pkgBtc} ${pkgBip44} ${pkgBip39}

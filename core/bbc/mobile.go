@@ -24,15 +24,15 @@ var FullnameMap = map[string]string{
 	SymbolMKF: "MarketFinance",
 }
 
-// NewCoin 该函数已废弃，请使用NewSymbolCoin
-func NewCoin(seed []byte, path string) (core.Coin, error) {
-	return nil, errors.New("该函数已废弃，请使用NewSymbolCoin")
-}
+// NewCoin 该函数已废弃，请使用NewSymbolBip44Deriver
+// func NewCoin(seed []byte, path string) (core.Coin, error) {
+// 	return nil, errors.New("该函数已废弃，请使用NewSymbolBip44Deriver")
+// }
 
 // NewSymbolCoin symbol 支持 兼容BBC的币种(比如MKF)
-func NewSymbolCoin(symbol string, seed []byte, path string, bip44Key string) (core.Coin, error) {
-	return internal.NewWallet(symbol, seed, path, bip44Key, nil)
-}
+// func NewSymbolCoin(symbol string, path string, bip44Key string, seed []byte) (core.Coin, error) {
+// 	return internal.NewWallet(symbol, seed, path, bip44Key, nil)
+// }
 
 // NewSimpleBip44Deriver 根据种子获取bip44推导,仅推导1个
 // func NewSimpleBip44Deriver(seed []byte) (bip44.Deriver, error) {
@@ -49,29 +49,24 @@ func NewBip44Deriver(seed []byte, accountIndex, changeType, index int) (bip44.De
 	return nil, errors.New("该函数已废弃，请使用NewSymbolBip44Deriver")
 }
 
-// NewSymbolBip44Deriver 获取bip44推导
-// accountIndex 账户索引，以0开始
-// changeType 0:外部使用， 1:找零， 通常使用0,BBC通常找零到发送地址
-// index 地址索引，以0开始
-func NewSymbolBip44Deriver(symbol string, bip44Path string, bip44Key string, seed []byte, accountIndex, changeType, index int) (bip44.Deriver, error) {
-	return internal.NewWallet(symbol, seed, bip44Path, bip44Key, &bip44.AdditionalDeriveParam{
-		AccountIndex: accountIndex, ChangeType: changeType, Index: index,
-	})
+// NewSymbolBip44Deriver symbol: BBC | MKF 获取bip44推导
+func NewSymbolBip44Deriver(symbol string, bip44Path string, bip44Key string, seed []byte) (bip44.Deriver, error) {
+	return internal.NewWallet(symbol, seed, bip44Path, bip44Key, nil)
 }
 
-// DeriveKeySimple 该函数已废弃，请使用NewSymbolCoin
+// DeriveKeySimple 该函数已废弃，请使用NewSymbolBip44Deriver
 func DeriveKeySimple(seed []byte) (*KeyInfo, error) {
-	return nil, errors.New("该函数已废弃，请使用NewSymbolCoin")
+	return nil, errors.New("该函数已废弃，请使用NewSymbolBip44Deriver")
 }
 
-// DeriveSymbolKeySimple 该函数已废弃，请使用NewSymbolCoin
+// DeriveSymbolKeySimple 该函数已废弃，请使用NewSymbolBip44Deriver
 func DeriveSymbolKeySimple(symbol string, seed []byte) (*KeyInfo, error) {
-	return nil, errors.New("该函数已废弃，请使用NewSymbolCoin")
+	return nil, errors.New("该函数已废弃，请使用NewSymbolBip44Deriver")
 }
 
-// DeriveKey 该该函数已废弃，请使用NewSymbolCoin
+// DeriveKey 该该函数已废弃，请使用NewSymbolBip44Deriver
 func DeriveKey(seed []byte, accountIndex, changeType, index int) (*KeyInfo, error) {
-	return nil, errors.New("该函数已废弃，请使用NewSymbolCoin")
+	return nil, errors.New("该函数已废弃，请使用NewSymbolBip44Deriver")
 }
 
 // DecodeTX 该函数已废弃，请使用 DecodeSymbolTX
