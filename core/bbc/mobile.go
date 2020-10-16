@@ -5,7 +5,6 @@ import (
 
 	"github.com/dabankio/gobbc"
 	"github.com/dabankio/wallet-core/bip44"
-	"github.com/dabankio/wallet-core/core"
 	"github.com/dabankio/wallet-core/core/bbc/internal"
 	"github.com/pkg/errors"
 )
