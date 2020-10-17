@@ -36,7 +36,7 @@ func TestExampleBBC(t *testing.T) {
 		fmt.Println("mnemonic:", mnemonic)  //mnemonic: 旦 件 言 毫 树 名 当 氧 旨 弧 落 功
 		seed := bip39.NewSeed(mnemonic, "") // <<=== sdk 获取种子，第二个参数相当于salt,生产后请始终保持一致
 
-		d, err := bbc.NewSymbolCoin("BBC", seed, bip44.PathFormat, "")
+		d, err := bbc.NewSymbolCoin("BBC", bip44.PathFormat, "", seed)
 		require.NoError(t, err)
 		r.NoError(err)
 		add, err := d.DeriveAddress()

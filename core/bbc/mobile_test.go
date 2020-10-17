@@ -40,7 +40,7 @@ func TestDeriveAddressCompatible(t *testing.T) {
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			seed := bip39.NewSeed(tt.mnemonic, tt.salt)
-			d, err := NewSymbolCoin(tt.symbol, seed, bip44.PathFormat, "")
+			d, err := NewSymbolCoin(tt.symbol, bip44.PathFormat, "", seed)
 			require.NoError(t, err)
 			add, err := d.DeriveAddress()
 			require.NoError(t, err)
@@ -61,7 +61,7 @@ func TestNewBip44Deriver(t *testing.T) {
 
 	seed := bip39.NewSeed(mnemonic, "")
 
-	d, err := NewSymbolCoin("BBC", seed, bip44.PathFormat, "")
+	d, err := NewSymbolCoin("BBC", bip44.PathFormat, "", seed)
 	require.NoError(t, err)
 
 	t.Log(d.DeriveAddress())
@@ -75,7 +75,7 @@ func TestDeriveConsistent(t *testing.T) {
 	r := require.New(t)
 	r.NoError(bip39.SetWordListLang(bip39.LangChineseSimplified))
 
-	d, err := NewSymbolCoin("BBC", bip39.NewSeed(mnemonic, ""), bip44.PathFormat, "")
+	d, err := NewSymbolCoin("BBC", bip44.PathFormat, "", bip39.NewSeed(mnemonic, ""))
 	require.NoError(t, err)
 	r.NoError(err)
 	add, err := d.DeriveAddress()

@@ -5,6 +5,7 @@ import (
 
 	"github.com/dabankio/gobbc"
 	"github.com/dabankio/wallet-core/bip44"
+	"github.com/dabankio/wallet-core/core"
 	"github.com/dabankio/wallet-core/core/bbc/internal"
 	"github.com/pkg/errors"
 )
@@ -29,9 +30,9 @@ var FullnameMap = map[string]string{
 // }
 
 // NewSymbolCoin symbol 支持 兼容BBC的币种(比如MKF)
-// func NewSymbolCoin(symbol string, path string, bip44Key string, seed []byte) (core.Coin, error) {
-// 	return internal.NewWallet(symbol, seed, path, bip44Key, nil)
-// }
+func NewSymbolCoin(symbol string, path string, bip44Key string, seed []byte) (core.Coin, error) {
+	return internal.NewWallet(symbol, seed, path, bip44Key, nil)
+}
 
 // NewSimpleBip44Deriver 根据种子获取bip44推导,仅推导1个
 // func NewSimpleBip44Deriver(seed []byte) (bip44.Deriver, error) {

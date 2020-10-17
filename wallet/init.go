@@ -30,7 +30,7 @@ func (c Wallet) initCoin(symbol string) (coin core.Coin, err error) {
 		if bip44Key == bbc.SymbolBBC && c.HasFlag(FlagBBCUseStandardBip44ID) { //BBC使用标准bip44 id
 			bip44Key = bbc.FullnameMap[bip44Key]
 		}
-		coin, err = bbc.NewSymbolCoin(symbol, bip39Seed, c.path, bip44Key)
+		coin, err = bbc.NewSymbolCoin(symbol, c.path, bip44Key, bip39Seed)
 	case "BTC":
 		coin, err = btc.NewFromMetadata(md)
 	case "ETH":

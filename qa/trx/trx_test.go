@@ -28,6 +28,9 @@ func TestTRX_TRC20(t *testing.T) {
 
 		nodeInfo, _ := grpc.GetNodeInfo()
 		fmt.Println("node block", nodeInfo.Block)
+		nb, _ := grpc.GetNowBlock()
+
+		fmt.Println("height", nb.BlockHeader.RawData.Number)
 
 		acct, err := grpc.GetAccount(addr)
 		r.NoError(t, err)
