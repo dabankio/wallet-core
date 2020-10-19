@@ -152,6 +152,7 @@ func CreateTemplateDataDexOrder(
 	validHeight int32,
 	matchAddress string,
 	dealAddress string,
+	timestamp int64,
 ) (*TemplateInfo, error) {
 	add, raw, err := gobbc.CreateTemplateDataDexOrder(gobbc.DexOrderParam{
 		SellerAddress: gobbc.Address(sellerAddress),
@@ -162,6 +163,7 @@ func CreateTemplateDataDexOrder(
 		ValidHeight:   validHeight,
 		MatchAddress:  gobbc.Address(matchAddress),
 		DealAddress:   dealAddress,
+		Timestamp:     uint32(timestamp),
 	})
 	if err != nil {
 		return nil, err

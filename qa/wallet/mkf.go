@@ -135,6 +135,7 @@ func testMKFDexTXSign(t *testing.T, w *wallet.Wallet, c ctx) {
 		// offline签名结果一致π
 		// 向挂单地址转账
 		// 从挂单地址向撮合地址转账
+		now := time.Now().Unix()
 		cmd := map[string]interface{}{
 			"type": "dexorder",
 			"dexorder": map[string]interface{}{
@@ -146,6 +147,7 @@ func testMKFDexTXSign(t *testing.T, w *wallet.Wallet, c ctx) {
 				"valid_height":   300,
 				"match_address":  "15cx56x0gtv44bkt21yryg4m6nn81wtc7gkf6c9vwpvq1cgmm8jm7m5kd",
 				"deal_address":   "1f2b2n3asbm2rb99fk1c4wp069d0z91enxdz8kmqmq7f0w8tzw64hdevb",
+				"timestamp": now,
 			}}
 
 		var orderID string
@@ -162,6 +164,7 @@ func testMKFDexTXSign(t *testing.T, w *wallet.Wallet, c ctx) {
 			300,
 			"15cx56x0gtv44bkt21yryg4m6nn81wtc7gkf6c9vwpvq1cgmm8jm7m5kd",
 			"1f2b2n3asbm2rb99fk1c4wp069d0z91enxdz8kmqmq7f0w8tzw64hdevb",
+			now,
 		)
 		require.NoError(t, err)
 		require.Equal(t, orderID, tplID.Address)
