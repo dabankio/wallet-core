@@ -26,7 +26,6 @@ type BTCTransaction struct {
 	tx              *wire.MsgTx
 	totalInputValue *btcutil.Amount
 	rawTxInput      *[]internal.RawTxInput //RawTxInput
-	isSegWit        bool                   //from地址是否是隔离见证地址
 }
 
 // BTCUnspent represents a single bitcoin transaction.
@@ -70,21 +69,11 @@ func (baa *BTCOutputAmount) Add(address *BTCAddress, amount *BTCAmount) {
 // feeRate: 单位手续费/byte
 // testNet: 测试网络传true
 func NewBTCTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, change *BTCAddress, feeRate int64, chainID int) (tr *BTCTransaction, err error) {
-	return InternalNewBTCTransaction(false, unSpent, amounts, change, feeRate, chainID, nil)
-}
-
-// NewBTCSegWitTransaction creates a new bitcoin transaction with the given properties.
-// unSpent : listUnspent
-// amounts: toAddress + amount
-// change: 找零地址
-// feeRate: 单位手续费/byte
-// testNet: 测试网络传true
-func NewBTCSegWitTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, change *BTCAddress, feeRate int64, chainID int) (tr *BTCTransaction, err error) {
-	return InternalNewBTCTransaction(true, unSpent, amounts, change, feeRate, chainID, nil)
+	return InternalNewBTCTransaction(unSpent, amounts, change, feeRate, chainID, nil)
 }
 
 // InternalNewBTCTransaction 内部用，构造btc transaction
-func InternalNewBTCTransaction(isSegWit bool, unSpent *BTCUnspent, amounts *BTCOutputAmount, change *BTCAddress, feeRate int64, chainID int, manualTxOuts []*wire.TxOut) (tr *BTCTransaction, err error) {
+func InternalNewBTCTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, change *BTCAddress, feeRate int64, chainID int, manualTxOuts []*wire.TxOut) (tr *BTCTransaction, err error) {
 	if unSpent == nil || amounts == nil || change == nil || feeRate == 0 {
 		err = errors.New("maybe some parameter is missing?")
 		return
@@ -92,7 +81,6 @@ func InternalNewBTCTransaction(isSegWit bool, unSpent *BTCUnspent, amounts *BTCO
 
 	tr = &BTCTransaction{
 		rawTxInput: &[]internal.RawTxInput{},
-		isSegWit:   isSegWit,
 	}
 	tr.chainCfg, err = internal.ChainFlag2ChainParams(chainID)
 	if err != nil {
@@ -172,11 +160,7 @@ func (tx BTCTransaction) Encode() (string, error) {
 	if tx.tx == nil {
 		return "", errors.New("transaction data not filled")
 	}
-	messageEncoding := wire.LatestEncoding
-	if tx.isSegWit {
-		messageEncoding = wire.WitnessEncoding
-	}
-	if err := tx.tx.BtcEncode(&buf, wire.ProtocolVersion, messageEncoding); err != nil {
+	if err := tx.tx.BtcEncode(&buf, wire.ProtocolVersion, wire.LatestEncoding); err != nil {
 		return "", errors.Wrapf(err, "failed to encode msg of type %T", tx.tx)
 	}
 	return hex.EncodeToString(buf.Bytes()), nil

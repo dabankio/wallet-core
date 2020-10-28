@@ -33,4 +33,5 @@ require (
 	golang.org/x/net v0.0.0-20200813134508-3edf25e44fcc // indirect
 	golang.org/x/sys v0.0.0-20200817155316-9781c653f443 // indirect
 	golang.org/x/tools v0.0.0-20200117012304-6edc0a871e69 // indirect
+	gotest.tools v2.2.0+incompatible
 )

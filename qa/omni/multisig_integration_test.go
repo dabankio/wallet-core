@@ -111,7 +111,7 @@ func TestMultisig(t *testing.T) {
 			toSignMsg, err := btctx.EncodeToSignCmd()
 			rq.Nil(err, "failed to encode to sign")
 
-			btcCoin, _ := btc.New(bip44.PathFormat, nil, chainID)
+			btcCoin, _ := btc.New(bip44.PathFormat, false, nil, chainID)
 			signedRawHex, err := btcCoin.Sign(toSignMsg, a0.Privkey)
 			rq.Nil(err, "failed to sign")
 
@@ -164,7 +164,7 @@ func TestMultisig(t *testing.T) {
 			btctx, err := omni.CreateSimpleSendTransaction(propertyID, false, unspent, toAddr, transferAmount, changeAddr, feeRate, chainID)
 			rq.Nil(err, "Failed to crate btctx")
 
-			btcCoin, _ := btc.New(bip44.PathFormat, nil, chainID)
+			btcCoin, _ := btc.New(bip44.PathFormat, false, nil, chainID)
 			var nextSignData string
 			{ // a1签名
 				toSignMsg, err := btctx.EncodeToSignCmd()

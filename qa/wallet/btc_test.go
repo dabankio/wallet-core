@@ -448,7 +448,7 @@ func testBTCPubkSignSegwit(t *testing.T, w *wallet.Wallet, _ ctx) {
 		changeAddress, err := btc.NewBTCAddressFromString(c.address, btc.ChainRegtest) //找零地址
 		r.Nil(t, err)
 
-		tx, err := btc.NewBTCSegWitTransaction(unspent, &outputAmount, changeAddress, feeRate, btc.ChainRegtest)
+		tx, err := btc.NewBTCTransaction(unspent, &outputAmount, changeAddress, feeRate, btc.ChainRegtest)
 		r.Nil(t, err)
 
 		toSignTx, err := tx.EncodeToSignCmd() //编码为可签名的格式
