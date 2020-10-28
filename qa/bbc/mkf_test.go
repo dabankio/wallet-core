@@ -7,6 +7,7 @@ import (
 	"github.com/dabankio/bbrpc"
 	"github.com/dabankio/devtools4chains"
 	"github.com/dabankio/wallet-core/bip39"
+	"github.com/dabankio/wallet-core/bip44"
 	"github.com/dabankio/wallet-core/core/bbc"
 	"github.com/stretchr/testify/require"
 )
@@ -32,7 +33,6 @@ func TestExampleMKF(t *testing.T) {
 	jsonRPC := nodeInfo.Client
 	minerAddress := nodeInfo.MinerAddress
 
-	var seed []byte
 	var err error
 	var key *bbc.KeyInfo
 	t.Run("私钥、地址推导", func(t *testing.T) {
@@ -42,12 +42,26 @@ func TestExampleMKF(t *testing.T) {
 		require.NoError(t, err)
 		mnemonic, err := bip39.NewMnemonic(entropy) // <<=== sdk 生成助记词
 		require.NoError(t, err)
-		fmt.Println("mnemonic:", mnemonic) //mnemonic: 旦 件 言 毫 树 名 当 氧 旨 弧 落 功
-		seed = bip39.NewSeed(mnemonic, "") // <<=== sdk 获取种子，第二个参数相当于salt,生产后请始终保持一致
+		fmt.Println("mnemonic:", mnemonic)  //mnemonic: 旦 件 言 毫 树 名 当 氧 旨 弧 落 功
+		seed := bip39.NewSeed(mnemonic, "") // <<=== sdk 获取种子，第二个参数相当于salt,生产后请始终保持一致
 
-		key, err = bbc.DeriveSymbolKeySimple(bbc.SymbolMKF, seed) // <<=== sdk 推导key （账号0，作为向外部转账使用，第0个地址）
+		d, err := bbc.NewSymbolCoin("MKF", bip44.PathFormat, "", seed)
+		require.NoError(t, err)
 		r.NoError(err)
-		fmt.Println("key", key) //key {0066760c7374abb65611092edd3176b5545772ed61b3672e1888a78846cbe308 8b48882c4e4d61e242d0da2c3b0bf025f77f0b6fef37a4efab7e996baeb93d6d 1dmyvkbkbk5zaqvx46zqpy2vzywjz02sv5kdd0gq2c56mwb48925hfhpd}
+		add, err := d.DeriveAddress()
+		require.NoError(t, err)
+		privk, err := d.DerivePrivateKey()
+		require.NoError(t, err)
+		pubk, err := d.DerivePublicKey()
+		require.NoError(t, err)
+
+		key = &bbc.KeyInfo{
+			PrivateKey: privk,
+			Address:    add,
+			PublicKey:  pubk,
+		}
+
+		fmt.Println("key", key) //addr
 	})
 
 	registeredAssets := 12.34
@@ -82,8 +96,15 @@ func TestExampleMKF(t *testing.T) {
 		signedTX, err := bbc.SymbolSignWithPrivateKey(bbc.SymbolMKF, *rawTX, "", key.PrivateKey) // <<=== sdk 使用私钥对交易进行签名
 		r.NoError(err)
 
-		_, err = jsonRPC.Sendtransaction(signedTX) // <<=== RPC 发送交易
+		sendTxid, err := jsonRPC.Sendtransaction(signedTX) // <<=== RPC 发送交易
 		r.NoError(err)
+
+		sdkTxid, err := bbc.CalcTxid("MKF", signedTX)
+		r.NoError(err)
+		rpcDe, err := jsonRPC.Decodetransaction(signedTX)
+		r.NoError(err)
+		fmt.Printf("txidS\n sdk: %s\n snd: %s \n rpc: %s", sdkTxid, *sendTxid, rpcDe.Txid)
+		r.Equal(sdkTxid, *sendTxid)
 
 		r.NoError(bbrpc.Wait4nBlocks(1, jsonRPC))
 

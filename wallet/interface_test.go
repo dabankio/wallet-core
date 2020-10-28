@@ -321,6 +321,7 @@ func TestIMTokenCompatibility(t *testing.T) {
 			addrs: map[string]string{
 				"BTC": "12Yj7jHxkQhddZVqQd697Qpq4nhEZiXAzn",
 				"ETH": "0xf90b1d47964149Ab7F815F1564E0f41Cac0Dc456",
+				"TRX": "TEtM4dXF86sN1bZchck1hVDSSi7iwRx7ye",
 			},
 		},
 	} {

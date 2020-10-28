@@ -10,74 +10,63 @@ import (
 	"github.com/pkg/errors"
 )
 
+// .
 const (
 	SymbolBBC = internal.SymbolBBC
 	SymbolMKF = internal.SymbolMKF
+
+	templateDexorder = 9
 )
 
+// FullnameMap .
 var FullnameMap = map[string]string{
 	SymbolBBC: "BigBang Core",
 	SymbolMKF: "MarketFinance",
 }
 
-func NewCoin(seed []byte, path string) (core.Coin, error) {
-	return internal.NewWallet(SymbolBBC, seed, path, "", nil)
-}
+// NewCoin 该函数已废弃，请使用NewSymbolBip44Deriver
+// func NewCoin(seed []byte, path string) (core.Coin, error) {
+// 	return nil, errors.New("该函数已废弃，请使用NewSymbolBip44Deriver")
+// }
 
 // NewSymbolCoin symbol 支持 兼容BBC的币种(比如MKF)
-func NewSymbolCoin(symbol string, seed []byte, path string, bip44Key string) (core.Coin, error) {
+func NewSymbolCoin(symbol string, path string, bip44Key string, seed []byte) (core.Coin, error) {
 	return internal.NewWallet(symbol, seed, path, bip44Key, nil)
 }
 
 // NewSimpleBip44Deriver 根据种子获取bip44推导,仅推导1个
-func NewSimpleBip44Deriver(seed []byte) (bip44.Deriver, error) {
-	return internal.NewSimpleWallet(SymbolBBC, seed)
-}
+// func NewSimpleBip44Deriver(seed []byte) (bip44.Deriver, error) {
+// 	return nil, errors.New("该函数已废弃，请使用NewSymbolSimpleBip44Deriver")
+// }
 
 // NewSymbolSimpleBip44Deriver 根据种子获取bip44推导,仅推导1个
-func NewSymbolSimpleBip44Deriver(symbol string, seed []byte) (bip44.Deriver, error) {
-	return internal.NewSimpleWallet(symbol, seed)
-}
+// func NewSymbolSimpleBip44Deriver(symbol string, seed []byte) (bip44.Deriver, error) {
+// 	return internal.NewSimpleWallet(symbol, seed)
+// }
 
-// NewBip44Deriver 根据种子获取bip44推导
-// accountIndex 账户索引，以0开始
-// changeType 0:外部使用， 1:找零， 通常使用0,BBC通常找零到发送地址
-// index 地址索引，以0开始
+// NewBip44Deriver 该函数已废弃，请使用NewSymbolBip44Deriver
 func NewBip44Deriver(seed []byte, accountIndex, changeType, index int) (bip44.Deriver, error) {
-	return internal.NewWallet(SymbolBBC, seed, bip44.FullPathFormat4, "", &bip44.AdditionalDeriveParam{
-		AccountIndex: accountIndex, ChangeType: changeType, Index: index,
-	})
+	return nil, errors.New("该函数已废弃，请使用NewSymbolBip44Deriver")
 }
 
-// NewSymbolBip44Deriver 指定币种推导
-func NewSymbolBip44Deriver(symbol string, seed []byte, accountIndex, changeType, index int) (bip44.Deriver, error) {
-	return internal.NewWallet(symbol, seed, bip44.FullPathFormat4, "", &bip44.AdditionalDeriveParam{
-		AccountIndex: accountIndex, ChangeType: changeType, Index: index,
-	})
+// NewSymbolBip44Deriver symbol: BBC | MKF 获取bip44推导
+func NewSymbolBip44Deriver(symbol string, bip44Path string, bip44Key string, seed []byte) (bip44.Deriver, error) {
+	return internal.NewWallet(symbol, seed, bip44Path, bip44Key, nil)
 }
 
-// DeriveKeySimple 推导路径 m/44'/%d'
+// DeriveKeySimple 该函数已废弃，请使用NewSymbolBip44Deriver
 func DeriveKeySimple(seed []byte) (*KeyInfo, error) {
-	return DeriveSymbolKeySimple(SymbolBBC, seed)
+	return nil, errors.New("该函数已废弃，请使用NewSymbolBip44Deriver")
 }
 
-// DeriveSymbolKeySimple 推导路径 m/44'/%d'
+// DeriveSymbolKeySimple 该函数已废弃，请使用NewSymbolBip44Deriver
 func DeriveSymbolKeySimple(symbol string, seed []byte) (*KeyInfo, error) {
-	var info KeyInfo
-	coin, err := internal.NewSimpleWallet(symbol, seed)
-	if err != nil {
-		return &info, errors.Wrap(err, "无法创建bip44实现")
-	}
-	privateKey, err := coin.DerivePrivateKey()
-	if err != nil {
-		return &info, errors.Wrap(err, "DerivePrivateKey failed")
-	}
-	return ParsePrivateKey(privateKey)
+	return nil, errors.New("该函数已废弃，请使用NewSymbolBip44Deriver")
 }
 
-// DeriveKey 该函数后面3个参数无效，等同于 DeriveKeySimple，仅保留
+// DeriveKey 该该函数已废弃，请使用NewSymbolBip44Deriver
 func DeriveKey(seed []byte, accountIndex, changeType, index int) (*KeyInfo, error) {
-	return nil, errors.New("该函数已失效，请使用 DeriveKeySimple 替换 ,accountIndex, changeType, index 3个参数旧版api也是不会生效的的")
+	return nil, errors.New("该函数已废弃，请使用NewSymbolBip44Deriver")
 }
 
 // DecodeTX 该函数已废弃，请使用 DecodeSymbolTX
@@ -94,8 +83,7 @@ func DecodeSymbolTX(symbol, rawTX string) (string, error) {
 // 关于templateData的使用参考 https://github.com/dabankio/gobbc/blob/d51d596fa310a5778e3d11eb59bc66d1a6a5e3d6/transaction.go#L197 （SignWithPrivateKey部分）
 // 参考测试用例 qa/bbc/example_bbc_test.go
 func SignWithPrivateKey(rawTX, templateData, privateKey string) (string, error) {
-	service := &internal.SymbolService{Symbol: SymbolBBC}
-	return service.SignTemplate(rawTX, templateData, privateKey)
+	return "", errors.New("该函数已废弃，请使用SymbolSignWithPrivateKey")
 }
 
 // SymbolSignWithPrivateKey 指定币种使用私钥对交易签名
@@ -128,4 +116,61 @@ func ParsePrivateKey(privateKey string) (*KeyInfo, error) {
 // Address2pubk 将地址转换为公钥
 func Address2pubk(address string) (string, error) {
 	return gobbc.ConvertAddress2pubk(address)
+}
+
+// CalcTxid 计算txid, symbol: BBC|MKF
+func CalcTxid(symbol, rawTx string) (string, error) {
+	if txData := internal.TryParseTxDataWithTemplate(rawTx); txData != nil {
+		rawTx = txData.TxHex
+	}
+
+	se := internal.SymbolSerializer(symbol)
+	tx, err := gobbc.DecodeRawTransaction(se, rawTx, true)
+	if err != nil {
+		return "", errors.Wrap(err, "unable to parse tx data")
+	}
+	return tx.Txid(se)
+}
+
+// TemplateInfo 简要模版信息
+type TemplateInfo struct {
+	//Type 类型
+	Type int
+	//Address 地址
+	Address string
+	//RawHex hex编码的原始数据（TemplateData）
+	RawHex string
+}
+
+// CreateTemplateDataDexOrder 获取dexOrder模版数据
+func CreateTemplateDataDexOrder(
+	sellerAddress string,
+	coinpair string,
+	price int64,
+	fee int32,
+	recvAddress string,
+	validHeight int32,
+	matchAddress string,
+	dealAddress string,
+	timestamp int64,
+) (*TemplateInfo, error) {
+	add, raw, err := gobbc.CreateTemplateDataDexOrder(gobbc.DexOrderParam{
+		SellerAddress: gobbc.Address(sellerAddress),
+		Coinpair:      coinpair,
+		Price:         price,
+		Fee:           fee,
+		RecvAddress:   recvAddress,
+		ValidHeight:   validHeight,
+		MatchAddress:  gobbc.Address(matchAddress),
+		DealAddress:   dealAddress,
+		Timestamp:     uint32(timestamp),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &TemplateInfo{
+		Type:    templateDexorder,
+		Address: add,
+		RawHex:  raw,
+	}, nil
 }

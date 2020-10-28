@@ -48,9 +48,9 @@ type Wallet struct {
 }
 
 // NewSimpleWallet new bbc coin implementation, with short bip44 path
-func NewSimpleWallet(symbol string, seed []byte) (core.Coin, error) {
-	return NewWallet(symbol, seed, bip44.PathFormat, "", nil)
-}
+// func NewSimpleWallet(symbol string, seed []byte) (core.Coin, error) {
+// 	return NewWallet(symbol, seed, bip44.PathFormat, "", nil)
+// }
 
 // NewWallet new bbc coin implementation, 只推导1个地址
 // bip44Key 不为空时用来查找bip44 id，否则使用symbol查找
@@ -128,10 +128,13 @@ func (c *Wallet) DerivePrivateKey() (privateKey string, err error) {
 func (c *Wallet) Sign(msg, privateKey string) (string, error) {
 	var err error
 	// 1尝试解析为多签数据
-	if txData := tryParseTxDataWithTemplate(msg); txData != nil {
+	if txData := TryParseTxDataWithTemplate(msg); txData != nil {
 		txData.TxHex, err = c.SignTemplate(txData.TxHex, txData.TplHex, privateKey)
 		if err != nil {
 			return msg, errors.Wrap(err, "failed to encode tx")
+		}
+		if !txData.ContainsMultisig() { //没有多签地址则认为单签完成，直接返回原始交易，直接广播
+			return txData.TxHex, nil
 		}
 		return txData.EncodeString()
 	}
@@ -145,7 +148,7 @@ func (c *Wallet) VerifySignature(pubKey, msg, signature string) error {
 	return errors.New("verify signature not supported for BBC currently")
 }
 
-func tryParseTxDataWithTemplate(msg string) *gobbc.TXData {
+func TryParseTxDataWithTemplate(msg string) *gobbc.TXData {
 	var data gobbc.TXData
 	if err := data.DecodeString(msg); err != nil {
 		return nil

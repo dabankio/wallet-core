@@ -10,6 +10,7 @@ go build -o ci.out \
     && go test ${pkg}/core/bbc/... \
     && go test ${pkg}/core/btc/... \
     && go test ${pkg}/core/eth/... \
+    && go test ${pkg}/core/trx/... \
     && go test ${pkg}/qa/bbc/... \
     && go test ${pkg}/qa/btc/... \
     && go test ${pkg}/qa/eth/... \

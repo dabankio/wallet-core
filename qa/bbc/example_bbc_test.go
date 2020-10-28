@@ -7,6 +7,7 @@ import (
 	"github.com/dabankio/bbrpc"
 	"github.com/dabankio/devtools4chains"
 	"github.com/dabankio/wallet-core/bip39"
+	"github.com/dabankio/wallet-core/bip44"
 	"github.com/dabankio/wallet-core/core/bbc"
 	"github.com/stretchr/testify/require"
 )
@@ -23,7 +24,6 @@ func TestExampleBBC(t *testing.T) {
 	jsonRPC := nodeInfo.Client
 	minerAddress := nodeInfo.MinerAddress
 
-	var seed []byte
 	var err error
 	var key *bbc.KeyInfo
 	t.Run("私钥、地址推导", func(t *testing.T) {
@@ -33,12 +33,26 @@ func TestExampleBBC(t *testing.T) {
 		require.NoError(t, err)
 		mnemonic, err := bip39.NewMnemonic(entropy) // <<=== sdk 生成助记词
 		require.NoError(t, err)
-		fmt.Println("mnemonic:", mnemonic) //mnemonic: 旦 件 言 毫 树 名 当 氧 旨 弧 落 功
-		seed = bip39.NewSeed(mnemonic, "") // <<=== sdk 获取种子，第二个参数相当于salt,生产后请始终保持一致
+		fmt.Println("mnemonic:", mnemonic)  //mnemonic: 旦 件 言 毫 树 名 当 氧 旨 弧 落 功
+		seed := bip39.NewSeed(mnemonic, "") // <<=== sdk 获取种子，第二个参数相当于salt,生产后请始终保持一致
 
-		key, err = bbc.DeriveKeySimple(seed) // <<=== sdk 推导key （账号0，作为向外部转账使用，第0个地址）
+		d, err := bbc.NewSymbolCoin("BBC", bip44.PathFormat, "", seed)
+		require.NoError(t, err)
 		r.NoError(err)
-		fmt.Println("key", key) //key {0066760c7374abb65611092edd3176b5545772ed61b3672e1888a78846cbe308 8b48882c4e4d61e242d0da2c3b0bf025f77f0b6fef37a4efab7e996baeb93d6d 1dmyvkbkbk5zaqvx46zqpy2vzywjz02sv5kdd0gq2c56mwb48925hfhpd}
+		add, err := d.DeriveAddress()
+		require.NoError(t, err)
+		privk, err := d.DerivePrivateKey()
+		require.NoError(t, err)
+		pubk, err := d.DerivePublicKey()
+		require.NoError(t, err)
+
+		key = &bbc.KeyInfo{
+			PrivateKey: privk,
+			Address:    add,
+			PublicKey:  pubk,
+		}
+
+		fmt.Println("key", key) //addr
 	})
 
 	registeredAssets := 12.34
@@ -64,16 +78,24 @@ func TestExampleBBC(t *testing.T) {
 		r.NoError(err)
 
 		rawTX = replaceTXVersion(*rawTX)
+		fmt.Println("rawTx", *rawTX)
 
 		deTx, err := bbc.DecodeSymbolTX("BBC", *rawTX) // <<=== sdk 反序列化交易
 		r.NoError(err)
 		fmt.Println("decoded tx", deTx) //decoded tx {"Version":1,"Typ":0,"Timestamp":1584952846,"LockUntil":0,"SizeIn":1,"Prefix":2,"Amount":1340000,"TxFee":100,"SizeOut":0,"SizeSign":0,"HashAnchor":"00000000c335f935650a427bf548242eac4e4a444e25691b47351e7945f4a8d4","Address":"10g06z2bmwb71n9xg9zsv4vzay86ab7avt6n97hm6ra2z3rsbrtc2ncer","Sign":""}
 
-		signedTX, err := bbc.SignWithPrivateKey(*rawTX, "", key.PrivateKey) // <<=== sdk 使用私钥对交易进行签名
+		signedTX, err := bbc.SymbolSignWithPrivateKey("BBC", *rawTX, "", key.PrivateKey) // <<=== sdk 使用私钥对交易进行签名
 		r.NoError(err)
 
-		_, err = jsonRPC.Sendtransaction(signedTX) // <<=== RPC 发送交易
+		sendTxid, err := jsonRPC.Sendtransaction(signedTX) // <<=== RPC 发送交易
 		r.NoError(err)
+
+		sdkTxid, err := bbc.CalcTxid("BBC", signedTX)
+		r.NoError(err)
+		rpcDe, err := jsonRPC.Decodetransaction(signedTX)
+		r.NoError(err)
+		fmt.Printf("txidS\n sdk: %s\n snd: %s \n rpc: %s", sdkTxid, *sendTxid, rpcDe.Txid)
+		r.Equal(sdkTxid, *sendTxid)
 
 		r.NoError(bbrpc.Wait4nBlocks(1, jsonRPC))
 
@@ -217,11 +239,11 @@ func TestExampleBBC(t *testing.T) {
 		}
 
 		//member0签名
-		member0Sign, err := bbc.SignWithPrivateKey(*rawTX, templateData, member0.Privkey)
+		member0Sign, err := bbc.SymbolSignWithPrivateKey("BBC", *rawTX, templateData, member0.Privkey)
 		r.NoError(err)
 
 		//member1签名
-		member1Sign, err := bbc.SignWithPrivateKey(member0Sign, templateData, member1.Privkey)
+		member1Sign, err := bbc.SymbolSignWithPrivateKey("BBC", member0Sign, templateData, member1.Privkey)
 		r.NoError(err)
 
 		txid, err := jsonRPC.Sendtransaction(member1Sign)
