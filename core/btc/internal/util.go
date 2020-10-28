@@ -21,6 +21,19 @@ func GenerateScriptPubKey4PayToPubkeyHash(pubk []byte) string {
 	return pay2pubkHashScriptPrefix + hex.EncodeToString(btcutil.Hash160(pubk)) + pay2pubkHashScriptSuffix
 }
 
+// GenerateScriptPubKey4P2SHP2WPKH https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki#p2wpkh-nested-in-bip16-p2sh
+// 相当于listunspent时获取的隔离见证地址的scriptPubk, redeemScript
+func GenerateScriptPubKey4P2SHP2WPKH(pubKey *btcec.PublicKey) (redeemScript string, scriptPubk string) {
+	pubKeyHash := btcutil.Hash160(pubKey.SerializeCompressed())
+	script := []byte{txscript.OP_0, txscript.OP_DATA_20} //OP_0: 0 -> version
+	script = append(script, pubKeyHash...)
+
+	scriptHash := btcutil.Hash160(script)
+	scriptPubKeyBytes := append([]byte{txscript.OP_HASH160, txscript.OP_DATA_20}, scriptHash...)
+	scriptPubKeyBytes = append(scriptPubKeyBytes, txscript.OP_EQUAL)
+	return hex.EncodeToString(script), hex.EncodeToString(scriptPubKeyBytes)
+}
+
 // ConvertPubk2segWitP2WSHAddress 把公钥转换为隔离见证地址(p2sh-p2wpkh / p2wsh)
 func ConvertPubk2segWitP2WSHAddress(pubKey *btcec.PublicKey, chainParams *chaincfg.Params) (string, error) {
 	pubKeyHash := btcutil.Hash160(pubKey.SerializeCompressed())

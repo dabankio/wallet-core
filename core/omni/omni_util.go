@@ -38,5 +38,5 @@ func CreateSimpleSendTransaction(
 	outAmounts := new(btc.BTCOutputAmount)
 	dustAmount, _ := btc.NewBTCAmount(btcutil.Amount(MinNondustOutput).ToBTC())
 	outAmounts.Add(sendToAddress, dustAmount)
-	return btc.InternalNewBTCTransaction(btcUnspentList, outAmounts, changeAddress, btcFeeRate, chainID, []*wire.TxOut{opreturnTxOut})
+	return btc.InternalNewBTCTransaction(false, btcUnspentList, outAmounts, changeAddress, btcFeeRate, chainID, []*wire.TxOut{opreturnTxOut})
 }

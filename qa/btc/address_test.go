@@ -30,5 +30,4 @@ func TestSegwit(t *testing.T) {
 	_, err = devTools4.RPCCallJSON(rpcInfo, "dumpprivkey", []string{ret}, &ret)
 	require.NoError(t, err)
 	fmt.Println("private key:", ret)
-
 }

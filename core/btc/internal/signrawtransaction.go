@@ -6,15 +6,15 @@ package internal
 import (
 	"bytes"
 	"encoding/hex"
-	"math/big"
+	"strings"
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
+	"github.com/dabankio/wallet-core/core/btc/internal/txscript"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 )
@@ -176,11 +176,15 @@ func SignRawTransaction(cmd *SignRawTransactionCmd, chainCfg *chaincfg.Params) (
 		return nil, err
 	}
 	if len(signErrs) > 0 {
-		es := ""
+		errMsgs := []string{}
 		for _, e := range signErrs {
-			es = e.Error.Error() + ","
+			if !strings.Contains(e.Error.Error(), "not all signatures empty on failed checkmultisig") { //忽略多重签名未完成的错误
+				errMsgs = append(errMsgs, e.Error.Error())
+			}
 		}
-		return nil, errors.Errorf("sign errs: %#v", es)
+		if len(errMsgs) > 0 {
+			return nil, errors.New(strings.Join(errMsgs, ","))
+		}
 	}
 
 	var buf bytes.Buffer

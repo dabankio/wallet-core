@@ -97,8 +97,7 @@ func testERC20PubkSign(t *testing.T, w *wallet.Wallet, c ctx) {
 	killFunc, port, err := devtools4chains.DockerRunGanacheCli(&devtools4chains.DockerRunOptions{
 		AutoRemove: true,
 	})
-	_ = killFunc
-	// t.Cleanup(killFunc)
+	t.Cleanup(killFunc)
 	var rpcHost = fmt.Sprintf("http://localhost:%d", port)
 	var rpcClient *ethclient.Client
 
@@ -132,7 +131,7 @@ func testERC20PubkSign(t *testing.T, w *wallet.Wallet, c ctx) {
 
 	var (
 		nonce    uint64
-		gasLimit uint64 = 3_000 //随便写的值，需要根据实际情况取值
+		gasLimit uint64 = 30_000 //随便写的值，需要根据实际情况取值
 		gasPrice *big.Int
 	)
 

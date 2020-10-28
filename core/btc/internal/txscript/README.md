@@ -1,6 +1,12 @@
 txscript
 ========
 
+dabankio 说明：
+该目录拷贝自 `github.com/btcsuite/btcd/txscript`(commit hash: 6519c04a6fcea38faee9b5febcd49fb10ea95128)并整合了PR: https://github.com/btcsuite/btcd/pull/1304 , 目的在于支持隔离见证签名， 如果PR合并了，那么可以直接使用合并后的依赖 (CI 通过即可)
+
+---
+
+
 [![Build Status](https://travis-ci.org/btcsuite/btcd.png?branch=master)](https://travis-ci.org/btcsuite/btcd)
 [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://copyfree.org)
 [![GoDoc](https://godoc.org/github.com/btcsuite/btcd/txscript?status.png)](http://godoc.org/github.com/btcsuite/btcd/txscript)
