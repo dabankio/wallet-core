@@ -38,14 +38,6 @@ func (c *Wallet) Bip39Seed() ([]byte, error) {
 	return seed, nil
 }
 
-// 检查并设置默认值
-func (c *Wallet) init() error {
-	if c.path == "" {
-		c.path = bip44.FullPathFormat //默认使用标准格式bip44 path
-	}
-	return nil
-}
-
 // HasFlag 是否存在flag
 func (c *Wallet) HasFlag(flag string) bool { _, ok := c.flags[flag]; return ok }
 
@@ -95,9 +87,6 @@ func NewHDWalletFromMnemonic(mnemonic, password string, testNet bool) (w *Wallet
 	w.mnemonic = mnemonic
 	w.testNet = testNet
 	w.flags = make(map[string]struct{})
-	if e := w.init(); e != nil {
-		return nil, e
-	}
 	return
 }
 
@@ -177,5 +166,13 @@ func (c Wallet) Metadata(symbol string) (core.MetadataProvider, error) {
 		seed:           seed,
 		derivationPath: derivationPath,
 	}
+	for k := range c.flags {
+		md.flags = append(md.flags, k)
+	}
 	return &md, nil
+}
+
+// AddFlag .
+func (c *Wallet) AddFlag(f string) {
+	c.flags[f] = struct{}{}
 }

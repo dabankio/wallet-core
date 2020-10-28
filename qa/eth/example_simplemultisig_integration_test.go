@@ -114,6 +114,7 @@ func TestSimplemultisigAbiHelper(t *testing.T) {
 		rq.Nil(err, "failed to encode tx rlp")
 		sig, err := eth.SignRawTransaction(encodedRlpTx, a0.PrivkHex)
 		rq.Nil(err, "Failed to sign tx")
+		fmt.Println("deployMultisigSig:", a0.Address, sig)
 
 		{ // 一般步骤下，应该用签名好的数据调用广播api,创建合约，这里处理下数据然后调用geth jsonrpc 进行广播
 			sigBytes, err := hexutil.Decode(sig)

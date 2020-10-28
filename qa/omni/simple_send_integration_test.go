@@ -82,7 +82,7 @@ func TestSimpleSend(t *testing.T) {
 		toSignMsg, err := btctx.EncodeToSignCmd()
 		rq.Nil(err, "failed to encode to sign")
 
-		btcCoin, _ := btc.New(bip44.PathFormat, nil, chainID)
+		btcCoin, _ := btc.New(bip44.PathFormat, false, nil, chainID)
 		signedRawHex, err := btcCoin.Sign(toSignMsg, a0.Privkey)
 		assert.Nil(t, err)
 

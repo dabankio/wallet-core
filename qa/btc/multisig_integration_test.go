@@ -79,11 +79,14 @@ func TestMultisig(t *testing.T) {
 
 	var multisigAddress, redeemScript string
 	{ // create multisig address,and import to bitcoind
-		rs, err := btc.NewMultiSigAddress(2, btc.ChainRegtest, strings.Join([]string{a1.Pubkey, a2.Pubkey, a3.Pubkey}, ","))
+		pubks := strings.Join([]string{a1.Pubkey, a2.Pubkey, a3.Pubkey}, ",")
+		rs, err := btc.NewMultiSigAddress(2, btc.ChainRegtest, pubks)
 		rq.Nil(err)
 		arr := strings.Split(rs, ",")
 		rq.Len(arr, 2, "")
 		multisigAddress, redeemScript = arr[0], arr[1]
+		t.Log("redeemScript4multisig", redeemScript)
+		t.Log("pubks", pubks)
 
 		_, err = devtools4chains.RPCCallJSON(rpcInfo, "importaddress", []string{multisigAddress}, nil)
 		rq.Nil(err)

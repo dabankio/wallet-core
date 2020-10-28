@@ -25,7 +25,7 @@ type BTCTransaction struct {
 	chainCfg        *chaincfg.Params
 	tx              *wire.MsgTx
 	totalInputValue *btcutil.Amount
-	rawTxInput      *[]btcjson.RawTxInput
+	rawTxInput      *[]internal.RawTxInput //RawTxInput
 }
 
 // BTCUnspent represents a single bitcoin transaction.
@@ -80,7 +80,7 @@ func InternalNewBTCTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, ch
 	}
 
 	tr = &BTCTransaction{
-		rawTxInput: &[]btcjson.RawTxInput{},
+		rawTxInput: &[]internal.RawTxInput{},
 	}
 	tr.chainCfg, err = internal.ChainFlag2ChainParams(chainID)
 	if err != nil {
@@ -120,22 +120,23 @@ func InternalNewBTCTransaction(unSpent *BTCUnspent, amounts *BTCOutputAmount, ch
 	if err != nil {
 		return
 	}
-	getScript := func(txId string) (scriptPubKey, redeemScript string) {
+	getScript := func(txId string) (scriptPubKey, redeemScript string, amount float64) {
 		for i := range unSpent.unspent {
 			if unSpent.unspent[i].TxID == txId {
-				return unSpent.unspent[i].ScriptPubKey, unSpent.unspent[i].RedeemScript
+				return unSpent.unspent[i].ScriptPubKey, unSpent.unspent[i].RedeemScript, unSpent.unspent[i].Amount
 			}
 		}
 		return
 	}
 	for i := range unsignedTransaction.Tx.TxIn {
 		txId := unsignedTransaction.Tx.TxIn[i].PreviousOutPoint.Hash.String()
-		scriptPubKey, redeemScript := getScript(txId)
-		*tr.rawTxInput = append(*tr.rawTxInput, btcjson.RawTxInput{
+		scriptPubKey, redeemScript, amt := getScript(txId)
+		*tr.rawTxInput = append(*tr.rawTxInput, internal.RawTxInput{
 			Txid:         unsignedTransaction.Tx.TxIn[i].PreviousOutPoint.Hash.String(),
 			Vout:         unsignedTransaction.Tx.TxIn[i].PreviousOutPoint.Index,
 			ScriptPubKey: scriptPubKey,
 			RedeemScript: redeemScript,
+			Amount:       amt,
 		})
 	}
 	tr.totalInputValue = &unsignedTransaction.TotalInput
@@ -165,6 +166,7 @@ func (tx BTCTransaction) Encode() (string, error) {
 	return hex.EncodeToString(buf.Bytes()), nil
 }
 
+
 // EncodeToSignCmd 结果可以用于签名接口
 func (tx BTCTransaction) EncodeToSignCmd() (string, error) {
 	data, err := tx.Encode()
@@ -172,7 +174,12 @@ func (tx BTCTransaction) EncodeToSignCmd() (string, error) {
 		return "", err
 	}
 
-	cmd := btcjson.NewSignRawTransactionCmd(data, tx.rawTxInput, nil, nil)
+	cmd := &internal.SignRawTransactionCmd{
+		RawTx:    data,
+		Inputs:   tx.rawTxInput,
+		PrivKeys: nil,
+		Flags:    nil,
+	}
 	cmdBytes, err := json.Marshal(cmd)
 	if err != nil {
 		return "", err
@@ -183,7 +190,12 @@ func (tx BTCTransaction) EncodeToSignCmd() (string, error) {
 // EncodeToSignCmdForNextSigner 构造给下个签名者签名的命令，
 // signedRawTX: 当前签名者已签名好的交易数据
 func (tx BTCTransaction) EncodeToSignCmdForNextSigner(signedRawTX string) (string, error) {
-	cmd := btcjson.NewSignRawTransactionCmd(signedRawTX, tx.rawTxInput, nil, nil)
+	cmd := &internal.SignRawTransactionCmd{
+		RawTx:    signedRawTX,
+		Inputs:   tx.rawTxInput,
+		PrivKeys: nil,
+		Flags:    nil,
+	}
 	cmdBytes, err := json.Marshal(cmd)
 	if err != nil {
 		return "", err

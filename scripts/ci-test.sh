@@ -2,10 +2,7 @@
 
 #确认可用的测试用例
 #usage: bash ./scripts/ci-test.sh
-
-
 pkg=github.com/dabankio/wallet-core
-
 go build -o ci.out \
     && go test ${pkg}/bip39/... \
     && go test ${pkg}/bip44/... \

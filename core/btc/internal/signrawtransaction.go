@@ -6,15 +6,17 @@ package internal
 import (
 	"bytes"
 	"encoding/hex"
+	"strings"
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
+	"github.com/dabankio/wallet-core/core/btc/internal/txscript"
 	"github.com/pkg/errors"
+	"github.com/shopspring/decimal"
 )
 
 // SignRawTransaction handles the signrawtransaction command.
@@ -115,7 +117,27 @@ func SignRawTransaction(cmd *SignRawTransactionCmd, chainCfg *chaincfg.Params) (
 				return nil, err
 			}
 			keys[addr.EncodeAddress()] = wif
+
+			bechAddr, err := btcutil.NewAddressWitnessPubKeyHash(btcutil.Hash160(wif.PrivKey.PubKey().SerializeCompressed()), chainCfg)
+			if err != nil {
+				return nil, errors.Wrap(err, "new bech addr err")
+			}
+			keys[bechAddr.EncodeAddress()] = wif
+
+			for _, rti := range cmdInputs {
+				redeemScript, err := DecodeHexStr(rti.RedeemScript)
+				if err != nil {
+					return nil, err
+				}
+
+				addr, err := btcutil.NewAddressScriptHash(redeemScript, chainCfg)
+				if err != nil {
+					return nil, err
+				}
+				keys[addr.EncodeAddress()] = wif
+			}
 		}
+
 	}
 
 	getScriptPubKey := func(txID string) (scriptPubKey []byte, err error) {
@@ -136,13 +158,33 @@ func SignRawTransaction(cmd *SignRawTransactionCmd, chainCfg *chaincfg.Params) (
 		inputs[tx.TxIn[i].PreviousOutPoint] = scriptPubKey
 	}
 
+	fnFindTxInAmount := func(op wire.OutPoint) int64 {
+		for _, in := range *cmd.Inputs {
+			if in.Txid == op.Hash.String() && in.Vout == op.Index {
+				return decimal.NewFromFloat(in.Amount).Shift(8).IntPart()
+			}
+		}
+		return -1
+	}
+
 	// All args collected. Now we can sign all the inputs that we can.
 	// `complete' denotes that we successfully signed all outputs and that
 	// all scripts will run to completion. This is returned as part of the
 	// reply.
-	signErrs, err := signTransaction(&tx, hashType, inputs, keys, scripts, chainCfg)
+	signErrs, err := signTransaction(&tx, hashType, inputs, keys, scripts, chainCfg, fnFindTxInAmount)
 	if err != nil {
 		return nil, err
+	}
+	if len(signErrs) > 0 {
+		errMsgs := []string{}
+		for _, e := range signErrs {
+			if !strings.Contains(e.Error.Error(), "not all signatures empty on failed checkmultisig") { //忽略多重签名未完成的错误
+				errMsgs = append(errMsgs, e.Error.Error())
+			}
+		}
+		if len(errMsgs) > 0 {
+			return nil, errors.New(strings.Join(errMsgs, ","))
+		}
 	}
 
 	var buf bytes.Buffer
@@ -193,7 +235,8 @@ func signTransaction(tx *wire.MsgTx, hashType txscript.SigHashType,
 	additionalPrevScripts map[wire.OutPoint][]byte,
 	additionalKeysByAddress map[string]*btcutil.WIF,
 	p2shRedeemScriptsByAddress map[string][]byte,
-	chainCfg *chaincfg.Params) ([]SignatureError, error) {
+	chainCfg *chaincfg.Params,
+	getTxInAmount func(wire.OutPoint) int64) ([]SignatureError, error) {
 
 	var signErrors []SignatureError
 	for i, txIn := range tx.TxIn {
@@ -233,8 +276,10 @@ func signTransaction(tx *wire.MsgTx, hashType txscript.SigHashType,
 		// SigHashSingle inputs can only be signed if there's a
 		// corresponding output. However this could be already signed,
 		// so we always verify the output.
+		hashs := txscript.NewTxSigHashes(tx)
 		if (hashType&txscript.SigHashSingle) != txscript.SigHashSingle || i < len(tx.TxOut) {
-			script, err := txscript.SignTxOutput(chainCfg, tx, i, prevOutScript, hashType, getKey, getScript, txIn.SignatureScript)
+			script, witness, err := txscript.SignTxWitness(chainCfg, tx, hashs, i, prevOutScript, getTxInAmount(txIn.PreviousOutPoint), hashType, getKey, getScript, txIn.SignatureScript, nil)
+			// script, err := txscript.SignTxOutput(chainCfg, tx, i, prevOutScript, hashType, getKey, getScript, txIn.SignatureScript)
 			// Failure to sign isn't an error, it just means that
 			// the tx isn't complete.
 			if err != nil {
@@ -245,11 +290,12 @@ func signTransaction(tx *wire.MsgTx, hashType txscript.SigHashType,
 				continue
 			}
 			txIn.SignatureScript = script
+			txIn.Witness = witness
 		}
 
 		// Either it was already signed or we just signed it.
 		// Find out if it is completely satisfied or still needs more.
-		vm, err := txscript.NewEngine(prevOutScript, tx, i, txscript.StandardVerifyFlags, nil, nil, 0)
+		vm, err := txscript.NewEngine(prevOutScript, tx, i, txscript.StandardVerifyFlags, nil, hashs, getTxInAmount(txIn.PreviousOutPoint))
 		if err == nil {
 			err = vm.Execute()
 		}

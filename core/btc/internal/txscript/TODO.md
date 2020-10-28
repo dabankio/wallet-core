@@ -1,0 +1,1 @@
+https://github.com/btcsuite/btcd/pull/1304 合并后删除该目录
