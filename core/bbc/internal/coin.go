@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"crypto/ed25519"
+
 	"github.com/dabankio/gobbc"
 	"github.com/dabankio/wallet-core/bip44"
 	"github.com/dabankio/wallet-core/core"
@@ -141,6 +143,21 @@ func (c *Wallet) Sign(msg, privateKey string) (string, error) {
 
 	// 2无法解析为带模版待签数据则认为是原始交易
 	return c.SignTemplate(msg, "", privateKey)
+}
+
+// RawKey 32+32
+func (c *Wallet) RawKey() ([]byte, error) {
+	child, err := c.derive()
+	if err != nil {
+		return nil, err
+	}
+	b := make([]byte, 0)
+	b = core.PaddedAppend(ed25519.SeedSize, b, child.key)
+	pubk, err := gobbc.Seed2pubk(child.key)
+	if err != nil {
+		return nil, err
+	}
+	return append(b, pubk...), nil
 }
 
 // VerifySignature verifies rawTx's signature is intact

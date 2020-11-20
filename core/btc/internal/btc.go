@@ -205,6 +205,18 @@ func (c *BTC) Sign(rawTx, privateKeyWif string) (signedRawTx string, err error) 
 	return
 }
 
+// 32 + 33 (format+pubk)
+func (c *BTC) RawKey() ([]byte, error) {
+	privk, err := c.derivePrivateKey()
+	if err != nil {
+		return nil, err
+	}
+	b := make([]byte, 0)
+	b = core.PaddedAppend(btcec.PrivKeyBytesLen, b, privk.D.Bytes())
+	b = append(b, privk.PubKey().SerializeCompressed()...)
+	return b, nil
+}
+
 // VerifySignature verifies rawTx's signature is intact
 // If signedRawTx is not signed by pubKey, an error will raise.
 func (c *BTC) VerifySignature(pubKey, rawTx, signedRawTx string) error {

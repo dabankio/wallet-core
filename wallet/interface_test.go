@@ -41,6 +41,28 @@ func TestBTCSegwit(t *testing.T) {
 
 }
 
+func ExampleDerive(t *testing.T) {
+	mnemonic := "connect auto goose panda extend ozone absent climb abstract doll west crazy"
+	var options WalletOptions
+	options.Add(WithPassword(""))
+	options.Add(WithPathFormat(bip44.FullPathFormat))
+	// options.Add(WithFlag(FlagBTCUseSegWitFormat))
+	w, err := BuildWalletFromMnemonic(
+		mnemonic,
+		false,
+		&options,
+	)
+	assert.NoError(t, err)
+
+	for _, s := range []string{"BTC", "BBC", "ETH", "TRX"} {
+		fmt.Println(s)
+		key, err := w.RawKey(s)
+		assert.NoError(t, err)
+		fmt.Println(len(key), key)
+	}
+
+}
+
 // 该测试验证不同的通用参数推导出不同的地址，以确保path/password确实生效
 func TestCoin_DeriveAddressOptions(t *testing.T) {
 	const mnemonic = "lecture leg select like delay limit spread retire toward west grape bachelor"

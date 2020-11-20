@@ -27,6 +27,8 @@ type Coin interface {
 	Sign(msg, privateKey string) (sig string, err error)
 	// VerifySignature verifies rawTx's signature is intact
 	VerifySignature(pubKey, msg, signature string) error
+	// RawKey return raw private key, public key
+	RawKey() ([]byte, error)
 }
 
 type HasParentChain interface {

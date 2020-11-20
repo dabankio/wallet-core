@@ -117,6 +117,15 @@ func (c Wallet) DerivePrivateKey(symbol string) (privateKey string, err error) {
 	return coin.DerivePrivateKey()
 }
 
+// RawKey 给出原始 私钥+公钥
+func (c Wallet) RawKey(symbol string) ([]byte, error) {
+	coin, err := c.initCoin(symbol)
+	if err != nil {
+		return nil, err
+	}
+	return coin.RawKey()
+}
+
 // DecodeTx 解析交易数据
 // return: json 数据
 func (c Wallet) DecodeTx(symbol, msg string) (tx string, err error) {

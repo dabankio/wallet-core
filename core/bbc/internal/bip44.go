@@ -23,8 +23,6 @@ func init() {
 }
 
 const (
-	ed25519SeedSize = 32
-
 	// RecommendedSeedLen is the recommended length in bytes for a seed
 	// to a master node.
 	RecommendedSeedLen = 32 // 256 bits
@@ -279,7 +277,7 @@ func (k *ExtendedKey) Child(i uint32) (*ExtendedKey, error) {
 		ilNum.Mod(ilNum, ed25519L)
 		childKey = ilNum.Bytes()
 
-		if len(childKey) != ed25519SeedSize {
+		if len(childKey) != ed25519.SeedSize {
 			_s := blake2b.Sum256(childKey)
 			childKey = _s[:]
 		}

@@ -78,6 +78,18 @@ func (c *trx) derivePrivateKey() (privateKey *ecdsa.PrivateKey, err error) {
 	return priKey.ToECDSA(), nil
 }
 
+func (c *trx) RawKey() ([]byte, error) {
+	ecPrivk, err := c.derivePrivateKey()
+	if err != nil {
+		return nil, err
+	}
+	ecdsaPublicKey, ok := ecPrivk.Public().(*ecdsa.PublicKey)
+	if !ok {
+		return nil, errors.New("failed to get public key")
+	}
+	return append(crypto.FromECDSA(ecPrivk), crypto.FromECDSAPub(ecdsaPublicKey)...), nil
+}
+
 func (c *trx) DerivePrivateKey() (privateKey string, err error) {
 	priKey, err := c.derivePrivateKey()
 	if err != nil {

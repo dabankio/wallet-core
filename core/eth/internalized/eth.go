@@ -22,6 +22,8 @@ const (
 	symbol = "ETH"
 )
 
+var _ core.Coin = (*eth)(nil)
+
 type eth struct {
 	core.CoinInfo
 }
@@ -86,40 +88,24 @@ func (c *eth) DeriveAddress() (address string, err error) {
 }
 
 func (c *eth) DerivePublicKey() (publicKey string, err error) {
-	privateKeyECDSA, err := c.DerivePrivateKey()
+	ecPrivk, err := c.deriveECPrivateKey()
 	if err != nil {
-		return
+		return "", err
 	}
-
-	privateKey, err := crypto.HexToECDSA(privateKeyECDSA)
-	if err != nil {
-		return
-	}
-
-	public := privateKey.Public()
-	publicKeyECDSA, ok := public.(*ecdsa.PublicKey)
+	ecdsaPublicKey, ok := ecPrivk.Public().(*ecdsa.PublicKey)
 	if !ok {
-		err = errors.New("failed to get public key")
-		return
+		return "", errors.New("failed to get public key")
 	}
-	publicKey = hex.EncodeToString(crypto.FromECDSAPub(publicKeyECDSA))
+	publicKey = hex.EncodeToString(crypto.FromECDSAPub(ecdsaPublicKey))
 	return
 }
 
 func (c *eth) DerivePrivateKey() (privateKey string, err error) {
-	childKey := c.MasterKey
-	for _, childNum := range c.DerivationPath {
-		childKey, err = childKey.Child(childNum)
-		if err != nil {
-			return "", err
-		}
-	}
-
-	ECPrivateKey, err := childKey.ECPrivKey()
+	ecPrivk, err := c.deriveECPrivateKey()
 	if err != nil {
-		return
+		return "", err
 	}
-	privateKey = hex.EncodeToString(crypto.FromECDSA(ECPrivateKey.ToECDSA()))
+	privateKey = hex.EncodeToString(crypto.FromECDSA(ecPrivk))
 	return
 }
 
@@ -217,6 +203,34 @@ func (c *eth) Sign(msg, privateKey string) (sig string, err error) {
 		err = errors.Errorf("not the expected type: %s", typeMsg)
 	}
 	return
+}
+
+func (c *eth) deriveECPrivateKey() (*ecdsa.PrivateKey, error) {
+	var err error
+	childKey := c.MasterKey
+	for _, childNum := range c.DerivationPath {
+		childKey, err = childKey.Child(childNum)
+		if err != nil {
+			return nil, err
+		}
+	}
+	ecPrivateKey, err := childKey.ECPrivKey()
+	if err != nil {
+		return nil, err
+	}
+	return ecPrivateKey.ToECDSA(), nil
+}
+
+func (c *eth) RawKey() ([]byte, error) {
+	ecPrivk, err := c.deriveECPrivateKey()
+	if err != nil {
+		return nil, err
+	}
+	ecdsaPublicKey, ok := ecPrivk.Public().(*ecdsa.PublicKey)
+	if !ok {
+		return nil, errors.New("failed to get public key")
+	}
+	return append(crypto.FromECDSA(ecPrivk), crypto.FromECDSAPub(ecdsaPublicKey)...), nil
 }
 
 // pubkey is eth address
