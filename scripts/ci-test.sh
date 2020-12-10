@@ -4,6 +4,7 @@
 #usage: bash ./scripts/ci-test.sh
 pkg=github.com/dabankio/wallet-core
 go build -o ci.out \
+    && go test ${pkg}/crypto/... \
     && go test ${pkg}/bip39/... \
     && go test ${pkg}/bip44/... \
     && go test ${pkg}/wallet/... \

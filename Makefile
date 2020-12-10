@@ -7,6 +7,7 @@ module=github.com/dabankio/wallet-core
 
 pkgBip39 = ${module}/bip39
 pkgBip44 = ${module}/bip44
+pkgCrypto = ${module}/crypto
 pkgBtc = ${module}/core/btc
 pkgBBC = ${module}/core/bbc
 pkgOmni = ${module}/core/omni
@@ -14,7 +15,7 @@ pkgEth = ${module}/core/eth
 pkgWallet = ${module}/wallet
 pkgCore = ${module}/core
 
-pkgAll = $(pkgBip39) $(pkgBip44) $(pkgBtc) $(pkgEth) $(pkgOmni) $(pkgWallet) $(pkgBBC)
+pkgAll = ${pkgCrypto} $(pkgBip39) $(pkgBip44) $(pkgBtc) $(pkgEth) $(pkgOmni) $(pkgWallet) $(pkgBBC)
 
 fmt:  # 格式化go代码
 	@go fmt ./...
