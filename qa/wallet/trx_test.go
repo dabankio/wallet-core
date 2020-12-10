@@ -74,7 +74,7 @@ func testTRXPubkSign(t *testing.T, w *wallet.Wallet, c ctx) {
 			r.NoError(t, err)
 			qaTrx.BroadcastTX(t, sig, grpc)
 
-			time.Sleep(3 * time.Second)
+			time.Sleep(4 * time.Second)
 			txinfo, err := grpc.GetTransactionInfoByID(txid)
 			r.NoError(t, err)
 
