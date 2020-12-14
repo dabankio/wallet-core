@@ -107,20 +107,32 @@ func (b *TxBuilder) SetFee(fee float64) *TxBuilder {
 	return b
 }
 
-// SetData 原始data设置,参考 UtilDataEncoding
-func (b *TxBuilder) SetData(data []byte) *TxBuilder {
-	b.TXBuilder.SetData(data)
+// SetRawData 原始data设置,需自行编码uuid time等
+func (b *TxBuilder) SetRawData(data []byte) *TxBuilder {
+	b.TXBuilder.SetRawData(data)
 	return b
 }
 
-// SetDataWithUUID 指定uuid,timestamp,data
-func (b *TxBuilder) SetDataWithUUID(_uuid string, timestamp int64, data string) *TxBuilder {
-	b.TXBuilder.SetDataWithUUID(_uuid, timestamp, data)
+// SetDataWithUUID 该函数已废弃，请使用SetDataWith
+func (b *TxBuilder) SetDataWithUUID(_uuid string, timestamp int64, data []byte) *TxBuilder {
+	b.TXBuilder.SetErr(errors.New("该函数已废弃，请使用SetDataWith"))
 	return b
 }
 
-// SetStringData 自动编码数据,自动生成uuid和时间戳
+// SetDataWith 指定uuid,timestamp,data， , dataFmtDesc: 空字符串或格式如 JSON
+func (b *TxBuilder) SetDataWith(_uuid string, timestamp int64, dataFmtDesc string, data []byte) *TxBuilder {
+	b.TXBuilder.SetDataWith(_uuid, timestamp, dataFmtDesc, data)
+	return b
+}
+
+// SetStringData 该函数已废弃，请使用SetData
 func (b *TxBuilder) SetStringData(data string) *TxBuilder {
-	b.TXBuilder.SetStringData(data)
+	b.TXBuilder.SetErr(errors.New("该函数已废弃，请使用SetData"))
+	return b
+}
+
+// SetData 自动编码数据,自动生成uuid和时间戳, dataFmtDesc: 空字符串或格式如 JSON
+func (b *TxBuilder) SetData(dataFmtDesc string, data []byte) *TxBuilder {
+	b.TXBuilder.SetData(dataFmtDesc, data)
 	return b
 }
