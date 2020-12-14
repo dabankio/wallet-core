@@ -17,7 +17,7 @@ const mkfImage = "dabankio/mkfdev:1"
 func TestDecodeTX(t *testing.T) {
 	t.Skip("bad test")
 	raw := "0200000051b64d5f00000000017a26dfcba4ed6c3e46a7b0f0ec6c8214a23c211613559b8768a843aa4cb64d5f0002030001e21d6d49931304681ac8ed683d8e90dc8eb6793a875d5361b0bb72bdf9601823000000000030750000000000000000"
-	tx, err := bbc.DecodeTX(raw)
+	tx, err := bbc.DecodeSymbolTX("MKF", raw)
 	fmt.Println(tx, err)
 }
 
