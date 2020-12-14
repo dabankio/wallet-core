@@ -140,11 +140,11 @@ func TestExampleBBC(t *testing.T) {
 		rawTX = replaceTXVersion(*rawTX)
 		// fmt.Println("rawtx", *rawTX)
 
-		deTx, err := bbc.DecodeTX(*rawTX) // <<=== sdk 反序列化交易
+		deTx, err := bbc.DecodeSymbolTX("BBC", *rawTX) // <<=== sdk 反序列化交易
 		r.NoError(err)
 		fmt.Println("decoded tx", deTx) //decoded tx {"Version":1,"Typ":0,"Timestamp":1584952846,"LockUntil":0,"SizeIn":1,"Prefix":2,"Amount":1340000,"TxFee":100,"SizeOut":0,"SizeSign":0,"HashAnchor":"00000000c335f935650a427bf548242eac4e4a444e25691b47351e7945f4a8d4","Address":"10g06z2bmwb71n9xg9zsv4vzay86ab7avt6n97hm6ra2z3rsbrtc2ncer","Sign":""}
 
-		signedTX, err := bbc.SignWithPrivateKey(*rawTX, addrInfo.Addressdata.Templatedata.Hex, key.PrivateKey) // <<=== sdk 使用私钥对交易进行签名,传入投票模版地址数据
+		signedTX, err := bbc.SymbolSignWithPrivateKey("BBC", *rawTX, addrInfo.Addressdata.Templatedata.Hex, key.PrivateKey) // <<=== sdk 使用私钥对交易进行签名,传入投票模版地址数据
 		// fmt.Println("signed tx", signedTX)
 		r.NoError(err)
 
@@ -168,9 +168,9 @@ func TestExampleBBC(t *testing.T) {
 			})
 			r.NoError(err)
 			tx2 = replaceTXVersion(*tx2)
-			deTx, err = bbc.DecodeTX(*tx2)
+			deTx, err = bbc.DecodeSymbolTX("BBC", *tx2)
 			r.NoError(err)
-			signedTX, err = bbc.SignWithPrivateKey(*tx2, addrInfo.Addressdata.Templatedata.Hex, key.PrivateKey)
+			signedTX, err = bbc.SymbolSignWithPrivateKey("BBC", *tx2, addrInfo.Addressdata.Templatedata.Hex, key.PrivateKey)
 			r.NoError(err)
 			_, err = jsonRPC.Sendtransaction(signedTX) // <<=== RPC 发送交易
 			r.NoError(err)
