@@ -67,9 +67,10 @@ func ParsePrivateKey(privateKey string) (*KeyInfo, error) {
 }
 
 // Address2pubk 将地址转换为公钥
-func Address2pubk(address string) (string, error) {
-	return gobbc.ConvertAddress2pubk(address)
-}
+func Address2pubk(address string) (string, error) { return gobbc.ConvertAddress2pubk(address) }
+
+// Pubk2address 公钥转地址
+func Pubk2address(pubk string) (string, error) { return gobbc.GetPubKeyAddress(pubk) }
 
 // CalcTxid 计算txid, symbol: BBC|MKF
 func CalcTxid(symbol, rawTx string) (string, error) {
