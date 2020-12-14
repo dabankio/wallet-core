@@ -2,6 +2,7 @@ package internal
 
 import (
 	"crypto/ed25519"
+	"math/rand"
 
 	"github.com/dabankio/gobbc"
 	"github.com/dabankio/wallet-core/bip44"
@@ -57,14 +58,24 @@ type Wallet struct {
 // NewWallet new bbc coin implementation, 只推导1个地址
 // bip44Key 不为空时用来查找bip44 id，否则使用symbol查找
 func NewWallet(symbol string, seed []byte, path string, bip44Key string, additionalDeriveParam *bip44.AdditionalDeriveParam) (core.Coin, error) {
+	if symbol == "" {
+		symbol = "BBC"
+	}
+	if len(seed) == 0 {
+		seed = make([]byte, 64)
+		rand.Read(seed)
+	}
+	if path == "" {
+		path = bip44.FullPathFormat
+	}
+	if bip44Key == "" {
+		bip44Key = symbol
+	}
 	if e := isKnownSymbol(symbol); e != nil {
 		return nil, e
 	}
 	var bip44ID uint32
 	var err error
-	if bip44Key == "" {
-		bip44Key = symbol
-	}
 	bip44ID, err = bip44.GetCoinType(bip44Key)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get bip44 id")

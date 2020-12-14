@@ -1,6 +1,7 @@
 package bbc
 
 import (
+	"math/rand"
 	"testing"
 
 	"github.com/dabankio/wallet-core/bip39"
@@ -129,4 +130,16 @@ func TestParsePrivateKey(t *testing.T) {
 	require.Equal(t, priv, info.PrivateKey)
 	require.Equal(t, pub, info.PublicKey)
 	require.Equal(t, add, info.Address)
+}
+
+func TestNewSymbolBip44Deriver(t *testing.T) {
+	b := make([]byte, 64)
+	rand.Read(b)
+
+	w, err := NewSymbolBip44Deriver("BBC", bip44.FullPathFormat, "BBC", b)
+	require.NoError(t, err)
+
+	t.Log(w.DeriveAddress())
+	t.Log(w.DerivePrivateKey())
+	t.Log(w.DerivePublicKey())
 }

@@ -24,29 +24,9 @@ var FullnameMap = map[string]string{
 	SymbolMKF: "MarketFinance",
 }
 
-// NewCoin 该函数已废弃，请使用NewSymbolBip44Deriver
-// func NewCoin(seed []byte, path string) (core.Coin, error) {
-// 	return nil, errors.New("该函数已废弃，请使用NewSymbolBip44Deriver")
-// }
-
 // NewSymbolCoin symbol 支持 兼容BBC的币种(比如MKF)
 func NewSymbolCoin(symbol string, path string, bip44Key string, seed []byte) (core.Coin, error) {
 	return internal.NewWallet(symbol, seed, path, bip44Key, nil)
-}
-
-// NewSimpleBip44Deriver 根据种子获取bip44推导,仅推导1个
-// func NewSimpleBip44Deriver(seed []byte) (bip44.Deriver, error) {
-// 	return nil, errors.New("该函数已废弃，请使用NewSymbolSimpleBip44Deriver")
-// }
-
-// NewSymbolSimpleBip44Deriver 根据种子获取bip44推导,仅推导1个
-// func NewSymbolSimpleBip44Deriver(symbol string, seed []byte) (bip44.Deriver, error) {
-// 	return internal.NewSimpleWallet(symbol, seed)
-// }
-
-// NewBip44Deriver 该函数已废弃，请使用NewSymbolBip44Deriver
-func NewBip44Deriver(seed []byte, accountIndex, changeType, index int) (bip44.Deriver, error) {
-	return nil, errors.New("该函数已废弃，请使用NewSymbolBip44Deriver")
 }
 
 // NewSymbolBip44Deriver symbol: BBC | MKF 获取bip44推导
@@ -54,36 +34,9 @@ func NewSymbolBip44Deriver(symbol string, bip44Path string, bip44Key string, see
 	return internal.NewWallet(symbol, seed, bip44Path, bip44Key, nil)
 }
 
-// DeriveKeySimple 该函数已废弃，请使用NewSymbolBip44Deriver
-func DeriveKeySimple(seed []byte) (*KeyInfo, error) {
-	return nil, errors.New("该函数已废弃，请使用NewSymbolBip44Deriver")
-}
-
-// DeriveSymbolKeySimple 该函数已废弃，请使用NewSymbolBip44Deriver
-func DeriveSymbolKeySimple(symbol string, seed []byte) (*KeyInfo, error) {
-	return nil, errors.New("该函数已废弃，请使用NewSymbolBip44Deriver")
-}
-
-// DeriveKey 该该函数已废弃，请使用NewSymbolBip44Deriver
-func DeriveKey(seed []byte, accountIndex, changeType, index int) (*KeyInfo, error) {
-	return nil, errors.New("该函数已废弃，请使用NewSymbolBip44Deriver")
-}
-
-// DecodeTX 该函数已废弃，请使用 DecodeSymbolTX
-func DecodeTX(rawTX string) (string, error) {
-	return "", errors.New("该函数已废弃，请使用 DecodeSymbolTX")
-}
-
 // DecodeSymbolTX 解析原始交易（使用JSON RPC createtransaction 创建的交易）,symbol: BBC | MKF
 func DecodeSymbolTX(symbol, rawTX string) (string, error) {
 	return internal.DecodeSymbolTx(symbol, rawTX)
-}
-
-// SignWithPrivateKey 使用私钥对原始交易进行签名,
-// 关于templateData的使用参考 https://github.com/dabankio/gobbc/blob/d51d596fa310a5778e3d11eb59bc66d1a6a5e3d6/transaction.go#L197 （SignWithPrivateKey部分）
-// 参考测试用例 qa/bbc/example_bbc_test.go
-func SignWithPrivateKey(rawTX, templateData, privateKey string) (string, error) {
-	return "", errors.New("该函数已废弃，请使用SymbolSignWithPrivateKey")
 }
 
 // SymbolSignWithPrivateKey 指定币种使用私钥对交易签名
