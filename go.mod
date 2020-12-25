@@ -10,7 +10,7 @@ require (
 	github.com/cespare/cp v1.1.1 // indirect
 	github.com/dabankio/bbrpc v1.2.0-beta.9
 	github.com/dabankio/devtools4chains v0.1.1-beta.2020091203
-	github.com/dabankio/gobbc v1.0.18
+	github.com/dabankio/gobbc v1.0.20
 	github.com/davecgh/go-spew v1.1.1
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
 	github.com/ethereum/go-ethereum v1.9.20

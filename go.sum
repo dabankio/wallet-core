@@ -84,8 +84,8 @@ github.com/dabankio/bbrpc v1.2.0-beta.9 h1:NLNBjgpKUHXKicRxwM0SKfSUyhOl9xWR6aoA4
 github.com/dabankio/bbrpc v1.2.0-beta.9/go.mod h1:Bf/Qbhd4l/+gk7ezUgnsr8xntOm6asjEj44hInMtHPg=
 github.com/dabankio/devtools4chains v0.1.1-beta.2020091203 h1:nb2CedxLzAe4TXYbVjEP3z3kPSJjtfeyZv6TmFPnlXA=
 github.com/dabankio/devtools4chains v0.1.1-beta.2020091203/go.mod h1:Oyk5lNDLSTHlYv41kfXki3Hy+t/UL5Jij75Eop8syd8=
-github.com/dabankio/gobbc v1.0.18 h1:qUX0ZYOFDmbvoDIoBBaz52XvkNNVh7U9GmA7CWT42aQ=
-github.com/dabankio/gobbc v1.0.18/go.mod h1:Ylc42lFMYJCaSodmQifwfLwhovMaxDiC/Ub1hIP7AQE=
+github.com/dabankio/gobbc v1.0.20 h1:XIqldfFzja7ha3AiaVOpBbOyFYQds8C82LA2NFc6Fzk=
+github.com/dabankio/gobbc v1.0.20/go.mod h1:Ylc42lFMYJCaSodmQifwfLwhovMaxDiC/Ub1hIP7AQE=
 github.com/davecgh/go-spew v0.0.0-20171005155431-ecdeabc65495/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
